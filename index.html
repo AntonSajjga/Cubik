@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,12 @@
             user-select: none;
         }
 
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        #canvas-container { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; 
+            opacity: 0; 
+            transition: opacity 0.25s ease-in-out;
+        }
+        #canvas-container.loaded { opacity: 1; }
         
         #top-bar { 
             position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10; 
@@ -38,6 +43,22 @@
         }
         .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
         .stat-badge span { color: #00d2ff; font-size: 13px; }
+
+        .sound-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .sound-btn:hover { transform: scale(1.15); }
+        .sound-btn.muted { opacity: 0.5; }
 
         .theme-dots { display: flex; gap: 5px; align-items: center; }
         .theme-dot {
@@ -54,7 +75,35 @@
             border-radius: 20px 20px 0 0;
         }
 
+        .algo-header-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .help-btn {
+            background: #f39c12;
+            color: #fff;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        .help-btn:hover { background: #f1c40f; transform: scale(1.05); }
+        .help-btn.active { background: #00d2ff; color: #141420; box-shadow: 0 0 10px #00d2ff; }
+
         #algo-display {
+            flex-grow: 1;
             background: #15151e; padding: 6px; border-radius: 8px; text-align: center;
             font-family: monospace; font-size: 15px; color: #ffcc00; font-weight: bold;
             border: 1px solid rgba(255,255,255,0.05); min-height: 32px; 
@@ -112,6 +161,7 @@
     
     <div id="top-bar">
         <div class="stat-badge">Moves: <span id="counter">0</span></div>
+        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Увімкнути/Вимкнути звук">🔊</button>
         <div class="theme-dots">
             <div class="theme-dot" style="background: #09090e;" onclick="switchTheme('dark', this)"></div>
             <div class="theme-dot active" style="background: #529b89;" onclick="switchTheme('mint', this)"></div>
@@ -120,7 +170,10 @@
     </div>
 
     <div id="controls-panel">
-        <div id="algo-display">Choose combination...</div>
+        <div class="algo-header-wrapper">
+            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати підписи граней">?</button>
+            <div id="algo-display">Choose combination...</div>
+        </div>
 
         <div class="button-group">
             <button class="move-btn" onclick="handleMove('U')">U</button>
@@ -176,19 +229,109 @@
 
         let scene, camera, renderer, controls, cubies = [];
         let moveQueue = [];
+        let historyMoves = [];
         let isAnimating = false;
+        let isRestoring = false;
         let moveCount = 0;
         let currentMode = 'manual';
+        let isMuted = false;
         
         let storedAlgoStr = ""; 
         let activeAlgoSteps = [];
         let currentStepIndex = -1;
         
+        let faceLabelsGroup = new THREE.Group();
+        let showLabels = false;
+
         const pivot = new THREE.Group();
         const CUBIE_SIZE = 0.99; 
         const PLASTIC_COLOR = '#3a3a42'; 
-        
-        const Y_OFFSET = 0.0; 
+
+        // --- ПЕРЕМИКАННЯ ЗВУКУ ---
+        function toggleSound() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('sound-btn');
+            if (isMuted) {
+                btn.innerText = '🔇';
+                btn.classList.add('muted');
+            } else {
+                btn.innerText = '🔊';
+                btn.classList.remove('muted');
+            }
+        }
+
+        // --- ТОЧНИЙ ЗВУК, СФОРМОВАНИЙ ЗА ЗАПИСОМ ВІДЕО ---
+        let audioCtx = null;
+        function playClickSound() {
+            if (isRestoring || isMuted) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const now = audioCtx.currentTime;
+
+                // 1. Легкий шелест пластику (початок повороту)
+                const bufferSize = Math.floor(audioCtx.sampleRate * 0.1);
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.setValueAtTime(2100, now);
+                noiseFilter.Q.setValueAtTime(1.8, now);
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.06, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
+                noise.start(now);
+
+                // 2. Чітке магнітне клацання (фіксація наприкінці)
+                const snapTime = now + 0.12;
+
+                const snapOsc = audioCtx.createOscillator();
+                const snapGain = audioCtx.createGain();
+                snapOsc.type = 'triangle';
+                snapOsc.frequency.setValueAtTime(2400, snapTime);
+                snapOsc.frequency.exponentialRampToValueAtTime(250, snapTime + 0.006);
+
+                snapGain.gain.setValueAtTime(0.45, snapTime);
+                snapGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.006);
+
+                snapOsc.connect(snapGain);
+                snapGain.connect(audioCtx.destination);
+                snapOsc.start(snapTime);
+                snapOsc.stop(snapTime + 0.007);
+
+                const bodyOsc = audioCtx.createOscillator();
+                const bodyGain = audioCtx.createGain();
+                bodyOsc.type = 'sine';
+                bodyOsc.frequency.setValueAtTime(220, snapTime);
+                bodyOsc.frequency.exponentialRampToValueAtTime(45, snapTime + 0.018);
+
+                bodyGain.gain.setValueAtTime(0.25, snapTime);
+                bodyGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.018);
+
+                bodyOsc.connect(bodyGain);
+                bodyGain.connect(audioCtx.destination);
+                bodyOsc.start(snapTime);
+                bodyOsc.stop(snapTime + 0.02);
+
+            } catch (e) {}
+        }
 
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
@@ -218,18 +361,15 @@
             
             ctx.fillStyle = '#c0392b';
             
-            // Масивний X
             ctx.beginPath(); ctx.moveTo(32, 25); ctx.lineTo(46, 25); ctx.lineTo(64, 49); ctx.lineTo(50, 49); ctx.fill();
             ctx.beginPath(); ctx.moveTo(96, 25); ctx.lineTo(82, 25); ctx.lineTo(64, 49); ctx.lineTo(78, 49); ctx.fill();
             ctx.beginPath(); ctx.moveTo(32, 79); ctx.lineTo(46, 79); ctx.lineTo(64, 55); ctx.lineTo(50, 55); ctx.fill();
             ctx.beginPath(); ctx.moveTo(96, 79); ctx.lineTo(82, 79); ctx.lineTo(64, 55); ctx.lineTo(78, 55); ctx.fill();
             
-            // Лінія сканування
             ctx.strokeStyle = '#141420';
             ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(36, 52); ctx.lineTo(92, 52); ctx.stroke();
             
-            // Зменшений мінімалістичний текст
             ctx.fillStyle = '#141420';
             ctx.font = '900 9px "Courier New", monospace, sans-serif';
             ctx.textAlign = 'center';
@@ -239,6 +379,68 @@
             ctx.fillText(text.split('').join(' '), 64, 102); 
             
             return new THREE.CanvasTexture(canvas);
+        }
+
+        function createLabelSprite(text, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(20, 20, 30, 0.85)';
+            ctx.beginPath();
+            ctx.arc(64, 64, 50, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 55px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 64, 66);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(0.8, 0.8, 0.8);
+            return sprite;
+        }
+
+        function setupFaceLabels() {
+            scene.remove(faceLabelsGroup);
+            faceLabelsGroup = new THREE.Group();
+
+            const labelData = [
+                { text: 'U', pos: new THREE.Vector3(0, 2.1, 0), color: COLORS.U },
+                { text: 'D', pos: new THREE.Vector3(0, -2.1, 0), color: COLORS.D },
+                { text: 'R', pos: new THREE.Vector3(2.1, 0, 0), color: COLORS.R },
+                { text: 'L', pos: new THREE.Vector3(-2.1, 0, 0), color: COLORS.L },
+                { text: 'F', pos: new THREE.Vector3(0, 0, 2.1), color: COLORS.F },
+                { text: 'B', pos: new THREE.Vector3(0, 0, -2.1), color: COLORS.B }
+            ];
+
+            labelData.forEach(item => {
+                const sprite = createLabelSprite(item.text, item.color);
+                sprite.position.copy(item.pos);
+                faceLabelsGroup.add(sprite);
+            });
+
+            faceLabelsGroup.visible = showLabels;
+            scene.add(faceLabelsGroup);
+        }
+
+        function toggleFaceLabels() {
+            showLabels = !showLabels;
+            faceLabelsGroup.visible = showLabels;
+            const btn = document.getElementById('help-btn');
+            if (showLabels) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
         }
 
         function buildCube() {
@@ -272,6 +474,7 @@
                     }
                 }
             }
+            setupFaceLabels();
         }
 
         function init3D() {
@@ -300,18 +503,25 @@
             scene.add(pivot);
             buildCube();
             
+            loadSavedStateSync();
+
+            container.classList.add('loaded');
+
             window.addEventListener('resize', onWindowResize);
             animateLoop();
         }
 
         function animateLoop() {
             requestAnimationFrame(animateLoop);
-            if (!isAnimating && moveQueue.length > 0) {
+            if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
                     updateAlgoHighlight();
                 }
-                executeMove(moveQueue.shift());
+                const nextMove = moveQueue.shift();
+                historyMoves.push(nextMove);
+                saveState();
+                executeMove(nextMove);
             }
             controls.update();
             renderer.render(scene, camera);
@@ -329,8 +539,45 @@
             });
         }
 
+        function executeInstantMove(moveStr) {
+            const isPrime = moveStr.includes("'");
+            const isDouble = moveStr.includes("2");
+            const face = moveStr[0];
+            const layer = getLayerCubies(face);
+
+            pivot.position.set(0, 0, 0); 
+            pivot.rotation.set(0, 0, 0);
+            pivot.updateMatrixWorld();
+
+            layer.forEach(c => pivot.attach(c));
+
+            let angle = Math.PI / 2;
+            if (face === 'R' || face === 'U' || face === 'F') angle = -angle;
+            if (isPrime) angle = -angle;
+            if (isDouble) angle = angle * 2;
+
+            if (face === 'R' || face === 'L') pivot.rotation.x = angle;
+            if (face === 'U' || face === 'D') pivot.rotation.y = angle;
+            if (face === 'F' || face === 'B') pivot.rotation.z = angle;
+
+            pivot.updateMatrixWorld();
+            const tempArray = [...pivot.children];
+            tempArray.forEach(c => {
+                scene.attach(c);
+                c.position.x = Math.round(c.position.x);
+                c.position.y = Math.round(c.position.y);
+                c.position.z = Math.round(c.position.z);
+                
+                c.rotation.x = Math.round(c.rotation.x / (Math.PI / 2)) * (Math.PI / 2);
+                c.rotation.y = Math.round(c.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
+                c.rotation.z = Math.round(c.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
+            });
+        }
+
         function executeMove(moveStr) {
             isAnimating = true;
+            playClickSound();
+
             const isPrime = moveStr.includes("'");
             const isDouble = moveStr.includes("2");
             const face = moveStr[0];
@@ -348,7 +595,7 @@
             if (isDouble) angle = angle * 2;
 
             let currentProgress = 0;
-            const duration = 30; 
+            const duration = 25; 
 
             function animateRotation() {
                 currentProgress++;
@@ -407,6 +654,7 @@
             const container = document.getElementById('algo-display');
             container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
             moveQueue = []; 
+            saveState();
         }
 
         function setMode(mode) {
@@ -434,6 +682,7 @@
                     container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                 }
             }
+            saveState();
         }
 
         function triggerScramble() {
@@ -446,15 +695,61 @@
 
         function triggerReset() {
             moveQueue = [];
+            historyMoves = [];
             activeAlgoSteps = [];
             currentStepIndex = -1;
             isAnimating = false;
             moveCount = 0;
             storedAlgoStr = "";
+            localStorage.removeItem('rubik_cube_save_data');
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
             if (controls) controls.target.set(0, -1.2, 0);
+        }
+
+        function saveState() {
+            const data = {
+                historyMoves: historyMoves,
+                moveCount: moveCount,
+                storedAlgoStr: storedAlgoStr,
+                currentMode: currentMode
+            };
+            localStorage.setItem('rubik_cube_save_data', JSON.stringify(data));
+        }
+
+        function loadSavedStateSync() {
+            const savedRaw = localStorage.getItem('rubik_cube_save_data');
+            if (!savedRaw) return;
+
+            try {
+                const data = JSON.parse(savedRaw);
+                if (data.historyMoves && data.historyMoves.length > 0) {
+                    isRestoring = true;
+                    historyMoves = [...data.historyMoves];
+                    moveCount = data.moveCount || 0;
+                    document.getElementById('counter').innerText = moveCount;
+
+                    if (data.storedAlgoStr) {
+                        storedAlgoStr = data.storedAlgoStr;
+                        activeAlgoSteps = storedAlgoStr.split(' ');
+                        const container = document.getElementById('algo-display');
+                        container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+                    }
+
+                    if (data.currentMode) {
+                        currentMode = data.currentMode;
+                        document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
+                        document.getElementById(currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
+                    }
+
+                    historyMoves.forEach(move => executeInstantMove(move));
+                    isRestoring = false;
+                }
+            } catch (err) {
+                console.error("Помилка відновлення стану:", err);
+                isRestoring = false;
+            }
         }
         
         function switchTheme(themeKey, element) {
@@ -473,4 +768,6 @@
     </script>
 </body>
 </html>
-
+                              
+            
+        
