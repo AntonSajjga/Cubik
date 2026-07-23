@@ -1,9 +1,15 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Кубик Рубіка 3D</title>
+    
+    <!-- Іконки для веб-додатка (PWA) -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#529b89">
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -26,12 +32,13 @@
             width: 100vw;
             -webkit-user-select: none;
             user-select: none;
+            touch-action: none;
         }
 
         #canvas-container { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; 
             opacity: 0; 
-            transition: opacity 0.25s ease-in-out;
+            transition: opacity 0.15s ease-out;
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -247,7 +254,6 @@
         const CUBIE_SIZE = 0.99; 
         const PLASTIC_COLOR = '#3a3a42'; 
 
-        // --- ПЕРЕМИКАННЯ ЗВУКУ ---
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
@@ -260,7 +266,6 @@
             }
         }
 
-        // --- ТОЧНИЙ ЗВУК, СФОРМОВАНИЙ ЗА ЗАПИСОМ ВІДЕО ---
         let audioCtx = null;
         function playClickSound() {
             if (isRestoring || isMuted) return;
@@ -274,8 +279,7 @@
 
                 const now = audioCtx.currentTime;
 
-                // 1. Легкий шелест пластику (початок повороту)
-                const bufferSize = Math.floor(audioCtx.sampleRate * 0.1);
+                const bufferSize = Math.floor(audioCtx.sampleRate * 0.08);
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
@@ -292,15 +296,14 @@
 
                 const noiseGain = audioCtx.createGain();
                 noiseGain.gain.setValueAtTime(0.06, now);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
                 noise.connect(noiseFilter);
                 noiseFilter.connect(noiseGain);
                 noiseGain.connect(audioCtx.destination);
                 noise.start(now);
 
-                // 2. Чітке магнітне клацання (фіксація наприкінці)
-                const snapTime = now + 0.12;
+                const snapTime = now + 0.04;
 
                 const snapOsc = audioCtx.createOscillator();
                 const snapGain = audioCtx.createGain();
@@ -315,21 +318,6 @@
                 snapGain.connect(audioCtx.destination);
                 snapOsc.start(snapTime);
                 snapOsc.stop(snapTime + 0.007);
-
-                const bodyOsc = audioCtx.createOscillator();
-                const bodyGain = audioCtx.createGain();
-                bodyOsc.type = 'sine';
-                bodyOsc.frequency.setValueAtTime(220, snapTime);
-                bodyOsc.frequency.exponentialRampToValueAtTime(45, snapTime + 0.018);
-
-                bodyGain.gain.setValueAtTime(0.25, snapTime);
-                bodyGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.018);
-
-                bodyOsc.connect(bodyGain);
-                bodyGain.connect(audioCtx.destination);
-                bodyOsc.start(snapTime);
-                bodyOsc.stop(snapTime + 0.02);
-
             } catch (e) {}
         }
 
@@ -489,9 +477,19 @@
             renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
             
+            // Захист від втрати WebGL текстур на мобільних
+            renderer.domElement.addEventListener('webglcontextlost', (event) => {
+                event.preventDefault();
+            }, false);
+
+            renderer.domElement.addEventListener('webglcontextrestored', () => {
+                buildCube();
+            }, false);
+
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
+            controls.dampingFactor = 0.08; // Чуйне та плавне обертання пальцем
+            controls.autoRotate = false; // Вимикаємо авто-обертання при старті
             
             controls.target.set(0, -1.2, 0);
             
@@ -595,7 +593,10 @@
             if (isDouble) angle = angle * 2;
 
             let currentProgress = 0;
-            const duration = 25; 
+            
+            // ОПТИМІЗАЦІЯ ШВИДКОСТІ:
+            // 7 кадрів для ручних натискань, 4 кадри для масових алгоритмів (Scramble/Auto)
+            const duration = moveQueue.length > 2 ? 4 : 7; 
 
             function animateRotation() {
                 currentProgress++;
@@ -758,6 +759,12 @@
             document.body.style.background = THEMES[themeKey].gradient;
         }
 
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && cubies.length > 0) {
+                buildCube();
+            }
+        });
+
         window.onload = init3D;
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
@@ -768,6 +775,3 @@
     </script>
 </body>
 </html>
-                              
-            
-        
