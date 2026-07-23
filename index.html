@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кубик Рубіка 3D</title>
+    <title>Кубик Рубіка 3D PRO</title>
     
-    <!-- Іконки для веб-додатка (PWA) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
@@ -52,17 +51,9 @@
         .stat-badge span { color: #00d2ff; font-size: 13px; }
 
         .sound-btn {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px 4px;
-            border-radius: 50%;
-            transition: transform 0.2s ease, opacity 0.2s ease;
+            background: none; border: none; color: var(--text-color); font-size: 16px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            padding: 2px 4px; border-radius: 50%; transition: transform 0.2s ease, opacity 0.2s ease;
         }
         .sound-btn:hover { transform: scale(1.15); }
         .sound-btn.muted { opacity: 0.5; }
@@ -82,40 +73,22 @@
             border-radius: 20px 20px 0 0;
         }
 
-        .algo-header-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-        }
+        .algo-header-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
 
         .help-btn {
-            background: #f39c12;
-            color: #fff;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
+            background: #f39c12; color: #fff; border: none; width: 32px; height: 32px;
+            border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s ease;
         }
         .help-btn:hover { background: #f1c40f; transform: scale(1.05); }
         .help-btn.active { background: #00d2ff; color: #141420; box-shadow: 0 0 10px #00d2ff; }
 
         #algo-display {
-            flex-grow: 1;
-            background: #15151e; padding: 6px; border-radius: 8px; text-align: center;
-            font-family: monospace; font-size: 15px; color: #ffcc00; font-weight: bold;
+            flex-grow: 1; background: #15151e; padding: 6px; border-radius: 8px; text-align: center;
+            font-family: monospace; font-size: 14px; color: #ffcc00; font-weight: bold;
             border: 1px solid rgba(255,255,255,0.05); min-height: 32px; 
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            flex-wrap: wrap; line-height: 1.2;
+            display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; line-height: 1.2;
         }
         
         .algo-step { padding: 2px 4px; border-radius: 3px; transition: all 0.15s ease; color: #ffcc00; }
@@ -132,9 +105,7 @@
         button.move-btn:hover { background: var(--btn-hover); }
         button.move-btn span { color: #ff7700; }
 
-        .mode-wrapper {
-            display: flex; background: #1e1e2a; border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.05);
-        }
+        .mode-wrapper { display: flex; background: #1e1e2a; border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.05); }
         .mode-toggle {
             flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 700; 
             cursor: pointer; border-radius: 6px; transition: all 0.1s ease; color: #a0a0ab;
@@ -152,11 +123,58 @@
             content: '▼'; font-size: 7px; color: white; position: absolute; right: 12px; top: 13px; pointer-events: none;
         }
 
-        .fx-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .fx-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
         .action-btn { background: #2980b9; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .action-btn:hover { background: #3498db; }
+        .pro-btn { background: #f39c12; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .pro-btn:hover { background: #f1c40f; }
         .danger-btn { background: #c0392b; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .danger-btn:hover { background: #e74c3c; }
+
+        /* Стилі модального вікна та вибору тарифів */
+        #pro-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 100; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1e1e2a; padding: 24px; border-radius: 16px; text-align: center;
+            max-width: 340px; width: 90%; color: #fff; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .modal-content h3 { color: #f1c40f; font-size: 20px; margin-bottom: 8px; }
+        .modal-content p { font-size: 13px; color: #a0a0ab; margin-bottom: 12px; line-height: 1.4; }
+
+        .plan-selector {
+            display: flex; gap: 8px; margin-bottom: 14px;
+        }
+        .plan-card {
+            flex: 1; background: #141420; border: 2px solid #3a3a52; border-radius: 10px;
+            padding: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .plan-card.active {
+            border-color: #f1c40f; background: rgba(241, 196, 15, 0.08);
+        }
+        .plan-title { font-size: 12px; color: #a0a0ab; font-weight: 600; }
+        .plan-price { font-size: 15px; color: #fff; font-weight: bold; margin-top: 2px; }
+        .plan-badge { font-size: 9px; color: #2ecc71; font-weight: bold; text-transform: uppercase; margin-top: 2px; }
+
+        .modal-input {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3a3a52;
+            margin-bottom: 12px; background: #09090e; color: #fff; text-align: center;
+            font-family: monospace; font-size: 13px; outline: none;
+        }
+        .modal-btn-confirm {
+            width: 100%; background: #27ae60; color: #fff; border: none; padding: 10px;
+            border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: background 0.2s;
+        }
+        .modal-btn-confirm:hover { background: #2ecc71; }
+        .buy-link {
+            display: block; margin-top: 10px; color: #00d2ff; font-size: 13px; font-weight: bold;
+            text-decoration: none; padding: 8px; border-radius: 6px; background: rgba(0, 210, 255, 0.1);
+        }
+        .buy-link:hover { background: rgba(0, 210, 255, 0.2); }
+        .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -168,7 +186,7 @@
     
     <div id="top-bar">
         <div class="stat-badge">Moves: <span id="counter">0</span></div>
-        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Увімкнути/Вимкнути звук">🔊</button>
+        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Sound On/Off">🔊</button>
         <div class="theme-dots">
             <div class="theme-dot" style="background: #09090e;" onclick="switchTheme('dark', this)"></div>
             <div class="theme-dot active" style="background: #529b89;" onclick="switchTheme('mint', this)"></div>
@@ -178,7 +196,7 @@
 
     <div id="controls-panel">
         <div class="algo-header-wrapper">
-            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати підписи граней">?</button>
+            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Show Labels">?</button>
             <div id="algo-display">Choose combination...</div>
         </div>
 
@@ -201,28 +219,98 @@
 
         <div class="mode-wrapper">
             <div id="mode-manual" class="mode-toggle active" onclick="setMode('manual')">Manual</div>
-            <div id="mode-auto" class="mode-toggle" onclick="setMode('auto')">Avto</div>
+            <div id="mode-auto" class="mode-toggle" onclick="setMode('auto')">Auto</div>
         </div>
 
         <div class="alg-select-wrapper">
             <select class="alg-select" id="alg-select" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
                 <option value="" disabled selected>🎓 Choose algorithm...</option>
-                <option value="R U R' U'">🔄 Right Pip-Pap</option>
-                <option value="L' U' L U">🔄 Left Pip-Pap</option>
-                <option value="R U R' U R U2 R'">⚡ OLL Fish Algorithm</option>
-                <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🧩 T-Permutation (PLL)</option>
-                <option value="R' F R' B2 R F' R' B2 R2">📐 A-Permutation (Corners)</option>
-                <option value="F R U R' U' F'">🚪 Cross Exit (OLL)</option>
+                
+                <!-- BASIC / FREE ALGORITHMS -->
+                <optgroup label="⚡ Basic Algorithms">
+                    <option value="R U R' U'">Right Sexy Move</option>
+                    <option value="L' U' L U">Left Sexy Move</option>
+                    <option value="R' F R F'">Sledgehammer</option>
+                    <option value="R U R' U R U2 R'">Sune OLL</option>
+                    <option value="U R U' L' U R' U' L">Four Corners Swap</option>
+                </optgroup>
+                
+                <!-- PRO ALGORITHMS -->
+                <optgroup label="🔒 PRO: Advanced Speedcubing (CFOP)">
+                    <option value="R U2 R' U' R U' R'">🔒 Anti-Sune OLL</option>
+                    <option value="R U R' F' R U R' U' R' F R2 U' R'">🔒 J-Permutation</option>
+                    <option value="F R U' R' U' R U R' F' R U R' U' R' F R F'">🔒 Y-Permutation</option>
+                    <option value="R' F R' B2 R F' R' B2 R2">🔒 A-Permutation</option>
+                    <option value="R U' R U R U R U' R' U' R2">🔒 Ua-Permutation</option>
+                    <option value="R2 U R U R' U' R' U' R' U R'">🔒 Ub-Permutation</option>
+                    <option value="R' U R' U' R D' R' D R' U2 R D' R' D R2">🔒 E-Permutation</option>
+                    <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🔒 T-Permutation</option>
+                </optgroup>
+
+                <optgroup label="🔒 PRO: Creative Art & Patterns">
+                    <option value="F R U R' U' F' R U R' U' R' F R F'">🔒 Cube in a Cube</option>
+                    <option value="U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2">🔒 Dot Pattern</option>
+                    <option value="R L U2 R' L' U2">🔒 Snake Pattern</option>
+                    <option value="F2 R2 F2 R2 F2 R2">🔒 Stripes / Banded Pattern</option>
+                    <option value="U2 R2 U2 L2 U2 F2 U2 B2">🔒 Double Cross Pattern</option>
+                    <option value="R U2 L' D2 R' U2 L D2">🔒 Nested Cube Pattern</option>
+                </optgroup>
             </select>
         </div>
 
         <div class="fx-group">
             <button class="action-btn" onclick="triggerScramble()">🔀 Scramble</button>
+            <button id="pro-status-btn" class="pro-btn" onclick="openActivationModal()">🔑 PRO</button>
             <button class="danger-btn" onclick="triggerReset()">⟳ Reset</button>
         </div>
     </div>
 
+    <!-- PRO Activation Modal -->
+    <div id="pro-modal">
+        <div class="modal-content">
+            <h3>⭐ LogixCube PRO</h3>
+            <p>Select subscription plan or enter your license key:</p>
+            
+            <div class="plan-selector">
+                <div id="plan-monthly" class="plan-card active" onclick="selectPlan('monthly')">
+                    <div class="plan-title">Monthly</div>
+                    <div class="plan-price">$4.99</div>
+                    <div class="plan-badge">/ month</div>
+                </div>
+                <div id="plan-yearly" class="plan-card" onclick="selectPlan('yearly')">
+                    <div class="plan-title">Yearly</div>
+                    <div class="plan-price">$29.99</div>
+                    <div class="plan-badge">Save 50%</div>
+                </div>
+            </div>
+
+            <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
+            <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
+            
+            <a id="buy-btn-link" href="https://your-store.lemonsqueezy.com/buy/MONTHLY_PRODUCT_ID" target="_blank" class="buy-link">
+                🛒 Subscribe for $4.99 / mo
+            </a>
+            <br>
+            <button class="close-modal-btn" onclick="closeActivationModal()">Close</button>
+        </div>
+    </div>
+
     <script>
+        const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
+
+        const STORE_URLS = {
+            monthly: "https://your-store.lemonsqueezy.com/buy/MONTHLY_PRODUCT_ID",
+            yearly: "https://your-store.lemonsqueezy.com/buy/YEARLY_PRODUCT_ID"
+        };
+
+        const FREE_ALGORITHMS = [
+            "R U R' U'",
+            "L' U' L U",
+            "R' F R F'",
+            "R U R' U R U2 R'",
+            "U R U' L' U R' U' L"
+        ];
+
         const COLORS = { 
             U: '#fffb00', D: '#ffffff', R: '#00ff66', 
             L: '#0066ff', F: '#ff0055', B: '#ff7700'
@@ -239,9 +327,12 @@
         let historyMoves = [];
         let isAnimating = false;
         let isRestoring = false;
+        let isScrambling = false;
         let moveCount = 0;
         let currentMode = 'manual';
         let isMuted = false;
+        
+        let isProUser = false; 
         
         let storedAlgoStr = ""; 
         let activeAlgoSteps = [];
@@ -253,6 +344,112 @@
         const pivot = new THREE.Group();
         const CUBIE_SIZE = 0.99; 
         const PLASTIC_COLOR = '#3a3a42'; 
+
+        function selectPlan(planType) {
+            document.getElementById('plan-monthly').classList.remove('active');
+            document.getElementById('plan-yearly').classList.remove('active');
+            
+            const buyLink = document.getElementById('buy-btn-link');
+            if (planType === 'monthly') {
+                document.getElementById('plan-monthly').classList.add('active');
+                buyLink.href = STORE_URLS.monthly;
+                buyLink.innerText = '🛒 Subscribe for $4.99 / mo';
+            } else {
+                document.getElementById('plan-yearly').classList.add('active');
+                buyLink.href = STORE_URLS.yearly;
+                buyLink.innerText = '🛒 Subscribe for $29.99 / yr';
+            }
+        }
+
+        function checkProStatus() {
+            const savedKey = localStorage.getItem('rubik_license_key');
+            if (savedKey) {
+                isProUser = true;
+                updateProUI();
+            }
+        }
+
+        function updateProUI() {
+            const btn = document.getElementById('pro-status-btn');
+            if (isProUser && btn) {
+                btn.innerText = '✅ PRO';
+                btn.style.background = '#27ae60';
+            }
+        }
+
+        function openActivationModal() {
+            document.getElementById('pro-modal').style.display = 'flex';
+        }
+
+        function closeActivationModal() {
+            document.getElementById('pro-modal').style.display = 'none';
+        }
+
+        async function validateLicense() {
+            const key = document.getElementById('license-key-input').value.trim();
+            if (!key) return alert('Please enter a license key!');
+
+            if (key === ADMIN_MASTER_KEY) {
+                alert('👑 PRO Mode Activated (Admin Access)!');
+                localStorage.setItem('rubik_license_key', 'ADMIN_ACTIVATED');
+                isProUser = true;
+                updateProUI();
+                closeActivationModal();
+                return;
+            }
+
+            try {
+                const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'license_key': key })
+                });
+
+                const data = await response.json();
+
+                if (data.valid) {
+                    alert('🎉 PRO Version successfully activated!');
+                    localStorage.setItem('rubik_license_key', key);
+                    isProUser = true;
+                    updateProUI();
+                    closeActivationModal();
+                } else {
+                    alert('❌ Invalid or expired license key!');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Connection error. Please check your internet connection.');
+            }
+        }
+
+        window.resetProStatusForTesting = function() {
+            localStorage.removeItem('rubik_license_key');
+            isProUser = false;
+            const btn = document.getElementById('pro-status-btn');
+            if (btn) {
+                btn.innerText = '🔑 PRO';
+                btn.style.background = '#f39c12';
+            }
+            alert('PRO status reset. Application is back in free mode.');
+        };
+
+        function selectAlgorithm(algoStr) {
+            if (!algoStr) return;
+            
+            if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
+                alert("🔒 This algorithm is available in PRO version only!");
+                openActivationModal();
+                return;
+            }
+
+            storedAlgoStr = algoStr;
+            activeAlgoSteps = algoStr.split(' ');
+            currentStepIndex = -1;
+            const container = document.getElementById('algo-display');
+            container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+            moveQueue = []; 
+            saveState();
+        }
 
         function toggleSound() {
             isMuted = !isMuted;
@@ -278,7 +475,6 @@
                 }
 
                 const now = audioCtx.currentTime;
-
                 const bufferSize = Math.floor(audioCtx.sampleRate * 0.08);
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
@@ -501,6 +697,7 @@
             scene.add(pivot);
             buildCube();
             
+            checkProStatus();
             loadSavedStateSync();
 
             container.classList.add('loaded');
@@ -518,6 +715,10 @@
                 }
                 const nextMove = moveQueue.shift();
                 historyMoves.push(nextMove);
+                if (!isScrambling) {
+                    moveCount++;
+                    document.getElementById('counter').innerText = moveCount;
+                }
                 saveState();
                 executeMove(nextMove);
             }
@@ -593,7 +794,12 @@
             if (isDouble) angle = angle * 2;
 
             let currentProgress = 0;
-            const duration = moveQueue.length > 2 ? 4 : 7; 
+            let duration = 25;
+            if (isScrambling || currentMode === 'auto') {
+                duration = 38; 
+            } else if (moveQueue.length > 2) {
+                duration = 12;
+            }
 
             function animateRotation() {
                 currentProgress++;
@@ -620,6 +826,9 @@
                     });
                     
                     isAnimating = false;
+                    if (isScrambling && moveQueue.length === 0) {
+                        isScrambling = false;
+                    }
                 }
             }
             animateRotation();
@@ -640,19 +849,6 @@
 
         function handleMove(move) {
             moveQueue.push(move);
-            moveCount++;
-            document.getElementById('counter').innerText = moveCount;
-        }
-
-        function selectAlgorithm(algoStr) {
-            if (!algoStr) return;
-            storedAlgoStr = algoStr;
-            activeAlgoSteps = algoStr.split(' ');
-            currentStepIndex = -1;
-            const container = document.getElementById('algo-display');
-            container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
-            moveQueue = []; 
-            saveState();
         }
 
         function setMode(mode) {
@@ -668,9 +864,7 @@
                     updateAlgoHighlight();
                     activeAlgoSteps.forEach(step => {
                         moveQueue.push(step);
-                        moveCount++;
                     });
-                    document.getElementById('counter').innerText = moveCount;
                 }
             } else {
                 moveQueue = [];
@@ -683,24 +877,22 @@
             saveState();
         }
 
-        // ПЕРЕМІШУВАННЯ З ПОТОЧНОЇ ПОЗИЦІЇ
         function triggerScramble() {
+            isScrambling = true;
             const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
             for (let i = 0; i < 20; i++) {
                 const randomMove = moves[Math.floor(Math.random() * moves.length)];
                 moveQueue.push(randomMove);
-                moveCount++;
             }
-            document.getElementById('counter').innerText = moveCount;
         }
 
-        // ПОВНЕ СКИДАННЯ
         function triggerReset() {
             moveQueue = [];
             historyMoves = [];
             activeAlgoSteps = [];
             currentStepIndex = -1;
             isAnimating = false;
+            isScrambling = false;
             moveCount = 0;
             storedAlgoStr = "";
             localStorage.removeItem('rubik_cube_save_data');
@@ -745,12 +937,11 @@
                         document.getElementById(currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
                     }
 
-                    // Миттєво відтворюємо всі збережені ходи
                     historyMoves.forEach(move => executeInstantMove(move));
                     isRestoring = false;
                 }
             } catch (err) {
-                console.error("Помилка відновлення стану:", err);
+                console.error("State restore error:", err);
                 isRestoring = false;
             }
         }
@@ -763,8 +954,8 @@
 
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && cubies.length > 0) {
-                // Відновлення та збереження перевіряється при поверненні у вкладку
-                saveState();
+                buildCube();
+                loadSavedStateSync();
             }
         });
 
