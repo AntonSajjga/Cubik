@@ -477,19 +477,19 @@
             renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
             
-            // Захист від втрати WebGL текстур на мобільних
             renderer.domElement.addEventListener('webglcontextlost', (event) => {
                 event.preventDefault();
             }, false);
 
             renderer.domElement.addEventListener('webglcontextrestored', () => {
                 buildCube();
+                loadSavedStateSync();
             }, false);
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            controls.dampingFactor = 0.08; // Чуйне та плавне обертання пальцем
-            controls.autoRotate = false; // Вимикаємо авто-обертання при старті
+            controls.dampingFactor = 0.08;
+            controls.autoRotate = false;
             
             controls.target.set(0, -1.2, 0);
             
@@ -593,9 +593,6 @@
             if (isDouble) angle = angle * 2;
 
             let currentProgress = 0;
-            
-            // ОПТИМІЗАЦІЯ ШВИДКОСТІ:
-            // 7 кадрів для ручних натискань, 4 кадри для масових алгоритмів (Scramble/Auto)
             const duration = moveQueue.length > 2 ? 4 : 7; 
 
             function animateRotation() {
@@ -686,14 +683,18 @@
             saveState();
         }
 
+        // ПЕРЕМІШУВАННЯ З ПОТОЧНОЇ ПОЗИЦІЇ
         function triggerScramble() {
-            triggerReset();
             const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
             for (let i = 0; i < 20; i++) {
-                moveQueue.push(moves[Math.floor(Math.random() * moves.length)]);
+                const randomMove = moves[Math.floor(Math.random() * moves.length)];
+                moveQueue.push(randomMove);
+                moveCount++;
             }
+            document.getElementById('counter').innerText = moveCount;
         }
 
+        // ПОВНЕ СКИДАННЯ
         function triggerReset() {
             moveQueue = [];
             historyMoves = [];
@@ -744,6 +745,7 @@
                         document.getElementById(currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
                     }
 
+                    // Миттєво відтворюємо всі збережені ходи
                     historyMoves.forEach(move => executeInstantMove(move));
                     isRestoring = false;
                 }
@@ -761,7 +763,8 @@
 
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && cubies.length > 0) {
-                buildCube();
+                // Відновлення та збереження перевіряється при поверненні у вкладку
+                saveState();
             }
         });
 
