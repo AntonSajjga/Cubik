@@ -11,9 +11,6 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
 
-    <!-- Lemon Squeezy Overlay Script -->
-    <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
-
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -176,7 +173,8 @@
         .modal-btn-confirm:hover { background: #2ecc71; }
         .buy-link {
             display: block; margin-top: 10px; color: #00d2ff; font-size: 13px; font-weight: bold;
-            text-decoration: none; padding: 8px; border-radius: 6px; background: rgba(0, 210, 255, 0.1);
+            text-decoration: none; padding: 10px; border-radius: 6px; background: rgba(0, 210, 255, 0.1);
+            cursor: pointer;
         }
         .buy-link:hover { background: rgba(0, 210, 255, 0.2); }
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
@@ -292,7 +290,7 @@
             <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
             <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
             
-            <a id="buy-btn-link" href="https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f?embed=1" class="lemonsqueezy-button buy-link">
+            <a id="buy-btn-link" onclick="openSelectedCheckout()" class="buy-link">
                 🛒 Subscribe for $4.99 / mo
             </a>
             <br>
@@ -303,10 +301,33 @@
     <script>
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
 
+        // Прямі посилання, які відкриваються без помилок 404
         const STORE_URLS = {
-            monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f?embed=1",
-            yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311?embed=1"
+            monthly: "https://logixcube.lemonsqueezy.com/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
+            yearly: "https://logixcube.lemonsqueezy.com/buy/e5280fde-1c68-4504-8c23-22d464aff311"
         };
+
+        let currentSelectedPlan = 'monthly';
+
+        function selectPlan(planType) {
+            currentSelectedPlan = planType;
+            document.getElementById('plan-monthly').classList.remove('active');
+            document.getElementById('plan-yearly').classList.remove('active');
+            
+            const buyLink = document.getElementById('buy-btn-link');
+            if (planType === 'monthly') {
+                document.getElementById('plan-monthly').classList.add('active');
+                buyLink.innerText = '🛒 Subscribe for $4.99 / mo';
+            } else {
+                document.getElementById('plan-yearly').classList.add('active');
+                buyLink.innerText = '🛒 Subscribe for $29.99 / yr';
+            }
+        }
+
+        function openSelectedCheckout() {
+            const targetUrl = STORE_URLS[currentSelectedPlan];
+            window.open(targetUrl, '_blank');
+        }
 
         const FREE_ALGORITHMS = [
             "R U R' U'",
@@ -349,22 +370,6 @@
         const pivot = new THREE.Group();
         const CUBIE_SIZE = 0.99; 
         const PLASTIC_COLOR = '#3a3a42'; 
-
-        function selectPlan(planType) {
-            document.getElementById('plan-monthly').classList.remove('active');
-            document.getElementById('plan-yearly').classList.remove('active');
-            
-            const buyLink = document.getElementById('buy-btn-link');
-            if (planType === 'monthly') {
-                document.getElementById('plan-monthly').classList.add('active');
-                buyLink.href = STORE_URLS.monthly;
-                buyLink.innerText = '🛒 Subscribe for $4.99 / mo';
-            } else {
-                document.getElementById('plan-yearly').classList.add('active');
-                buyLink.href = STORE_URLS.yearly;
-                buyLink.innerText = '🛒 Subscribe for $29.99 / yr';
-            }
-        }
 
         async function checkProStatus() {
             const savedKey = localStorage.getItem('rubik_license_key');
