@@ -284,9 +284,11 @@
 
     <script>
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
+        
+        // Посилання на товари у Lemon Squeezy
         const STORE_URLS = {
-            monthly: "https://logixcube.lemonsqueezy.com/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
-            yearly: "https://logixcube.lemonsqueezy.com/buy/e5280fde-1c68-4504-8c23-22d464aff311"
+            monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
+            yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
         };
 
         let currentSelectedPlan = 'monthly';
@@ -305,8 +307,14 @@
             }
         }
 
+        // Прямий перехід без блокування pop-up на iOS/Android/PWA
         function openSelectedCheckout() {
-            window.open(STORE_URLS[currentSelectedPlan], '_blank');
+            const checkoutUrl = STORE_URLS[currentSelectedPlan];
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                alert("Помилка: посилання на оплату відсутнє.");
+            }
         }
 
         const FREE_ALGORITHMS = [
@@ -343,7 +351,6 @@
 
         const pivot = new THREE.Group();
         
-        // Зменшуємо розмір кубика для повного запобігання Z-fighting (миготіння граней)
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
@@ -483,7 +490,6 @@
             } catch (e) {}
         }
 
-        // Створення чистих монолітних текстур без накладання
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
             canvas.width = 256; canvas.height = 256;
@@ -499,7 +505,6 @@
             return texture;
         }
 
-        // Акуратне лого без виходу за межі наклейки
         function createLogoTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
             canvas.width = 256; canvas.height = 256;
@@ -580,7 +585,6 @@
             const geom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
             const internalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
 
-            // Попередньо створюємо єдині екземпляри матеріалів для запобігання артефактам
             const materials = {
                 R: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
                 L: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
@@ -624,7 +628,13 @@
             camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
             camera.position.set(6.5, 5.0, 9.5); 
             
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            // Налаштування WebGLRenderer проти графічних артефактів
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true, 
+                alpha: true,
+                precision: 'highp',
+                powerPreference: 'high-performance'
+            });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
