@@ -133,7 +133,6 @@
         .danger-btn { background: #c0392b; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .danger-btn:hover { background: #e74c3c; }
 
-        /* Стилі модального вікна та вибору тарифів */
         #pro-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 100; align-items: center; justify-content: center;
@@ -147,16 +146,12 @@
         .modal-content h3 { color: #f1c40f; font-size: 20px; margin-bottom: 8px; }
         .modal-content p { font-size: 13px; color: #a0a0ab; margin-bottom: 12px; line-height: 1.4; }
 
-        .plan-selector {
-            display: flex; gap: 8px; margin-bottom: 14px;
-        }
+        .plan-selector { display: flex; gap: 8px; margin-bottom: 14px; }
         .plan-card {
             flex: 1; background: #141420; border: 2px solid #3a3a52; border-radius: 10px;
             padding: 8px; cursor: pointer; transition: all 0.2s ease;
         }
-        .plan-card.active {
-            border-color: #f1c40f; background: rgba(241, 196, 15, 0.08);
-        }
+        .plan-card.active { border-color: #f1c40f; background: rgba(241, 196, 15, 0.08); }
         .plan-title { font-size: 12px; color: #a0a0ab; font-weight: 600; }
         .plan-price { font-size: 15px; color: #fff; font-weight: bold; margin-top: 2px; }
         .plan-badge { font-size: 9px; color: #2ecc71; font-weight: bold; text-transform: uppercase; margin-top: 2px; }
@@ -228,8 +223,6 @@
         <div class="alg-select-wrapper">
             <select class="alg-select" id="alg-select" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
                 <option value="" disabled selected>🎓 Choose algorithm...</option>
-                
-                <!-- BASIC / FREE ALGORITHMS -->
                 <optgroup label="⚡ Basic Algorithms">
                     <option value="R U R' U'">Right Sexy Move</option>
                     <option value="L' U' L U">Left Sexy Move</option>
@@ -237,8 +230,6 @@
                     <option value="R U R' U R U2 R'">Sune OLL</option>
                     <option value="U R U' L' U R' U' L">Four Corners Swap</option>
                 </optgroup>
-                
-                <!-- PRO ALGORITHMS -->
                 <optgroup label="🔒 PRO: Advanced Speedcubing (CFOP)">
                     <option value="R U2 R' U' R U' R'">🔒 Anti-Sune OLL</option>
                     <option value="R U R' F' R U R' U' R' F R2 U' R'">🔒 J-Permutation</option>
@@ -249,7 +240,6 @@
                     <option value="R' U R' U' R D' R' D R' U2 R D' R' D R2">🔒 E-Permutation</option>
                     <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🔒 T-Permutation</option>
                 </optgroup>
-
                 <optgroup label="🔒 PRO: Creative Art & Patterns">
                     <option value="F R U R' U' F' R U R' U' R' F R F'">🔒 Cube in a Cube</option>
                     <option value="U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2">🔒 Dot Pattern</option>
@@ -268,12 +258,10 @@
         </div>
     </div>
 
-    <!-- PRO Activation Modal -->
     <div id="pro-modal">
         <div class="modal-content">
             <h3>⭐ LogixCube PRO</h3>
             <p>Select subscription plan or enter your license key:</p>
-            
             <div class="plan-selector">
                 <div id="plan-monthly" class="plan-card active" onclick="selectPlan('monthly')">
                     <div class="plan-title">Monthly</div>
@@ -286,13 +274,9 @@
                     <div class="plan-badge">Save 50%</div>
                 </div>
             </div>
-
             <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
             <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
-            
-            <a id="buy-btn-link" onclick="openSelectedCheckout()" class="buy-link">
-                🛒 Subscribe for $4.99 / mo
-            </a>
+            <a id="buy-btn-link" onclick="openSelectedCheckout()" class="buy-link">🛒 Subscribe for $4.99 / mo</a>
             <br>
             <button class="close-modal-btn" onclick="closeActivationModal()">Close</button>
         </div>
@@ -300,8 +284,6 @@
 
     <script>
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
-
-        // Прямі посилання, які відкриваються без помилок 404
         const STORE_URLS = {
             monthly: "https://logixcube.lemonsqueezy.com/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
             yearly: "https://logixcube.lemonsqueezy.com/buy/e5280fde-1c68-4504-8c23-22d464aff311"
@@ -313,7 +295,6 @@
             currentSelectedPlan = planType;
             document.getElementById('plan-monthly').classList.remove('active');
             document.getElementById('plan-yearly').classList.remove('active');
-            
             const buyLink = document.getElementById('buy-btn-link');
             if (planType === 'monthly') {
                 document.getElementById('plan-monthly').classList.add('active');
@@ -325,16 +306,11 @@
         }
 
         function openSelectedCheckout() {
-            const targetUrl = STORE_URLS[currentSelectedPlan];
-            window.open(targetUrl, '_blank');
+            window.open(STORE_URLS[currentSelectedPlan], '_blank');
         }
 
         const FREE_ALGORITHMS = [
-            "R U R' U'",
-            "L' U' L U",
-            "R' F R F'",
-            "R U R' U R U2 R'",
-            "U R U' L' U R' U' L"
+            "R U R' U'", "L' U' L U", "R' F R F'", "R U R' U R U2 R'", "U R U' L' U R' U' L"
         ];
 
         const COLORS = { 
@@ -357,9 +333,7 @@
         let moveCount = 0;
         let currentMode = 'manual';
         let isMuted = false;
-        
         let isProUser = false; 
-        
         let storedAlgoStr = ""; 
         let activeAlgoSteps = [];
         let currentStepIndex = -1;
@@ -368,36 +342,33 @@
         let showLabels = false;
 
         const pivot = new THREE.Group();
-        const CUBIE_SIZE = 0.99; 
-        const PLASTIC_COLOR = '#3a3a42'; 
+        
+        // Зменшуємо розмір кубика для повного запобігання Z-fighting (миготіння граней)
+        const CUBIE_SIZE = 0.98; 
+        const PLASTIC_COLOR = '#2b2b32'; 
 
         async function checkProStatus() {
             const savedKey = localStorage.getItem('rubik_license_key');
             if (!savedKey) return;
-
             if (savedKey === 'ADMIN_ACTIVATED') {
                 isProUser = true;
                 updateProUI();
                 return;
             }
-
             try {
                 const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ 'license_key': savedKey })
                 });
-
                 const data = await response.json();
-
                 if (data.valid && data.meta && data.meta.status !== 'disabled' && data.meta.status !== 'expired') {
                     isProUser = true;
                     updateProUI();
                 } else {
-                    revokeProAccess('Термін дії підписки закінчився. Будь ласка, подовжте підписку.');
+                    revokeProAccess('Термін дії підписки закінчився.');
                 }
             } catch (error) {
-                console.warn("Мережева помилка перевірки ключа. Тимчасовий офлайн доступ.");
                 isProUser = true;
                 updateProUI();
             }
@@ -406,16 +377,12 @@
         function revokeProAccess(message) {
             localStorage.removeItem('rubik_license_key');
             isProUser = false;
-            
             const btn = document.getElementById('pro-status-btn');
             if (btn) {
                 btn.innerText = '🔑 PRO';
                 btn.style.background = '#f39c12';
             }
-
-            if (message) {
-                alert(message);
-            }
+            if (message) alert(message);
         }
 
         function updateProUI() {
@@ -426,20 +393,15 @@
             }
         }
 
-        function openActivationModal() {
-            document.getElementById('pro-modal').style.display = 'flex';
-        }
-
-        function closeActivationModal() {
-            document.getElementById('pro-modal').style.display = 'none';
-        }
+        function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
+        function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
 
         async function validateLicense() {
             const key = document.getElementById('license-key-input').value.trim();
             if (!key) return alert('Введіть ключ ліцензії!');
 
             if (key === ADMIN_MASTER_KEY) {
-                alert('👑 PRO Режим активовано (Адмін доступ)!');
+                alert('👑 PRO Режим активовано!');
                 localStorage.setItem('rubik_license_key', 'ADMIN_ACTIVATED');
                 isProUser = true;
                 updateProUI();
@@ -453,37 +415,28 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ 'license_key': key })
                 });
-
                 const data = await response.json();
-
                 if (data.valid) {
-                    alert('🎉 PRO версія успішно активована!');
+                    alert('🎉 PRO версія активована!');
                     localStorage.setItem('rubik_license_key', key);
                     isProUser = true;
                     updateProUI();
                     closeActivationModal();
                 } else {
-                    alert('❌ Недійсний або прострочений ключ!');
+                    alert('❌ Недійсний ключ!');
                 }
             } catch (error) {
-                console.error(error);
-                alert('Помилка з\'єднання. Перевірте підключення до інтернету.');
+                alert('Помилка з\'єднання.');
             }
         }
 
-        window.resetProStatusForTesting = function() {
-            revokeProAccess('PRO статус скинуто для тестування.');
-        };
-
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
-            
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
-                alert("🔒 Цей алгоритм доступний лише у PRO версії!");
+                alert("🔒 Алгоритм доступний у PRO версії!");
                 openActivationModal();
                 return;
             }
-
             storedAlgoStr = algoStr;
             activeAlgoSteps = algoStr.split(' ');
             currentStepIndex = -1;
@@ -496,37 +449,24 @@
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
-            if (isMuted) {
-                btn.innerText = '🔇';
-                btn.classList.add('muted');
-            } else {
-                btn.innerText = '🔊';
-                btn.classList.remove('muted');
-            }
+            btn.innerText = isMuted ? '🔇' : '🔊';
+            btn.classList.toggle('muted', isMuted);
         }
 
         let audioCtx = null;
         function playClickSound() {
             if (isRestoring || isMuted) return;
             try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
 
                 const now = audioCtx.currentTime;
-                const bufferSize = Math.floor(audioCtx.sampleRate * 0.08);
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const buffer = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.08), audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
+                for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
 
                 const noise = audioCtx.createBufferSource();
                 noise.buffer = buffer;
-
                 const noiseFilter = audioCtx.createBiquadFilter();
                 noiseFilter.type = 'bandpass';
                 noiseFilter.frequency.setValueAtTime(2100, now);
@@ -540,96 +480,65 @@
                 noiseFilter.connect(noiseGain);
                 noiseGain.connect(audioCtx.destination);
                 noise.start(now);
-
-                const snapTime = now + 0.04;
-
-                const snapOsc = audioCtx.createOscillator();
-                const snapGain = audioCtx.createGain();
-                snapOsc.type = 'triangle';
-                snapOsc.frequency.setValueAtTime(2400, snapTime);
-                snapOsc.frequency.exponentialRampToValueAtTime(250, snapTime + 0.006);
-
-                snapGain.gain.setValueAtTime(0.45, snapTime);
-                snapGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.006);
-
-                snapOsc.connect(snapGain);
-                snapGain.connect(audioCtx.destination);
-                snapOsc.start(snapTime);
-                snapOsc.stop(snapTime + 0.007);
             } catch (e) {}
         }
 
+        // Створення чистих монолітних текстур без накладання
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
-            canvas.width = 128; canvas.height = 128;
+            canvas.width = 256; canvas.height = 256;
             const ctx = canvas.getContext('2d'); 
             ctx.fillStyle = PLASTIC_COLOR; 
-            ctx.fillRect(0, 0, 128, 128);
+            ctx.fillRect(0, 0, 256, 256);
             ctx.fillStyle = hexColor; 
             ctx.beginPath(); 
-            ctx.roundRect(7, 7, 114, 114, 16); 
+            ctx.roundRect(12, 12, 232, 232, 28); 
             ctx.fill();
-            return new THREE.CanvasTexture(canvas);
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
         }
 
-        function createXeroxLogoTexture(hexColor) {
+        // Акуратне лого без виходу за межі наклейки
+        function createLogoTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
-            canvas.width = 128; canvas.height = 128;
+            canvas.width = 256; canvas.height = 256;
             const ctx = canvas.getContext('2d'); 
             
             ctx.fillStyle = PLASTIC_COLOR; 
-            ctx.fillRect(0, 0, 128, 128);
+            ctx.fillRect(0, 0, 256, 256);
             
             ctx.fillStyle = hexColor; 
             ctx.beginPath(); 
-            ctx.roundRect(7, 7, 114, 114, 16); 
+            ctx.roundRect(12, 12, 232, 232, 28); 
             ctx.fill();
             
-            ctx.fillStyle = '#c0392b';
-            
-            ctx.beginPath(); ctx.moveTo(32, 25); ctx.lineTo(46, 25); ctx.lineTo(64, 49); ctx.lineTo(50, 49); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(96, 25); ctx.lineTo(82, 25); ctx.lineTo(64, 49); ctx.lineTo(78, 49); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(32, 79); ctx.lineTo(46, 79); ctx.lineTo(64, 55); ctx.lineTo(50, 55); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(96, 79); ctx.lineTo(82, 79); ctx.lineTo(64, 55); ctx.lineTo(78, 55); ctx.fill();
-            
-            ctx.strokeStyle = '#141420';
-            ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(36, 52); ctx.lineTo(92, 52); ctx.stroke();
-            
             ctx.fillStyle = '#141420';
-            ctx.font = '900 9px "Courier New", monospace, sans-serif';
+            ctx.font = '900 24px system-ui, -apple-system, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+            ctx.fillText("LOGIXCUBE", 128, 128); 
             
-            const text = "LOGIXCUBE";
-            ctx.fillText(text.split('').join(' '), 64, 102); 
-            
-            return new THREE.CanvasTexture(canvas);
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
         }
 
         function createLabelSprite(text, color) {
             const canvas = document.createElement('canvas');
-            canvas.width = 128;
-            canvas.height = 128;
+            canvas.width = 128; canvas.height = 128;
             const ctx = canvas.getContext('2d');
 
             ctx.fillStyle = 'rgba(20, 20, 30, 0.85)';
-            ctx.beginPath();
-            ctx.arc(64, 64, 50, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.lineWidth = 6;
-            ctx.strokeStyle = color;
-            ctx.stroke();
+            ctx.beginPath(); ctx.arc(64, 64, 50, 0, Math.PI * 2); ctx.fill();
+            ctx.lineWidth = 6; ctx.strokeStyle = color; ctx.stroke();
 
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 55px system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(text, 64, 66);
 
-            const texture = new THREE.CanvasTexture(canvas);
-            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const spriteMaterial = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), depthTest: false });
             const sprite = new THREE.Sprite(spriteMaterial);
             sprite.scale.set(0.8, 0.8, 0.8);
             return sprite;
@@ -661,19 +570,26 @@
         function toggleFaceLabels() {
             showLabels = !showLabels;
             faceLabelsGroup.visible = showLabels;
-            const btn = document.getElementById('help-btn');
-            if (showLabels) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            document.getElementById('help-btn').classList.toggle('active', showLabels);
         }
 
         function buildCube() {
             cubies.forEach(c => scene.remove(c)); 
             cubies = [];
+            
             const geom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
-            const internalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR });
+            const internalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+
+            // Попередньо створюємо єдині екземпляри матеріалів для запобігання артефактам
+            const materials = {
+                R: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                L: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                U: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                D: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                D_Logo: new THREE.MeshLambertMaterial({ map: createLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                F: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                B: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+            };
 
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
@@ -683,14 +599,12 @@
                         const isWhiteCenter = (x === 0 && y === -1 && z === 0);
                         
                         const mats = [
-                            x === 1 ? new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.R) }) : internalMat,  
-                            x === -1 ? new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.L) }) : internalMat, 
-                            y === 1 ? new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.U) }) : internalMat,  
-                            y === -1 ? new THREE.MeshLambertMaterial({ 
-                                map: isWhiteCenter ? createXeroxLogoTexture(COLORS.D) : createFaceTexture(COLORS.D) 
-                            }) : internalMat, 
-                            z === 1 ? new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.F) }) : internalMat,  
-                            z === -1 ? new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.B) }) : internalMat  
+                            x === 1 ? materials.R : internalMat,  
+                            x === -1 ? materials.L : internalMat, 
+                            y === 1 ? materials.U : internalMat,  
+                            y === -1 ? (isWhiteCenter ? materials.D_Logo : materials.D) : internalMat, 
+                            z === 1 ? materials.F : internalMat,  
+                            z === -1 ? materials.B : internalMat  
                         ];
                         
                         const mesh = new THREE.Mesh(geom, mats); 
@@ -712,23 +626,12 @@
             
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
             
-            renderer.domElement.addEventListener('webglcontextlost', (event) => {
-                event.preventDefault();
-            }, false);
-
-            renderer.domElement.addEventListener('webglcontextrestored', () => {
-                buildCube();
-                loadSavedStateSync();
-            }, false);
-
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
-            controls.autoRotate = false;
-            
             controls.target.set(0, -1.2, 0);
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
@@ -836,12 +739,7 @@
             if (isDouble) angle = angle * 2;
 
             let currentProgress = 0;
-            let duration = 25;
-            if (isScrambling || currentMode === 'auto') {
-                duration = 38; 
-            } else if (moveQueue.length > 2) {
-                duration = 12;
-            }
+            let duration = (isScrambling || currentMode === 'auto') ? 38 : (moveQueue.length > 2 ? 12 : 25);
 
             function animateRotation() {
                 currentProgress++;
@@ -868,9 +766,7 @@
                     });
                     
                     isAnimating = false;
-                    if (isScrambling && moveQueue.length === 0) {
-                        isScrambling = false;
-                    }
+                    if (isScrambling && moveQueue.length === 0) isScrambling = false;
                 }
             }
             animateRotation();
@@ -889,9 +785,7 @@
             container.innerHTML = html;
         }
 
-        function handleMove(move) {
-            moveQueue.push(move);
-        }
+        function handleMove(move) { moveQueue.push(move); }
 
         function setMode(mode) {
             currentMode = mode;
@@ -904,16 +798,13 @@
                     currentStepIndex = -1;
                     activeAlgoSteps = storedAlgoStr.split(' ');
                     updateAlgoHighlight();
-                    activeAlgoSteps.forEach(step => {
-                        moveQueue.push(step);
-                    });
+                    activeAlgoSteps.forEach(step => moveQueue.push(step));
                 }
             } else {
                 moveQueue = [];
                 if (storedAlgoStr) {
                     currentStepIndex = -1;
-                    const container = document.getElementById('algo-display');
-                    container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+                    document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                 }
             }
             saveState();
@@ -923,20 +814,13 @@
             isScrambling = true;
             const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
             for (let i = 0; i < 20; i++) {
-                const randomMove = moves[Math.floor(Math.random() * moves.length)];
-                moveQueue.push(randomMove);
+                moveQueue.push(moves[Math.floor(Math.random() * moves.length)]);
             }
         }
 
         function triggerReset() {
-            moveQueue = [];
-            historyMoves = [];
-            activeAlgoSteps = [];
-            currentStepIndex = -1;
-            isAnimating = false;
-            isScrambling = false;
-            moveCount = 0;
-            storedAlgoStr = "";
+            moveQueue = []; historyMoves = []; activeAlgoSteps = [];
+            currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
             localStorage.removeItem('rubik_cube_save_data');
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
@@ -945,13 +829,12 @@
         }
 
         function saveState() {
-            const data = {
+            localStorage.setItem('rubik_cube_save_data', JSON.stringify({
                 historyMoves: historyMoves,
                 moveCount: moveCount,
                 storedAlgoStr: storedAlgoStr,
                 currentMode: currentMode
-            };
-            localStorage.setItem('rubik_cube_save_data', JSON.stringify(data));
+            }));
         }
 
         function loadSavedStateSync() {
@@ -969,21 +852,15 @@
                     if (data.storedAlgoStr) {
                         storedAlgoStr = data.storedAlgoStr;
                         activeAlgoSteps = storedAlgoStr.split(' ');
-                        const container = document.getElementById('algo-display');
-                        container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+                        document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                     }
 
-                    if (data.currentMode) {
-                        currentMode = data.currentMode;
-                        document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
-                        document.getElementById(currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
-                    }
+                    if (data.currentMode) setMode(data.currentMode);
 
                     historyMoves.forEach(move => executeInstantMove(move));
                     isRestoring = false;
                 }
             } catch (err) {
-                console.error("State restore error:", err);
                 isRestoring = false;
             }
         }
@@ -994,30 +871,12 @@
             document.body.style.background = THEMES[themeKey].gradient;
         }
 
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && cubies.length > 0) {
-                buildCube();
-                loadSavedStateSync();
-            }
-        });
-
         window.onload = init3D;
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
-        }
-    </script>
-
-    <!-- Вбудована реєстрація Service Worker для PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker успішно зареєстровано!', reg))
-                    .catch(err => console.warn('Помилка реєстрації Service Worker:', err));
-            });
         }
     </script>
 </body>
