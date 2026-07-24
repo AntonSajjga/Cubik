@@ -11,6 +11,9 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
 
+    <!-- Lemon Squeezy Overlay Script -->
+    <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -289,7 +292,7 @@
             <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
             <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
             
-            <a id="buy-btn-link" href="https://logixcube.lemonsqueezy.com/buy/a9c73a40-c798-4914-8682-1c4ca210f04f" target="_blank" class="buy-link">
+            <a id="buy-btn-link" href="https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f?embed=1" class="lemonsqueezy-button buy-link">
                 🛒 Subscribe for $4.99 / mo
             </a>
             <br>
@@ -301,8 +304,8 @@
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
 
         const STORE_URLS = {
-            monthly: "https://logixcube.lemonsqueezy.com/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
-            yearly: "https://logixcube.lemonsqueezy.com/buy/e5280fde-1c68-4504-8c23-22d464aff311"
+            monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f?embed=1",
+            yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311?embed=1"
         };
 
         const FREE_ALGORITHMS = [
