@@ -1,0 +1,17 @@
+{
+  "short_name": "LogixCube",
+  "name": "LogixCube 3D Trainer",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#141420",
+  "theme_color": "#529b89",
+  "display": "standalone",
+  "orientation": "portrait"
+}
