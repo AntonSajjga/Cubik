@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Кубик Рубіка 3D PRO</title>
     
+    <!-- PWA та Іконки -->
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
@@ -361,11 +363,50 @@
             }
         }
 
-        function checkProStatus() {
+        async function checkProStatus() {
             const savedKey = localStorage.getItem('rubik_license_key');
-            if (savedKey) {
+            if (!savedKey) return;
+
+            if (savedKey === 'ADMIN_ACTIVATED') {
                 isProUser = true;
                 updateProUI();
+                return;
+            }
+
+            try {
+                const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'license_key': savedKey })
+                });
+
+                const data = await response.json();
+
+                if (data.valid && data.meta && data.meta.status !== 'disabled' && data.meta.status !== 'expired') {
+                    isProUser = true;
+                    updateProUI();
+                } else {
+                    revokeProAccess('Термін дії підписки закінчився. Будь ласка, подовжте підписку.');
+                }
+            } catch (error) {
+                console.warn("Мережева помилка перевірки ключа. Тимчасовий офлайн доступ.");
+                isProUser = true;
+                updateProUI();
+            }
+        }
+
+        function revokeProAccess(message) {
+            localStorage.removeItem('rubik_license_key');
+            isProUser = false;
+            
+            const btn = document.getElementById('pro-status-btn');
+            if (btn) {
+                btn.innerText = '🔑 PRO';
+                btn.style.background = '#f39c12';
+            }
+
+            if (message) {
+                alert(message);
             }
         }
 
@@ -387,10 +428,10 @@
 
         async function validateLicense() {
             const key = document.getElementById('license-key-input').value.trim();
-            if (!key) return alert('Please enter a license key!');
+            if (!key) return alert('Введіть ключ ліцензії!');
 
             if (key === ADMIN_MASTER_KEY) {
-                alert('👑 PRO Mode Activated (Admin Access)!');
+                alert('👑 PRO Режим активовано (Адмін доступ)!');
                 localStorage.setItem('rubik_license_key', 'ADMIN_ACTIVATED');
                 isProUser = true;
                 updateProUI();
@@ -408,36 +449,29 @@
                 const data = await response.json();
 
                 if (data.valid) {
-                    alert('🎉 PRO Version successfully activated!');
+                    alert('🎉 PRO версія успішно активована!');
                     localStorage.setItem('rubik_license_key', key);
                     isProUser = true;
                     updateProUI();
                     closeActivationModal();
                 } else {
-                    alert('❌ Invalid or expired license key!');
+                    alert('❌ Недійсний або прострочений ключ!');
                 }
             } catch (error) {
                 console.error(error);
-                alert('Connection error. Please check your internet connection.');
+                alert('Помилка з\'єднання. Перевірте підключення до інтернету.');
             }
         }
 
         window.resetProStatusForTesting = function() {
-            localStorage.removeItem('rubik_license_key');
-            isProUser = false;
-            const btn = document.getElementById('pro-status-btn');
-            if (btn) {
-                btn.innerText = '🔑 PRO';
-                btn.style.background = '#f39c12';
-            }
-            alert('PRO status reset. Application is back in free mode.');
+            revokeProAccess('PRO статус скинуто для тестування.');
         };
 
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
             
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
-                alert("🔒 This algorithm is available in PRO version only!");
+                alert("🔒 Цей алгоритм доступний лише у PRO версії!");
                 openActivationModal();
                 return;
             }
@@ -965,6 +999,17 @@
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+    </script>
+
+    <!-- Вбудована реєстрація Service Worker для PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker успішно зареєстровано!', reg))
+                    .catch(err => console.warn('Помилка реєстрації Service Worker:', err));
+            });
         }
     </script>
 </body>
