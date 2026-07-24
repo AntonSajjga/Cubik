@@ -285,7 +285,6 @@
     <script>
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
         
-        // Посилання на товари у Lemon Squeezy
         const STORE_URLS = {
             monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
             yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
@@ -307,7 +306,6 @@
             }
         }
 
-        // Прямий перехід без блокування pop-up на iOS/Android/PWA
         function openSelectedCheckout() {
             const checkoutUrl = STORE_URLS[currentSelectedPlan];
             if (checkoutUrl) {
@@ -507,17 +505,21 @@
 
         function createLogoTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
-            canvas.width = 256; canvas.height = 256;
+            canvas.width = 256; 
+            canvas.height = 256;
             const ctx = canvas.getContext('2d'); 
             
+            // 1. Пластикова основа елемента кубика
             ctx.fillStyle = PLASTIC_COLOR; 
             ctx.fillRect(0, 0, 256, 256);
             
+            // 2. Кольорова наклейка (Біла)
             ctx.fillStyle = hexColor; 
             ctx.beginPath(); 
             ctx.roundRect(12, 12, 232, 232, 28); 
             ctx.fill();
             
+            // 3. Текст логотипу LOGIXCUBE
             ctx.fillStyle = '#141420';
             ctx.font = '900 24px system-ui, -apple-system, sans-serif';
             ctx.textAlign = 'center';
@@ -628,7 +630,6 @@
             camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
             camera.position.set(6.5, 5.0, 9.5); 
             
-            // Налаштування WebGLRenderer проти графічних артефактів
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true, 
                 alpha: true,
