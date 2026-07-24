@@ -291,9 +291,10 @@
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
 
         const STORE_URLS = {
-            monthly: "https://your-store.lemonsqueezy.com/buy/MONTHLY_PRODUCT_ID",
-            yearly: "https://your-store.lemonsqueezy.com/buy/YEARLY_PRODUCT_ID"
-        };
+    monthly: "https://logixcube.lemonsqueezy.com/buy/660a9f53-b09e-4a6c-9403-f0278aa13b71",
+    yearly: "https://logixcube.lemonsqueezy.com/buy/bc4be486-5f72-46a4-a957-c53e8e2fa516"
+};
+
 
         const FREE_ALGORITHMS = [
             "R U R' U'",
@@ -554,42 +555,41 @@
             return new THREE.CanvasTexture(canvas);
         }
 
-        // Функція генерації логотипа LogixCube
+        /* ===== ВИПРАВЛЕНА ФУНКЦІЯ ЛОГОТИПА LOGIXCUBE ===== */
         function createXeroxLogoTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
-            canvas.width = 128; 
-            canvas.height = 128;
+            canvas.width = 256; 
+            canvas.height = 256;
             const ctx = canvas.getContext('2d'); 
             
             // Основа пластику та наклейка
             ctx.fillStyle = PLASTIC_COLOR; 
-            ctx.fillRect(0, 0, 128, 128);
+            ctx.fillRect(0, 0, 256, 256);
             
             ctx.fillStyle = hexColor; 
             ctx.beginPath(); 
-            ctx.roundRect(7, 7, 114, 114, 16); 
+            ctx.roundRect(14, 14, 228, 228, 32); 
             ctx.fill();
             
-            // Червоні елементи логотипа
+            // Оптимізовані та відцентровані елементи логотипа
             ctx.fillStyle = '#c0392b';
+            ctx.beginPath(); ctx.moveTo(64, 50); ctx.lineTo(92, 50); ctx.lineTo(128, 98); ctx.lineTo(100, 98); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(192, 50); ctx.lineTo(164, 50); ctx.lineTo(128, 98); ctx.lineTo(156, 98); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(64, 158); ctx.lineTo(92, 158); ctx.lineTo(128, 110); ctx.lineTo(100, 110); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(192, 158); ctx.lineTo(164, 158); ctx.lineTo(128, 110); ctx.lineTo(156, 110); ctx.fill();
             
-            ctx.beginPath(); ctx.moveTo(32, 25); ctx.lineTo(46, 25); ctx.lineTo(64, 49); ctx.lineTo(50, 49); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(96, 25); ctx.lineTo(82, 25); ctx.lineTo(64, 49); ctx.lineTo(78, 49); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(32, 79); ctx.lineTo(46, 79); ctx.lineTo(64, 55); ctx.lineTo(50, 55); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(96, 79); ctx.lineTo(82, 79); ctx.lineTo(64, 55); ctx.lineTo(78, 55); ctx.fill();
-            
-            // Лінія та текст
             ctx.strokeStyle = '#141420';
-            ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(36, 52); ctx.lineTo(92, 52); ctx.stroke();
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(72, 104); ctx.lineTo(184, 104); ctx.stroke();
             
+            // Текст LOGIXCUBE з розбірливим шрифтом
             ctx.fillStyle = '#141420';
-            ctx.font = '900 9px "Courier New", monospace, sans-serif';
+            ctx.font = '900 18px "Courier New", monospace, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
             const text = "LOGIXCUBE";
-            ctx.fillText(text.split('').join(' '), 64, 102); 
+            ctx.fillText(text.split('').join(' '), 128, 204); 
             
             return new THREE.CanvasTexture(canvas);
         }
