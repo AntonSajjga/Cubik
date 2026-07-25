@@ -130,7 +130,7 @@
         .action-btn:hover { background: #3498db; }
         .pro-btn { background: #f39c12; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .pro-btn:hover { background: #f1c40f; }
-        .danger-btn { background: #c0392b; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .danger-btn { background: #c0392b; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; }
         .danger-btn:hover { background: #e74c3c; }
 
         #pro-modal {
@@ -254,7 +254,7 @@
         <div class="fx-group">
             <button class="action-btn" onclick="triggerScramble()">🔀 Scramble</button>
             <button id="pro-status-btn" class="pro-btn" onclick="openActivationModal()">🔑 PRO</button>
-            <button class="danger-btn" onclick="triggerReset()">⟳ Reset</button>
+            <button id="reset-btn" class="danger-btn" onclick="triggerReset()">⟳ Reset</button>
         </div>
     </div>
 
@@ -345,6 +345,7 @@
         let storedAlgoStr = ""; 
         let activeAlgoSteps = [];
         let currentStepIndex = -1;
+        let animFrameId = null;
         
         let faceLabelsGroup = new THREE.Group();
         let showLabels = false;
@@ -353,6 +354,20 @@
         
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
+
+        function updateResetButtonState() {
+            const resetBtn = document.getElementById('reset-btn');
+            if (!resetBtn) return;
+            if (isScrambling || isAnimating || moveQueue.length > 0) {
+                resetBtn.disabled = true;
+                resetBtn.style.opacity = '0.4';
+                resetBtn.style.cursor = 'not-allowed';
+            } else {
+                resetBtn.disabled = false;
+                resetBtn.style.opacity = '1';
+                resetBtn.style.cursor = 'pointer';
+            }
+        }
 
         async function checkProStatus() {
             const savedKey = localStorage.getItem('rubik_license_key');
@@ -644,7 +659,6 @@
             camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
             camera.position.set(6.5, 5.0, 9.5); 
             
-            // Налаштування WebGLRenderer проти графічних артефактів
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true, 
                 alpha: true,
@@ -746,6 +760,7 @@
 
         function executeMove(moveStr) {
             isAnimating = true;
+            updateResetButtonState();
             playClickSound();
 
             const isPrime = moveStr.includes("'");
@@ -776,7 +791,7 @@
                 if (face === 'F' || face === 'B') pivot.rotation.z += step;
 
                 if (currentProgress < duration) {
-                    requestAnimationFrame(animateRotation);
+                    animFrameId = requestAnimationFrame(animateRotation);
                 } else {
                     pivot.updateMatrixWorld();
                     const tempArray = [...pivot.children];
@@ -792,10 +807,12 @@
                     });
                     
                     isAnimating = false;
+                    animFrameId = null;
                     if (isScrambling && moveQueue.length === 0) isScrambling = false;
+                    updateResetButtonState();
                 }
             }
-            animateRotation();
+            animFrameId = requestAnimationFrame(animateRotation);
         }
 
         function updateAlgoHighlight() {
@@ -811,7 +828,10 @@
             container.innerHTML = html;
         }
 
-        function handleMove(move) { moveQueue.push(move); }
+        function handleMove(move) { 
+            moveQueue.push(move); 
+            updateResetButtonState();
+        }
 
         function setMode(mode) {
             currentMode = mode;
@@ -833,11 +853,13 @@
                     document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                 }
             }
+            updateResetButtonState();
             saveState();
         }
 
         function triggerScramble() {
             isScrambling = true;
+            updateResetButtonState();
             const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
             for (let i = 0; i < 20; i++) {
                 moveQueue.push(moves[Math.floor(Math.random() * moves.length)]);
@@ -845,6 +867,18 @@
         }
 
         function triggerReset() {
+            if (animFrameId) {
+                cancelAnimationFrame(animFrameId);
+                animFrameId = null;
+            }
+
+            while (pivot.children.length > 0) {
+                scene.attach(pivot.children[0]);
+            }
+            
+            pivot.rotation.set(0, 0, 0);
+            pivot.position.set(0, 0, 0);
+
             moveQueue = []; historyMoves = []; activeAlgoSteps = [];
             currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
             localStorage.removeItem('rubik_cube_save_data');
@@ -852,6 +886,7 @@
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
             if (controls) controls.target.set(0, -1.2, 0);
+            updateResetButtonState();
         }
 
         function saveState() {
