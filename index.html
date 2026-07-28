@@ -302,14 +302,16 @@
     </div>
 
     <script>
-        // ========== ЗАХИЩЕНИЙ АДМІН-КЛЮЧ (закодований) ==========
-        const ENCODED_ADMIN_KEY = [
-            76,79,71,73,88,45,65,68,77,73,78,45,50,48,50,54,45,83,69,67,82,69,84
-        ];
-        function decodeAdminKey() {
-            return String.fromCharCode(...ENCODED_ADMIN_KEY.map(c => c - 3));
-        }
-        const ADMIN_MASTER_KEY = decodeAdminKey();
+        // ========== ЗАХИЩЕНИЙ АДМІН-КЛЮЧ (виправлений) ==========
+// Оригінал: "LOGIX-ADMIN-2026-SECRET"
+// Кожен символ зсунуто на +3 (шифр Цезаря)
+const ENCODED_ADMIN_KEY = [
+    79, 82, 74, 76, 91, 48, 68, 71, 80, 76, 81, 48, 53, 51, 53, 57, 48, 86, 72, 70, 85, 72, 87
+];
+function decodeAdminKey() {
+    return String.fromCharCode(...ENCODED_ADMIN_KEY.map(c => c - 3));
+}
+const ADMIN_MASTER_KEY = decodeAdminKey(); // тепер правильно "LOGIX-ADMIN-2026-SECRET"
 
         const FREE_ALGORITHMS = [
             "R U R' U'", "L' U' L U", "R' F R F'", "R U R' U R U2 R'", "U R U' L' U R' U' L"
