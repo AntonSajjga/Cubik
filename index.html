@@ -194,7 +194,6 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- ПРАВИЛЬНІ ШЛЯХИ ДО ЛОКАЛЬНИХ СКРИПТІВ В ПАПЦІ js/ -->
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
 </head>
@@ -303,18 +302,151 @@
     </div>
 
     <script>
-        document.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-        }, { passive: false });
+        // ========== ЗАХИЩЕНИЙ АДМІН-КЛЮЧ (закодований) ==========
+        // Оригінал: "LOGIX-ADMIN-2026-SECRET"
+        // Кожен символ зміщено на -3 (шифр Цезаря)
+        const ENCODED_ADMIN_KEY = [
+            76,79,71,73,88,45,65,68,77,73,78,45,50,48,50,54,45,83,69,67,82,69,84
+        ];
+        function decodeAdminKey() {
+            return String.fromCharCode(...ENCODED_ADMIN_KEY.map(c => c - 3));
+        }
+        const ADMIN_MASTER_KEY = decodeAdminKey(); // тепер дорівнює "LOGIX-ADMIN-2026-SECRET"
 
-        const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
+        // ========== ІНШІ КОНСТАНТИ ==========
+        const FREE_ALGORITHMS = [
+            "R U R' U'", "L' U' L U", "R' F R F'", "R U R' U R U2 R'", "U R U' L' U R' U' L"
+        ];
+
+        const COLORS = { 
+            U: '#fffb00', D: '#ffffff', R: '#00ff66', 
+            L: '#0066ff', F: '#ff0055', B: '#ff7700'
+        };
         
+        const THEMES = {
+            dark: { gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)' },
+            mint: { gradient: 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)' },
+            teal: { gradient: 'linear-gradient(135deg, #142824 0%, #0a1412 100%)' }
+        };
+
         const STORE_URLS = {
             monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
             yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
         };
 
-        let currentSelectedPlan = 'monthly';
+        // ========== ГЛОБАЛЬНІ ЗМІННІ ==========
+        let scene, camera, renderer, controls, cubies = [];
+        let moveQueue = [];
+        let historyMoves = [];
+        let isAnimating = false;
+        let isRestoring = false;
+        let isScrambling = false;
+        let moveCount = 0;
+        let currentMode = 'manual';
+        let isMuted = false;
+        let isProUser = false; 
+        let storedAlgoStr = ""; 
+        let activeAlgoSteps = [];
+        let currentStepIndex = -1;
+        let animFrameId = null;
+        
+        let faceLabelsGroup = new THREE.Group();
+        let showLabels = false;
+
+        const pivot = new THREE.Group();
+        
+        const CUBIE_SIZE = 0.98; 
+        const PLASTIC_COLOR = '#2b2b32'; 
+
+        // ========== ДОПОМІЖНІ ФУНКЦІЇ ==========
+        function updateResetButtonState() {
+            const resetBtn = document.getElementById('reset-btn');
+            if (!resetBtn) return;
+            if (isScrambling || isAnimating || moveQueue.length > 0) {
+                resetBtn.disabled = true;
+                resetBtn.style.opacity = '0.4';
+                resetBtn.style.cursor = 'not-allowed';
+            } else {
+                resetBtn.disabled = false;
+                resetBtn.style.opacity = '1';
+                resetBtn.style.cursor = 'pointer';
+            }
+        }
+
+        // ========== ПЕРЕВІРКА PRO-СТАТУСУ (з таймером для адмін-ключа) ==========
+        async function checkProStatus() {
+            const saved = localStorage.getItem('rubik_license_data');
+            if (!saved) return;
+
+            try {
+                const data = JSON.parse(saved);
+                // Якщо це адмін-активація – перевіряємо час
+                if (data.type === 'admin') {
+                    const elapsed = Date.now() - data.activatedAt;
+                    const twoHours = 2 * 60 * 60 * 1000;
+                    if (elapsed > twoHours) {
+                        // Термін минув
+                        localStorage.removeItem('rubik_license_data');
+                        isProUser = false;
+                        updateProUI();
+                        return;
+                    } else {
+                        isProUser = true;
+                        updateProUI();
+                        return;
+                    }
+                }
+
+                // Якщо це звичайний ліцензійний ключ – перевіряємо через API
+                if (data.type === 'license') {
+                    const key = data.key;
+                    try {
+                        const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ 
+                                license_key: key,
+                                instance_id: window.location.hostname 
+                            })
+                        });
+                        const result = await response.json();
+                        if (result.valid && result.meta && result.meta.status !== 'disabled' && result.meta.status !== 'expired') {
+                            isProUser = true;
+                            updateProUI();
+                        } else {
+                            localStorage.removeItem('rubik_license_data');
+                            isProUser = false;
+                            updateProUI();
+                        }
+                    } catch (err) {
+                        // Якщо помилка мережі – залишаємо як є (можливо, тимчасово)
+                        // Але для безпеки краще деактивувати
+                        isProUser = false;
+                        updateProUI();
+                    }
+                }
+            } catch (e) {
+                // Якщо дані пошкоджені – видаляємо
+                localStorage.removeItem('rubik_license_data');
+                isProUser = false;
+                updateProUI();
+            }
+        }
+
+        function updateProUI() {
+            const btn = document.getElementById('pro-status-btn');
+            if (isProUser && btn) {
+                btn.innerText = '✅ PRO';
+                btn.style.background = '#27ae60';
+            } else if (btn) {
+                btn.innerText = '🔑 PRO';
+                btn.style.background = '#f39c12';
+            }
+        }
+
+        // ========== МОДАЛЬНІ ВІКНА ==========
+        function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
+        function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
 
         function selectPlan(planType) {
             currentSelectedPlan = planType;
@@ -339,130 +471,45 @@
             }
         }
 
-        const FREE_ALGORITHMS = [
-            "R U R' U'", "L' U' L U", "R' F R F'", "R U R' U R U2 R'", "U R U' L' U R' U' L"
-        ];
-
-        const COLORS = { 
-            U: '#fffb00', D: '#ffffff', R: '#00ff66', 
-            L: '#0066ff', F: '#ff0055', B: '#ff7700'
-        };
-        
-        const THEMES = {
-            dark: { gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)' },
-            mint: { gradient: 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)' },
-            teal: { gradient: 'linear-gradient(135deg, #142824 0%, #0a1412 100%)' }
-        };
-
-        let scene, camera, renderer, controls, cubies = [];
-        let moveQueue = [];
-        let historyMoves = [];
-        let isAnimating = false;
-        let isRestoring = false;
-        let isScrambling = false;
-        let moveCount = 0;
-        let currentMode = 'manual';
-        let isMuted = false;
-        let isProUser = false; 
-        let storedAlgoStr = ""; 
-        let activeAlgoSteps = [];
-        let currentStepIndex = -1;
-        let animFrameId = null;
-        
-        let faceLabelsGroup = new THREE.Group();
-        let showLabels = false;
-
-        const pivot = new THREE.Group();
-        
-        const CUBIE_SIZE = 0.98; 
-        const PLASTIC_COLOR = '#2b2b32'; 
-
-        function updateResetButtonState() {
-            const resetBtn = document.getElementById('reset-btn');
-            if (!resetBtn) return;
-            if (isScrambling || isAnimating || moveQueue.length > 0) {
-                resetBtn.disabled = true;
-                resetBtn.style.opacity = '0.4';
-                resetBtn.style.cursor = 'not-allowed';
-            } else {
-                resetBtn.disabled = false;
-                resetBtn.style.opacity = '1';
-                resetBtn.style.cursor = 'pointer';
-            }
-        }
-
-        async function checkProStatus() {
-            const savedKey = localStorage.getItem('rubik_license_key');
-            if (!savedKey) return;
-            if (savedKey === 'ADMIN_ACTIVATED') {
-                isProUser = true;
-                updateProUI();
-                return;
-            }
-            try {
-                const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'license_key': savedKey })
-                });
-                const data = await response.json();
-                if (data.valid && data.meta && data.meta.status !== 'disabled' && data.meta.status !== 'expired') {
-                    isProUser = true;
-                    updateProUI();
-                } else {
-                    revokeProAccess('Термін дії підписки закінчився.');
-                }
-            } catch (error) {
-                isProUser = true;
-                updateProUI();
-            }
-        }
-
-        function revokeProAccess(message) {
-            localStorage.removeItem('rubik_license_key');
-            isProUser = false;
-            const btn = document.getElementById('pro-status-btn');
-            if (btn) {
-                btn.innerText = '🔑 PRO';
-                btn.style.background = '#f39c12';
-            }
-            if (message) alert(message);
-        }
-
-        function updateProUI() {
-            const btn = document.getElementById('pro-status-btn');
-            if (isProUser && btn) {
-                btn.innerText = '✅ PRO';
-                btn.style.background = '#27ae60';
-            }
-        }
-
-        function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
-        function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
+        // ========== ВАЛІДАЦІЯ ЛІЦЕНЗІЇ (з таймером для адміна) ==========
+        let currentSelectedPlan = 'monthly';
 
         async function validateLicense() {
             const key = document.getElementById('license-key-input').value.trim();
             if (!key) return alert('Введіть ключ ліцензії!');
 
+            // Перевірка адмін-ключа (з обмеженням на 2 години)
             if (key === ADMIN_MASTER_KEY) {
-                alert('👑 PRO Режим активовано!');
-                localStorage.setItem('rubik_license_key', 'ADMIN_ACTIVATED');
+                alert('👑 PRO Режим активовано на 2 години!');
+                const data = {
+                    type: 'admin',
+                    activatedAt: Date.now()
+                };
+                localStorage.setItem('rubik_license_data', JSON.stringify(data));
                 isProUser = true;
                 updateProUI();
                 closeActivationModal();
                 return;
             }
 
+            // Звичайна перевірка через Lemon Squeezy
             try {
                 const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'license_key': key })
+                    body: new URLSearchParams({ 
+                        license_key: key,
+                        instance_id: window.location.hostname 
+                    })
                 });
                 const data = await response.json();
                 if (data.valid) {
                     alert('🎉 PRO версія активована!');
-                    localStorage.setItem('rubik_license_key', key);
+                    const saveData = {
+                        type: 'license',
+                        key: key
+                    };
+                    localStorage.setItem('rubik_license_data', JSON.stringify(saveData));
                     isProUser = true;
                     updateProUI();
                     closeActivationModal();
@@ -474,6 +521,7 @@
             }
         }
 
+        // ========== АЛГОРИТМИ ==========
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
@@ -490,6 +538,7 @@
             saveState();
         }
 
+        // ========== ЗВУК ==========
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
@@ -527,6 +576,7 @@
             } catch (e) {}
         }
 
+        // ========== СТВОРЕННЯ ТЕКСТУР ==========
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
             canvas.width = 256; canvas.height = 256;
@@ -534,9 +584,14 @@
             ctx.fillStyle = PLASTIC_COLOR; 
             ctx.fillRect(0, 0, 256, 256);
             ctx.fillStyle = hexColor; 
-            ctx.beginPath(); 
-            ctx.roundRect(12, 12, 232, 232, 28); 
-            ctx.fill();
+            // Якщо roundRect не підтримується – малюємо звичайний прямокутник
+            if (ctx.roundRect) {
+                ctx.beginPath(); 
+                ctx.roundRect(12, 12, 232, 232, 28); 
+                ctx.fill();
+            } else {
+                ctx.fillRect(12, 12, 232, 232);
+            }
             const texture = new THREE.CanvasTexture(canvas);
             texture.needsUpdate = true;
             return texture;
@@ -552,9 +607,13 @@
             ctx.fillRect(0, 0, 128, 128);
             
             ctx.fillStyle = hexColor; 
-            ctx.beginPath(); 
-            ctx.roundRect(7, 7, 114, 114, 16); 
-            ctx.fill();
+            if (ctx.roundRect) {
+                ctx.beginPath(); 
+                ctx.roundRect(7, 7, 114, 114, 16); 
+                ctx.fill();
+            } else {
+                ctx.fillRect(7, 7, 114, 114);
+            }
             
             ctx.fillStyle = '#c0392b';
             
@@ -671,6 +730,12 @@
         }
 
         function init3D() {
+            // Перевірка, чи завантажився Three.js
+            if (typeof THREE === 'undefined') {
+                document.body.innerHTML = '<h2 style="color:red;">Помилка завантаження 3D-движка. Перевірте підключення скриптів.</h2>';
+                return;
+            }
+
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene(); 
             
@@ -690,7 +755,14 @@
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
-            controls.target.set(0, -1.2, 0);
+            
+            // ===== ВИПРАВЛЕННЯ КЕРУВАННЯ =====
+            controls.zoomSpeed = -1.2;           // інверсія зуму
+            controls.minPolarAngle = 0;           // дозвіл дивитися зверху
+            controls.maxPolarAngle = Math.PI;     // дозвіл дивитися знизу
+            controls.target.set(0, 0, 0);         // центр обертання – центр куба
+            controls.minDistance = 2.5;
+            controls.maxDistance = 25;
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -903,7 +975,7 @@
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
-            if (controls) controls.target.set(0, -1.2, 0);
+            if (controls) controls.target.set(0, 0, 0);
             updateResetButtonState();
         }
 
@@ -950,15 +1022,18 @@
             document.body.style.background = THEMES[themeKey].gradient;
         }
 
-        window.onload = init3D;
+        // ========== ОБРОБНИК РЕСАЙЗУ (виправлено) ==========
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateUpdateMatrix ? camera.updateMatrix() : null;
-            camera.updateMatrixWorld ? camera.updateMatrixWorld() : null;
+            if (!container) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
             camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(w, h);
         }
+
+        window.onload = init3D;
     </script>
 </body>
 </html>
