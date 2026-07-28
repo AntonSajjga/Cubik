@@ -737,12 +737,11 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
             
-            // ===== ІНТУЇТИВНЕ КЕРУВАННЯ =====
-            controls.zoomSpeed = -1.2;           // зум працює правильно
+            // ===== ВЗЯТО З ВАШОГО КОДУ (ПОКРАЩЕНЕ КЕРУВАННЯ) =====
+            controls.target.set(0, -1.2, 0);      // трохи нижче центру – інтуїтивний огляд
             controls.minPolarAngle = 0;           // дозвіл дивитися зверху
             controls.maxPolarAngle = Math.PI;     // дозвіл дивитися знизу
-            controls.target.set(0, 0, 0);         // ТОЧНИЙ ЦЕНТР КУБА – обертання навколо нього
-            controls.minDistance = 2.5;           // можна підійти ближче, але не врізатися
+            controls.minDistance = 2.5;
             controls.maxDistance = 25;
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
@@ -956,7 +955,7 @@
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
-            if (controls) controls.target.set(0, 0, 0);
+            if (controls) controls.target.set(0, -1.2, 0);
             updateResetButtonState();
         }
 
