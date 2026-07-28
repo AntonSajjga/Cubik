@@ -194,8 +194,9 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
+    <!-- Виправлені CDN посилання для Three.js та OrbitControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
 </head>
 <body>
 
@@ -692,10 +693,14 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
             
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.08;
-            controls.target.set(0, -1.2, 0);
+            // Надійний виклик OrbitControls
+            const OrbitControlsClass = THREE.OrbitControls || window.OrbitControls;
+            if (OrbitControlsClass) {
+                controls = new OrbitControlsClass(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.08;
+                controls.target.set(0, -1.2, 0);
+            }
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -730,7 +735,7 @@
                 saveState();
                 executeMove(nextMove);
             }
-            controls.update();
+            if (controls) controls.update();
             renderer.render(scene, camera);
         }
 
@@ -959,7 +964,7 @@
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
             camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateUpdateMatrix ? camera.updateMatrix() : null;
+            camera.updateMatrix ? camera.updateMatrix() : null;
             camera.updateMatrixWorld ? camera.updateMatrixWorld() : null;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
