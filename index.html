@@ -303,17 +303,14 @@
 
     <script>
         // ========== ЗАХИЩЕНИЙ АДМІН-КЛЮЧ (закодований) ==========
-        // Оригінал: "LOGIX-ADMIN-2026-SECRET"
-        // Кожен символ зміщено на -3 (шифр Цезаря)
         const ENCODED_ADMIN_KEY = [
             76,79,71,73,88,45,65,68,77,73,78,45,50,48,50,54,45,83,69,67,82,69,84
         ];
         function decodeAdminKey() {
             return String.fromCharCode(...ENCODED_ADMIN_KEY.map(c => c - 3));
         }
-        const ADMIN_MASTER_KEY = decodeAdminKey(); // тепер дорівнює "LOGIX-ADMIN-2026-SECRET"
+        const ADMIN_MASTER_KEY = decodeAdminKey();
 
-        // ========== ІНШІ КОНСТАНТИ ==========
         const FREE_ALGORITHMS = [
             "R U R' U'", "L' U' L U", "R' F R F'", "R U R' U R U2 R'", "U R U' L' U R' U' L"
         ];
@@ -334,7 +331,6 @@
             yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
         };
 
-        // ========== ГЛОБАЛЬНІ ЗМІННІ ==========
         let scene, camera, renderer, controls, cubies = [];
         let moveQueue = [];
         let historyMoves = [];
@@ -358,7 +354,6 @@
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
-        // ========== ДОПОМІЖНІ ФУНКЦІЇ ==========
         function updateResetButtonState() {
             const resetBtn = document.getElementById('reset-btn');
             if (!resetBtn) return;
@@ -373,19 +368,17 @@
             }
         }
 
-        // ========== ПЕРЕВІРКА PRO-СТАТУСУ (з таймером для адмін-ключа) ==========
+        // ========== ПЕРЕВІРКА PRO-СТАТУСУ ==========
         async function checkProStatus() {
             const saved = localStorage.getItem('rubik_license_data');
             if (!saved) return;
 
             try {
                 const data = JSON.parse(saved);
-                // Якщо це адмін-активація – перевіряємо час
                 if (data.type === 'admin') {
                     const elapsed = Date.now() - data.activatedAt;
                     const twoHours = 2 * 60 * 60 * 1000;
                     if (elapsed > twoHours) {
-                        // Термін минув
                         localStorage.removeItem('rubik_license_data');
                         isProUser = false;
                         updateProUI();
@@ -397,7 +390,6 @@
                     }
                 }
 
-                // Якщо це звичайний ліцензійний ключ – перевіряємо через API
                 if (data.type === 'license') {
                     const key = data.key;
                     try {
@@ -419,14 +411,11 @@
                             updateProUI();
                         }
                     } catch (err) {
-                        // Якщо помилка мережі – залишаємо як є (можливо, тимчасово)
-                        // Але для безпеки краще деактивувати
                         isProUser = false;
                         updateProUI();
                     }
                 }
             } catch (e) {
-                // Якщо дані пошкоджені – видаляємо
                 localStorage.removeItem('rubik_license_data');
                 isProUser = false;
                 updateProUI();
@@ -444,9 +433,10 @@
             }
         }
 
-        // ========== МОДАЛЬНІ ВІКНА ==========
         function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
         function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
+
+        let currentSelectedPlan = 'monthly';
 
         function selectPlan(planType) {
             currentSelectedPlan = planType;
@@ -471,14 +461,10 @@
             }
         }
 
-        // ========== ВАЛІДАЦІЯ ЛІЦЕНЗІЇ (з таймером для адміна) ==========
-        let currentSelectedPlan = 'monthly';
-
         async function validateLicense() {
             const key = document.getElementById('license-key-input').value.trim();
             if (!key) return alert('Введіть ключ ліцензії!');
 
-            // Перевірка адмін-ключа (з обмеженням на 2 години)
             if (key === ADMIN_MASTER_KEY) {
                 alert('👑 PRO Режим активовано на 2 години!');
                 const data = {
@@ -492,7 +478,6 @@
                 return;
             }
 
-            // Звичайна перевірка через Lemon Squeezy
             try {
                 const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
                     method: 'POST',
@@ -521,7 +506,6 @@
             }
         }
 
-        // ========== АЛГОРИТМИ ==========
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
@@ -538,7 +522,6 @@
             saveState();
         }
 
-        // ========== ЗВУК ==========
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
@@ -576,7 +559,6 @@
             } catch (e) {}
         }
 
-        // ========== СТВОРЕННЯ ТЕКСТУР ==========
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
             canvas.width = 256; canvas.height = 256;
@@ -584,7 +566,6 @@
             ctx.fillStyle = PLASTIC_COLOR; 
             ctx.fillRect(0, 0, 256, 256);
             ctx.fillStyle = hexColor; 
-            // Якщо roundRect не підтримується – малюємо звичайний прямокутник
             if (ctx.roundRect) {
                 ctx.beginPath(); 
                 ctx.roundRect(12, 12, 232, 232, 28); 
@@ -730,7 +711,6 @@
         }
 
         function init3D() {
-            // Перевірка, чи завантажився Three.js
             if (typeof THREE === 'undefined') {
                 document.body.innerHTML = '<h2 style="color:red;">Помилка завантаження 3D-движка. Перевірте підключення скриптів.</h2>';
                 return;
@@ -756,12 +736,12 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
             
-            // ===== ВИПРАВЛЕННЯ КЕРУВАННЯ =====
+            // ===== ВИПРАВЛЕНЕ КЕРУВАННЯ =====
             controls.zoomSpeed = -1.2;           // інверсія зуму
             controls.minPolarAngle = 0;           // дозвіл дивитися зверху
             controls.maxPolarAngle = Math.PI;     // дозвіл дивитися знизу
-            controls.target.set(0, 0, 0);         // центр обертання – центр куба
-            controls.minDistance = 2.5;
+            controls.target.set(0, -0.5, 0);      // трохи нижче центру для кращого огляду
+            controls.minDistance = 4.0;           // збільшено, щоб куб не виходив за межі
             controls.maxDistance = 25;
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
@@ -975,7 +955,7 @@
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
-            if (controls) controls.target.set(0, 0, 0);
+            if (controls) controls.target.set(0, -0.5, 0);
             updateResetButtonState();
         }
 
@@ -1022,7 +1002,6 @@
             document.body.style.background = THEMES[themeKey].gradient;
         }
 
-        // ========== ОБРОБНИК РЕСАЙЗУ (виправлено) ==========
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
             if (!container) return;
