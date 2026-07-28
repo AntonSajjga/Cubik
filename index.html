@@ -194,9 +194,9 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- Виправлені CDN посилання для Three.js та OrbitControls -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <!-- ПРАВИЛЬНІ ШЛЯХИ ДО ЛОКАЛЬНИХ СКРИПТІВ В ПАПЦІ js/ -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -309,7 +309,6 @@
 
         const ADMIN_MASTER_KEY = "LOGIX-ADMIN-2026-SECRET"; 
         
-        // Посилання на товари у Lemon Squeezy
         const STORE_URLS = {
             monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
             yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
@@ -331,7 +330,6 @@
             }
         }
 
-        // Прямий перехід без блокування pop-up на iOS/Android/PWA
         function openSelectedCheckout() {
             const checkoutUrl = STORE_URLS[currentSelectedPlan];
             if (checkoutUrl) {
@@ -550,7 +548,6 @@
             canvas.height = 128;
             const ctx = canvas.getContext('2d'); 
             
-            // Пластиковий фон та закруглений кольоровий квадрат
             ctx.fillStyle = PLASTIC_COLOR; 
             ctx.fillRect(0, 0, 128, 128);
             
@@ -559,7 +556,6 @@
             ctx.roundRect(7, 7, 114, 114, 16); 
             ctx.fill();
             
-            // Малювання червоного логотипа (X-подібна форма)
             ctx.fillStyle = '#c0392b';
             
             ctx.beginPath(); ctx.moveTo(32, 25); ctx.lineTo(46, 25); ctx.lineTo(64, 49); ctx.lineTo(50, 49); ctx.fill();
@@ -567,12 +563,10 @@
             ctx.beginPath(); ctx.moveTo(32, 79); ctx.lineTo(46, 79); ctx.lineTo(64, 55); ctx.lineTo(50, 55); ctx.fill();
             ctx.beginPath(); ctx.moveTo(96, 79); ctx.lineTo(82, 79); ctx.lineTo(64, 55); ctx.lineTo(78, 55); ctx.fill();
             
-            // Тонка розділювальна лінія
             ctx.strokeStyle = '#141420';
             ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(36, 52); ctx.lineTo(92, 52); ctx.stroke();
             
-            // Напис "LOGIXCUBE"
             ctx.fillStyle = '#141420';
             ctx.font = '900 9px "Courier New", monospace, sans-serif';
             ctx.textAlign = 'center';
@@ -693,14 +687,10 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
             
-            // Надійний виклик OrbitControls
-            const OrbitControlsClass = THREE.OrbitControls || window.OrbitControls;
-            if (OrbitControlsClass) {
-                controls = new OrbitControlsClass(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.08;
-                controls.target.set(0, -1.2, 0);
-            }
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.target.set(0, -1.2, 0);
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -735,7 +725,7 @@
                 saveState();
                 executeMove(nextMove);
             }
-            if (controls) controls.update();
+            controls.update();
             renderer.render(scene, camera);
         }
 
@@ -964,7 +954,7 @@
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
             camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateMatrix ? camera.updateMatrix() : null;
+            camera.updateUpdateMatrix ? camera.updateMatrix() : null;
             camera.updateMatrixWorld ? camera.updateMatrixWorld() : null;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
