@@ -194,9 +194,9 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- ЛОКАЛЬНІ ФАЙЛИ (працює офлайн) -->
-    <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
+    <!-- Підключення Three.js через CDN (як у sw.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -303,19 +303,6 @@
     </div>
 
     <script>
-        // ========== ПЕРЕВІРКА ЗАВАНТАЖЕННЯ THREE.JS ==========
-        if (typeof THREE === 'undefined') {
-            document.body.innerHTML = `
-                <div style="display:flex; align-items:center; justify-content:center; height:100vh; flex-direction:column; gap:20px; text-align:center; padding:20px;">
-                    <h2 style="color:#ff6b6b;">❌ Помилка завантаження 3D-движка</h2>
-                    <p style="color:#a0a0ab; max-width:400px;">Не вдалося знайти файли <b>js/three.min.js</b> та <b>js/OrbitControls.js</b>.<br>
-                    Переконайтеся, що вони лежать у папці <b>js</b> поруч із цією сторінкою, або завантажте їх з інтернету.</p>
-                    <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Спробувати ще раз</button>
-                </div>
-            `;
-            throw new Error('Three.js не завантажено');
-        }
-
         // ========== ЗАХИЩЕНИЙ АДМІН-КЛЮЧ ==========
         const ENCODED_ADMIN_KEY = [
             79, 82, 74, 76, 91, 48, 68, 71, 80, 76, 81, 48, 53, 51, 53, 57, 48, 86, 72, 70, 85, 72, 87
@@ -549,7 +536,7 @@
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            controls.zoomSpeed = -1.2;   // ← ВИПРАВЛЕННЯ ЗУМУ (інверсія для мобільних)
+            controls.zoomSpeed = -1.2;   // ВИПРАВЛЕННЯ ЗУМУ (інверсія для мобільних)
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -1007,6 +994,13 @@
                 noiseGain.connect(audioCtx.destination);
                 noise.start(now);
             } catch (e) {}
+        }
+
+        // ========== РЕЄСТРАЦІЯ SERVICE WORKER (ДЛЯ PWA) ==========
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('✅ Service Worker зареєстровано'))
+                .catch(err => console.error('❌ Помилка реєстрації SW:', err));
         }
 
         // ========== ЗАПУСК ==========
