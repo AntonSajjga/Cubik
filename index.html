@@ -53,7 +53,6 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
-            /* фон встановлюється через JS */
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -179,7 +178,9 @@
         .modal-input {
             width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3a3a52;
             margin-bottom: 12px; background: #09090e; color: #fff; text-align: center;
-            font-family: monospace; font-size: 13px; outline: none;
+            font-family: monospace; 
+            font-size: 16px; /* ЗМІНЕНО: 16px для запобігання масштабуванню на iOS */
+            outline: none;
         }
         .modal-btn-confirm {
             width: 100%; background: #27ae60; color: #fff; border: none; padding: 10px;
@@ -563,7 +564,7 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x529b89, 1); // за замовчуванням mint
+            renderer.setClearColor(0x529b89, 1);
             container.appendChild(renderer.domElement);
             container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
             
@@ -829,23 +830,18 @@
             }
         }
         
-        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ (ВИПРАВЛЕНО) ==========
+        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ ==========
         function switchTheme(themeKey, element) {
             document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
             element.classList.add('active');
             const theme = THEMES[themeKey];
             if (!theme) return;
             
-            // Змінюємо фон body
             document.body.style.background = theme.gradient;
-            
-            // Змінюємо фон контейнера
             const container = document.getElementById('canvas-container');
             if (container) {
                 container.style.background = theme.gradient;
             }
-            
-            // Змінюємо фон рендерера
             if (renderer) {
                 renderer.setClearColor(theme.clearColor, 1);
             }
@@ -999,8 +995,24 @@
             updateAlgorithmList();
         }
 
-        function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
-        function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
+        function openActivationModal() { 
+            document.getElementById('pro-modal').style.display = 'flex'; 
+        }
+
+        // ========== ВИПРАВЛЕНО: закриття модалки зі скиданням масштабу ==========
+        function closeActivationModal() { 
+            document.getElementById('pro-modal').style.display = 'none';
+            // Скидаємо масштаб для iOS Safari
+            if (window.visualViewport) {
+                // Не всі браузери підтримують visualViewport.scale, тому перевіряємо
+                try {
+                    window.visualViewport.scale = 1;
+                } catch (e) {
+                    // Ігноруємо помилку
+                }
+            }
+            window.scrollTo(0, 0);
+        }
 
         let currentSelectedPlan = 'monthly';
 
