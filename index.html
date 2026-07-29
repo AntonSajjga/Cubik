@@ -355,16 +355,29 @@
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
-        // ========== ОРИГІНАЛЬНА ФУНКЦІЯ createFaceTexture (з roundRect) ==========
+        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ (без roundRect) ==========
+        function drawRoundedRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas'); 
             canvas.width = 256; canvas.height = 256;
             const ctx = canvas.getContext('2d'); 
             ctx.fillStyle = PLASTIC_COLOR; 
             ctx.fillRect(0, 0, 256, 256);
-            ctx.fillStyle = hexColor; 
-            ctx.beginPath(); 
-            ctx.roundRect(12, 12, 232, 232, 28); 
+            ctx.fillStyle = hexColor;
+            drawRoundedRect(ctx, 12, 12, 232, 232, 28);
             ctx.fill();
             const texture = new THREE.CanvasTexture(canvas);
             texture.needsUpdate = true;
@@ -381,8 +394,7 @@
             ctx.fillRect(0, 0, 128, 128);
             
             ctx.fillStyle = hexColor; 
-            ctx.beginPath(); 
-            ctx.roundRect(7, 7, 114, 114, 16); 
+            drawRoundedRect(ctx, 7, 7, 114, 114, 16);
             ctx.fill();
             
             ctx.fillStyle = '#c0392b';
@@ -524,7 +536,7 @@
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            // Немає zoomSpeed – залишаємо стандартне значення
+            controls.zoomSpeed = 1.2;   // ВИПРАВЛЕНО: напрямок зуму тепер правильний
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -984,7 +996,7 @@
             } catch (e) {}
         }
 
-        // ========== РЕЄСТРАЦІЯ SERVICE WORKER ==========
+        // ========== РЕЄСТРАЦІЯ SERVICE WORKER (ДЛЯ PWA) ==========
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(() => console.log('✅ Service Worker зареєстровано'))
