@@ -53,7 +53,7 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
-            background: #529b89;
+            /* фон встановлюється через JS */
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -127,30 +127,30 @@
         .mode-wrapper { display: flex; background: #1e1e2a; border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.05); }
         .mode-toggle {
             flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 700; 
-            cursor: pointer; border-radius: 6px; transition: all 0.1s ease; color: #e0e0e5; /* підвищено контраст */
+            cursor: pointer; border-radius: 6px; transition: all 0.1s ease; color: #e0e0e5;
             touch-action: manipulation;
         }
-        .mode-toggle.active { background: #27ae60; color: #fff; box-shadow: 0 0 8px rgba(39, 174, 96, 0.5); }
+        .mode-toggle.active { background: #1e8449; color: #fff; box-shadow: 0 0 8px rgba(30, 132, 73, 0.5); }
 
         .alg-select-wrapper { position: relative; width: 100%; }
         .alg-select {
-            width: 100%; background: #27ae60; color: white; border: none; 
+            width: 100%; background: #1e8449; color: #fff; border: none; 
             padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; 
             cursor: pointer; appearance: none; -webkit-appearance: none; outline: none; text-align: center;
             touch-action: manipulation;
         }
-        .alg-select:hover { background: #2ecc71; }
+        .alg-select:hover { background: #229954; }
         .alg-select-wrapper::after {
             content: '▼'; font-size: 7px; color: white; position: absolute; right: 12px; top: 13px; pointer-events: none;
         }
 
         .fx-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-        .action-btn { background: #2980b9; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
-        .action-btn:hover { background: #3498db; }
-        .pro-btn { background: #f39c12; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
-        .pro-btn:hover { background: #f1c40f; }
-        .danger-btn { background: #c0392b; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
-        .danger-btn:hover { background: #e74c3c; }
+        .action-btn { background: #1a5276; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
+        .action-btn:hover { background: #1f618d; }
+        .pro-btn { background: #d68910; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
+        .pro-btn:hover { background: #e67e22; }
+        .danger-btn { background: #922b21; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
+        .danger-btn:hover { background: #a93226; }
 
         #pro-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -304,6 +304,18 @@
     </div>
 
     <script>
+        // ========== ОБРОБКА ПОМИЛОК ЗАВАНТАЖЕННЯ ==========
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT') {
+                console.warn('⚠️ Помилка завантаження скрипта:', e.target.src);
+                document.body.innerHTML += `
+                    <div style="position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#c0392b; color:#fff; padding:10px 20px; border-radius:8px; z-index:999; font-size:14px; text-align:center; max-width:90%;">
+                        ⚠️ Помилка завантаження 3D-движка. Перевірте підключення до інтернету.
+                    </div>
+                `;
+            }
+        }, true);
+
         // ========== ЗАХИЩЕНИЙ АДМІН-КЛЮЧ ==========
         const ENCODED_ADMIN_KEY = [
             79, 82, 74, 76, 91, 48, 68, 71, 80, 76, 81, 48, 53, 51, 53, 57, 48, 86, 72, 70, 85, 72, 87
@@ -322,10 +334,20 @@
             L: '#0066ff', F: '#ff0055', B: '#ff7700'
         };
         
+        // ========== ТЕМИ З КОЛЬОРОМ ДЛЯ РЕНДЕРЕРА ==========
         const THEMES = {
-            dark: { gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)' },
-            mint: { gradient: 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)' },
-            teal: { gradient: 'linear-gradient(135deg, #142824 0%, #0a1412 100%)' }
+            dark: { 
+                gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)',
+                clearColor: 0x09090e 
+            },
+            mint: { 
+                gradient: 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)',
+                clearColor: 0x529b89 
+            },
+            teal: { 
+                gradient: 'linear-gradient(135deg, #142824 0%, #0a1412 100%)',
+                clearColor: 0x142824 
+            }
         };
 
         const STORE_URLS = {
@@ -513,6 +535,20 @@
         }
 
         function init3D() {
+            // Перевірка, чи Three.js завантажився
+            if (typeof THREE === 'undefined') {
+                console.error('❌ Three.js не завантажено!');
+                document.getElementById('canvas-container').innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:10px; color:#fff; text-align:center; padding:20px;">
+                        <h2>⚠️ Помилка завантаження</h2>
+                        <p>Не вдалося завантажити 3D-рушій.<br>Перевірте з'єднання з інтернетом.</p>
+                        <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Оновити</button>
+                    </div>
+                `;
+                document.getElementById('canvas-container').classList.add('loaded');
+                return;
+            }
+
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene(); 
             
@@ -527,8 +563,9 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x529b89, 1);
+            renderer.setClearColor(0x529b89, 1); // за замовчуванням mint
             container.appendChild(renderer.domElement);
+            container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
             
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
@@ -792,10 +829,26 @@
             }
         }
         
+        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ (ВИПРАВЛЕНО) ==========
         function switchTheme(themeKey, element) {
             document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
             element.classList.add('active');
-            document.body.style.background = THEMES[themeKey].gradient;
+            const theme = THEMES[themeKey];
+            if (!theme) return;
+            
+            // Змінюємо фон body
+            document.body.style.background = theme.gradient;
+            
+            // Змінюємо фон контейнера
+            const container = document.getElementById('canvas-container');
+            if (container) {
+                container.style.background = theme.gradient;
+            }
+            
+            // Змінюємо фон рендерера
+            if (renderer) {
+                renderer.setClearColor(theme.clearColor, 1);
+            }
         }
 
         function onWindowResize() {
