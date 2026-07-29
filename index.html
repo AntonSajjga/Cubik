@@ -536,7 +536,7 @@
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            controls.zoomSpeed = 1.2;   // ВИПРАВЛЕНО: напрямок зуму тепер правильний
+            controls.zoomSpeed = 1.2;   // правильний напрямок зуму
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -806,6 +806,74 @@
             renderer.setSize(w, h);
         }
 
+        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ (прибирання замків) ==========
+        function updateAlgorithmList() {
+            const select = document.getElementById('alg-select');
+            const currentValue = select.value; // зберігаємо поточний вибір
+            
+            // Базовий список (з замками) – його ми перебудуємо
+            const optionsData = [
+                { value: '', text: '🎓 Choose algorithm...', disabled: true, selected: true },
+                // Basic Algorithms
+                { optgroup: '⚡ Basic Algorithms' },
+                { value: "R U R' U'", text: 'Right Sexy Move' },
+                { value: "L' U' L U", text: 'Left Sexy Move' },
+                { value: "R' F R F'", text: 'Sledgehammer' },
+                { value: "R U R' U R U2 R'", text: 'Sune OLL' },
+                { value: "U R U' L' U R' U' L", text: 'Four Corners Swap' },
+                // PRO: Advanced Speedcubing (CFOP)
+                { optgroup: isProUser ? '⭐ Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
+                { value: "R U2 R' U' R U' R'", text: isProUser ? 'Anti-Sune OLL' : '🔒 Anti-Sune OLL' },
+                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? 'J-Permutation' : '🔒 J-Permutation' },
+                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? 'Y-Permutation' : '🔒 Y-Permutation' },
+                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? 'A-Permutation' : '🔒 A-Permutation' },
+                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? 'Ua-Permutation' : '🔒 Ua-Permutation' },
+                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? 'Ub-Permutation' : '🔒 Ub-Permutation' },
+                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? 'E-Permutation' : '🔒 E-Permutation' },
+                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? 'T-Permutation' : '🔒 T-Permutation' },
+                // PRO: Creative Art & Patterns
+                { optgroup: isProUser ? '🎨 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
+                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? 'Cube in a Cube' : '🔒 Cube in a Cube' },
+                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? 'Dot Pattern' : '🔒 Dot Pattern' },
+                { value: "R L U2 R' L' U2", text: isProUser ? 'Snake Pattern' : '🔒 Snake Pattern' },
+                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? 'Stripes / Banded Pattern' : '🔒 Stripes / Banded Pattern' },
+                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? 'Double Cross Pattern' : '🔒 Double Cross Pattern' },
+                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? 'Nested Cube Pattern' : '🔒 Nested Cube Pattern' }
+            ];
+
+            // Очищаємо select
+            select.innerHTML = '';
+            
+            // Заповнюємо новими опціями
+            let currentOptgroup = null;
+            optionsData.forEach(item => {
+                if (item.optgroup) {
+                    // починаємо нову групу
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = item.optgroup;
+                    select.appendChild(optgroup);
+                    currentOptgroup = optgroup;
+                } else {
+                    const option = document.createElement('option');
+                    option.value = item.value || '';
+                    option.textContent = item.text || '';
+                    if (item.disabled) option.disabled = true;
+                    if (item.selected) option.selected = true;
+                    // якщо є поточний optgroup, додаємо туди, інакше прямо в select
+                    if (currentOptgroup) {
+                        currentOptgroup.appendChild(option);
+                    } else {
+                        select.appendChild(option);
+                    }
+                }
+            });
+
+            // відновлюємо вибране значення, якщо воно було
+            if (currentValue && [...select.options].some(o => o.value === currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
         // ========== PRO-ФУНКЦІЇ ==========
         function updateResetButtonState() {
             const resetBtn = document.getElementById('reset-btn');
@@ -883,6 +951,8 @@
                 btn.innerText = '🔑 PRO';
                 btn.style.background = '#f39c12';
             }
+            // Оновлюємо список алгоритмів (прибираємо/додаємо замки)
+            updateAlgorithmList();
         }
 
         function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
@@ -958,6 +1028,29 @@
             }
         }
 
+        // ========== АЛГОРИТМИ ==========
+        function selectAlgorithm(algoStr) {
+            if (!algoStr) return;
+            if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
+                alert("🔒 Алгоритм доступний у PRO версії!");
+                openActivationModal();
+                return;
+            }
+            storedAlgoStr = algoStr;
+            activeAlgoSteps = algoStr.split(' ');
+            currentStepIndex = -1;
+            const container = document.getElementById('algo-display');
+            container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+            moveQueue = []; 
+            // Якщо режим Auto – запускаємо виконання
+            if (currentMode === 'auto') {
+                moveQueue = [...activeAlgoSteps];
+                currentStepIndex = -1;
+                updateAlgoHighlight();
+            }
+            saveState();
+        }
+
         // ========== ЗВУК ==========
         function toggleSound() {
             isMuted = !isMuted;
@@ -996,7 +1089,7 @@
             } catch (e) {}
         }
 
-        // ========== РЕЄСТРАЦІЯ SERVICE WORKER (ДЛЯ PWA) ==========
+        // ========== РЕЄСТРАЦІЯ SERVICE WORKER ==========
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(() => console.log('✅ Service Worker зареєстровано'))
