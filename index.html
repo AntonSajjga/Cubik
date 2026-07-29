@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Кубик Рубіка 3D PRO</title>
     
     <link rel="manifest" href="manifest.json">
@@ -53,6 +53,7 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
+            background: #529b89;
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -126,10 +127,10 @@
         .mode-wrapper { display: flex; background: #1e1e2a; border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.05); }
         .mode-toggle {
             flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 700; 
-            cursor: pointer; border-radius: 6px; transition: all 0.1s ease; color: #a0a0ab;
+            cursor: pointer; border-radius: 6px; transition: all 0.1s ease; color: #e0e0e5; /* підвищено контраст */
             touch-action: manipulation;
         }
-        .mode-toggle.active { background: #27ae60; color: #fff; }
+        .mode-toggle.active { background: #27ae60; color: #fff; box-shadow: 0 0 8px rgba(39, 174, 96, 0.5); }
 
         .alg-select-wrapper { position: relative; width: 100%; }
         .alg-select {
@@ -241,7 +242,7 @@
         </div>
 
         <div class="alg-select-wrapper">
-            <select class="alg-select" id="alg-select" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
+            <select class="alg-select" id="alg-select" aria-label="Вибір алгоритму" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
                 <option value="" disabled selected>🎓 Choose algorithm...</option>
                 <optgroup label="⚡ Basic Algorithms">
                     <option value="R U R' U'">Right Sexy Move</option>
@@ -520,12 +521,13 @@
             
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true, 
-                alpha: true,
+                alpha: false,
                 precision: 'highp',
                 powerPreference: 'high-performance'
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x529b89, 1);
             container.appendChild(renderer.domElement);
             
             controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -536,7 +538,7 @@
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            controls.zoomSpeed = 1.2;   // правильний напрямок зуму
+            controls.zoomSpeed = 1.2;
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -809,19 +811,16 @@
         // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ (прибирання замків) ==========
         function updateAlgorithmList() {
             const select = document.getElementById('alg-select');
-            const currentValue = select.value; // зберігаємо поточний вибір
+            const currentValue = select.value;
             
-            // Базовий список (з замками) – його ми перебудуємо
             const optionsData = [
                 { value: '', text: '🎓 Choose algorithm...', disabled: true, selected: true },
-                // Basic Algorithms
                 { optgroup: '⚡ Basic Algorithms' },
                 { value: "R U R' U'", text: 'Right Sexy Move' },
                 { value: "L' U' L U", text: 'Left Sexy Move' },
                 { value: "R' F R F'", text: 'Sledgehammer' },
                 { value: "R U R' U R U2 R'", text: 'Sune OLL' },
                 { value: "U R U' L' U R' U' L", text: 'Four Corners Swap' },
-                // PRO: Advanced Speedcubing (CFOP)
                 { optgroup: isProUser ? '⭐ Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
                 { value: "R U2 R' U' R U' R'", text: isProUser ? 'Anti-Sune OLL' : '🔒 Anti-Sune OLL' },
                 { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? 'J-Permutation' : '🔒 J-Permutation' },
@@ -831,7 +830,6 @@
                 { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? 'Ub-Permutation' : '🔒 Ub-Permutation' },
                 { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? 'E-Permutation' : '🔒 E-Permutation' },
                 { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? 'T-Permutation' : '🔒 T-Permutation' },
-                // PRO: Creative Art & Patterns
                 { optgroup: isProUser ? '🎨 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
                 { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? 'Cube in a Cube' : '🔒 Cube in a Cube' },
                 { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? 'Dot Pattern' : '🔒 Dot Pattern' },
@@ -841,14 +839,10 @@
                 { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? 'Nested Cube Pattern' : '🔒 Nested Cube Pattern' }
             ];
 
-            // Очищаємо select
             select.innerHTML = '';
-            
-            // Заповнюємо новими опціями
             let currentOptgroup = null;
             optionsData.forEach(item => {
                 if (item.optgroup) {
-                    // починаємо нову групу
                     const optgroup = document.createElement('optgroup');
                     optgroup.label = item.optgroup;
                     select.appendChild(optgroup);
@@ -859,7 +853,6 @@
                     option.textContent = item.text || '';
                     if (item.disabled) option.disabled = true;
                     if (item.selected) option.selected = true;
-                    // якщо є поточний optgroup, додаємо туди, інакше прямо в select
                     if (currentOptgroup) {
                         currentOptgroup.appendChild(option);
                     } else {
@@ -868,7 +861,6 @@
                 }
             });
 
-            // відновлюємо вибране значення, якщо воно було
             if (currentValue && [...select.options].some(o => o.value === currentValue)) {
                 select.value = currentValue;
             }
@@ -951,7 +943,6 @@
                 btn.innerText = '🔑 PRO';
                 btn.style.background = '#f39c12';
             }
-            // Оновлюємо список алгоритмів (прибираємо/додаємо замки)
             updateAlgorithmList();
         }
 
@@ -1042,7 +1033,6 @@
             const container = document.getElementById('algo-display');
             container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
             moveQueue = []; 
-            // Якщо режим Auto – запускаємо виконання
             if (currentMode === 'auto') {
                 moveQueue = [...activeAlgoSteps];
                 currentStepIndex = -1;
