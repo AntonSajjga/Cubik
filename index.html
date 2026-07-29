@@ -536,7 +536,7 @@
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            controls.zoomSpeed = -1.2;   // ВИПРАВЛЕННЯ ЗУМУ (інверсія для мобільних)
+            // Рядок controls.zoomSpeed = ... ПРИБРАНО – залишаємо стандартне значення
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
