@@ -53,6 +53,7 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
+            background: #529b89; /* Резервний фон */
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -179,7 +180,7 @@
             width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3a3a52;
             margin-bottom: 12px; background: #09090e; color: #fff; text-align: center;
             font-family: monospace; 
-            font-size: 16px; /* ЗМІНЕНО: 16px для запобігання масштабуванню на iOS */
+            font-size: 16px;
             outline: none;
         }
         .modal-btn-confirm {
@@ -535,8 +536,8 @@
             setupFaceLabels();
         }
 
+        // ========== ВИПРАВЛЕНА ІНІЦІАЛІЗАЦІЯ 3D ==========
         function init3D() {
-            // Перевірка, чи Three.js завантажився
             if (typeof THREE === 'undefined') {
                 console.error('❌ Three.js не завантажено!');
                 document.getElementById('canvas-container').innerHTML = `
@@ -551,6 +552,13 @@
             }
 
             const container = document.getElementById('canvas-container');
+            
+            // Перевірка, чи контейнер має розмір (запобігає помилкам на повільних пристроях)
+            if (container.clientWidth === 0 || container.clientHeight === 0) {
+                setTimeout(init3D, 100);
+                return;
+            }
+
             scene = new THREE.Scene(); 
             
             camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -564,7 +572,11 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Примусове встановлення фону (двічі для надійності)
             renderer.setClearColor(0x529b89, 1);
+            renderer.setClearColor(0x529b89, 1);
+            
             container.appendChild(renderer.domElement);
             container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
             
@@ -578,10 +590,18 @@
             controls.maxDistance = 25;
             controls.zoomSpeed = 1.2;
 
-            scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+            // Освітлення
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+            scene.add(ambientLight);
+            
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
             dirLight.position.set(5, 15, 7);
             scene.add(dirLight);
+            
+            // Додатковий контурний свет для кращого 3D-ефекту
+            const backLight = new THREE.DirectionalLight(0x4488ff, 0.2);
+            backLight.position.set(-3, -1, -5);
+            scene.add(backLight);
             
             scene.add(pivot);
             buildCube();
@@ -595,8 +615,26 @@
             animateLoop();
         }
 
+        // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ WEBGL ==========
+        function handleContextLost(event) {
+            event.preventDefault();
+            console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
+
+        function handleContextRestored() {
+            console.log('✅ WebGL контекст відновлено');
+        }
+
+        // ========== АНІМАЦІЙНИЙ ЦИКЛ ==========
         function animateLoop() {
             requestAnimationFrame(animateLoop);
+            
+            // Якщо рендерер ще не створений – виходимо
+            if (!renderer) return;
+            
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
@@ -611,7 +649,11 @@
                 saveState();
                 executeMove(nextMove);
             }
+            
             controls.update();
+            
+            // Примусове встановлення фону перед кожним рендером (для надійності)
+            renderer.setClearColor(0x529b89, 1);
             renderer.render(scene, camera);
         }
 
@@ -844,20 +886,22 @@
             }
             if (renderer) {
                 renderer.setClearColor(theme.clearColor, 1);
+                renderer.setClearColor(theme.clearColor, 1); // двічі для надійності
             }
         }
 
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
-            if (!container) return;
+            if (!container || !renderer) return;
             const w = container.clientWidth;
             const h = container.clientHeight;
+            if (w === 0 || h === 0) return;
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
             renderer.setSize(w, h);
         }
 
-        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ (прибирання замків) ==========
+        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ ==========
         function updateAlgorithmList() {
             const select = document.getElementById('alg-select');
             const currentValue = select.value;
@@ -999,17 +1043,12 @@
             document.getElementById('pro-modal').style.display = 'flex'; 
         }
 
-        // ========== ВИПРАВЛЕНО: закриття модалки зі скиданням масштабу ==========
         function closeActivationModal() { 
             document.getElementById('pro-modal').style.display = 'none';
-            // Скидаємо масштаб для iOS Safari
             if (window.visualViewport) {
-                // Не всі браузери підтримують visualViewport.scale, тому перевіряємо
                 try {
                     window.visualViewport.scale = 1;
-                } catch (e) {
-                    // Ігноруємо помилку
-                }
+                } catch (e) {}
             }
             window.scrollTo(0, 0);
         }
@@ -1152,7 +1191,15 @@
         }
 
         // ========== ЗАПУСК ==========
-        window.onload = init3D;
+        window.onload = function() {
+            // Підписуємося на події втрати/відновлення контексту
+            const canvas = document.getElementById('canvas-container');
+            if (canvas) {
+                canvas.addEventListener('webglcontextlost', handleContextLost, false);
+                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+            }
+            init3D();
+        };
     </script>
 </body>
 </html>
