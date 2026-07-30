@@ -53,7 +53,7 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
-            background: #529b89; /* Резервний фон */
+            background: #529b89;
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -197,7 +197,6 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- Підключення Three.js через CDN (як у sw.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -336,7 +335,6 @@
             L: '#0066ff', F: '#ff0055', B: '#ff7700'
         };
         
-        // ========== ТЕМИ З КОЛЬОРОМ ДЛЯ РЕНДЕРЕРА ==========
         const THEMES = {
             dark: { 
                 gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)',
@@ -380,7 +378,7 @@
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
-        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ (без roundRect) ==========
+        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ ==========
         function drawRoundedRect(ctx, x, y, w, h, r) {
             ctx.beginPath();
             ctx.moveTo(x + r, y);
@@ -553,7 +551,6 @@
 
             const container = document.getElementById('canvas-container');
             
-            // Перевірка, чи контейнер має розмір (запобігає помилкам на повільних пристроях)
             if (container.clientWidth === 0 || container.clientHeight === 0) {
                 setTimeout(init3D, 100);
                 return;
@@ -572,9 +569,6 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            
-            // Примусове встановлення фону (двічі для надійності)
-            renderer.setClearColor(0x529b89, 1);
             renderer.setClearColor(0x529b89, 1);
             
             container.appendChild(renderer.domElement);
@@ -590,7 +584,6 @@
             controls.maxDistance = 25;
             controls.zoomSpeed = 1.2;
 
-            // Освітлення
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
             scene.add(ambientLight);
             
@@ -598,7 +591,6 @@
             dirLight.position.set(5, 15, 7);
             scene.add(dirLight);
             
-            // Додатковий контурний свет для кращого 3D-ефекту
             const backLight = new THREE.DirectionalLight(0x4488ff, 0.2);
             backLight.position.set(-3, -1, -5);
             scene.add(backLight);
@@ -619,20 +611,17 @@
         function handleContextLost(event) {
             event.preventDefault();
             console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
+            setTimeout(() => { location.reload(); }, 1000);
         }
 
         function handleContextRestored() {
             console.log('✅ WebGL контекст відновлено');
         }
 
-        // ========== АНІМАЦІЙНИЙ ЦИКЛ ==========
+        // ========== АНІМАЦІЙНИЙ ЦИКЛ (ВИПРАВЛЕНО) ==========
         function animateLoop() {
             requestAnimationFrame(animateLoop);
             
-            // Якщо рендерер ще не створений – виходимо
             if (!renderer) return;
             
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
@@ -652,8 +641,7 @@
             
             controls.update();
             
-            // Примусове встановлення фону перед кожним рендером (для надійності)
-            renderer.setClearColor(0x529b89, 1);
+            // БЕЗ ПРИМУСОВОГО ВСТАНОВЛЕННЯ КОЛЬОРУ – тепер фон змінюється через switchTheme
             renderer.render(scene, camera);
         }
 
@@ -886,7 +874,6 @@
             }
             if (renderer) {
                 renderer.setClearColor(theme.clearColor, 1);
-                renderer.setClearColor(theme.clearColor, 1); // двічі для надійності
             }
         }
 
@@ -1192,7 +1179,6 @@
 
         // ========== ЗАПУСК ==========
         window.onload = function() {
-            // Підписуємося на події втрати/відновлення контексту
             const canvas = document.getElementById('canvas-container');
             if (canvas) {
                 canvas.addEventListener('webglcontextlost', handleContextLost, false);
