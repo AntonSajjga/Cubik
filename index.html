@@ -305,7 +305,7 @@
     </div>
 
     <script>
-        // ========== ОБРОБКА ПОМИЛОК ЗАВАНТАЖЕННЯ ==========
+        // ========== ОБРОБКА ПОМИЛОК ==========
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT') {
                 console.warn('⚠️ Помилка завантаження скрипта:', e.target.src);
@@ -378,7 +378,7 @@
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
-        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ ==========
+        // ========== ФУНКЦІЇ МАЛЮВАННЯ ==========
         function drawRoundedRect(ctx, x, y, w, h, r) {
             ctx.beginPath();
             ctx.moveTo(x + r, y);
@@ -535,6 +535,8 @@
         }
 
         // ========== ВИПРАВЛЕНА ІНІЦІАЛІЗАЦІЯ 3D ==========
+        let isFirstFrame = true; // прапорець для першого кадру
+
         function init3D() {
             if (typeof THREE === 'undefined') {
                 console.error('❌ Three.js не завантажено!');
@@ -569,6 +571,8 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Примусове встановлення кольору фону
             renderer.setClearColor(0x529b89, 1);
             
             container.appendChild(renderer.domElement);
@@ -598,32 +602,57 @@
             scene.add(pivot);
             buildCube();
             
+            // Відновлення стану виконується після побудови куба, але до першого кадру
             checkProStatus();
             loadSavedStateSync();
 
             container.classList.add('loaded');
 
             window.addEventListener('resize', onWindowResize);
+            
+            // Запускаємо анімацію, але в першому кадрі заблокуємо виконання черги
+            isFirstFrame = true;
             animateLoop();
         }
 
-        // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ WEBGL ==========
+        // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ ==========
         function handleContextLost(event) {
             event.preventDefault();
             console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
+            // Негайне перезавантаження через 1 секунду
             setTimeout(() => { location.reload(); }, 1000);
         }
 
         function handleContextRestored() {
             console.log('✅ WebGL контекст відновлено');
+            // Примусово оновлюємо фон
+            if (renderer) {
+                const currentTheme = document.querySelector('.theme-dot.active');
+                if (currentTheme) {
+                    const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
+                    switchTheme(themeKey, currentTheme);
+                } else {
+                    renderer.setClearColor(0x529b89, 1);
+                }
+            }
         }
 
-        // ========== АНІМАЦІЙНИЙ ЦИКЛ (ВИПРАВЛЕНО) ==========
+        // ========== АНІМАЦІЙНИЙ ЦИКЛ ==========
         function animateLoop() {
             requestAnimationFrame(animateLoop);
             
             if (!renderer) return;
             
+            // Якщо це перший кадр, блокуємо виконання черги та знімаємо прапорець
+            if (isFirstFrame) {
+                isFirstFrame = false;
+                // Даємо рендереру один кадр для стабілізації
+                controls.update();
+                renderer.render(scene, camera);
+                return;
+            }
+            
+            // Основний цикл – виконуємо чергу тільки якщо не відновлюємо стан
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
@@ -640,8 +669,6 @@
             }
             
             controls.update();
-            
-            // БЕЗ ПРИМУСОВОГО ВСТАНОВЛЕННЯ КОЛЬОРУ – тепер фон змінюється через switchTheme
             renderer.render(scene, camera);
         }
 
@@ -774,11 +801,17 @@
             
             if (mode === 'auto') {
                 if (storedAlgoStr) {
-                    moveQueue = []; 
-                    currentStepIndex = -1;
-                    activeAlgoSteps = storedAlgoStr.split(' ');
-                    updateAlgoHighlight();
-                    activeAlgoSteps.forEach(step => moveQueue.push(step));
+                    // Не заповнюємо чергу автоматично при завантаженні – це робиться тільки при виборі алгоритму
+                    // Але якщо алгоритм вже був вибраний, і ми перемикаємо в Auto, то запускаємо його
+                    // Однак, при завантаженні сторінки ми не хочемо, щоб він запускався автоматично
+                    // Тому додамо перевірку: якщо це виклик з loadSavedState, то не запускати
+                    if (!isRestoring) {
+                        moveQueue = []; 
+                        currentStepIndex = -1;
+                        activeAlgoSteps = storedAlgoStr.split(' ');
+                        updateAlgoHighlight();
+                        activeAlgoSteps.forEach(step => moveQueue.push(step));
+                    }
                 }
             } else {
                 moveQueue = [];
@@ -832,6 +865,7 @@
             }));
         }
 
+        // ========== ВИПРАВЛЕНЕ ВІДНОВЛЕННЯ СТАНУ ==========
         function loadSavedStateSync() {
             const savedRaw = localStorage.getItem('rubik_cube_save_data');
             if (!savedRaw) return;
@@ -850,10 +884,22 @@
                         document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                     }
 
-                    if (data.currentMode) setMode(data.currentMode);
+                    // Відновлюємо режим, але не запускаємо Auto автоматично
+                    if (data.currentMode) {
+                        currentMode = data.currentMode;
+                        // Оновлюємо візуальне відображення режиму
+                        document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
+                        document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
+                    }
 
+                    // Застосовуємо всі ходи з історії синхронно (без анімації)
                     historyMoves.forEach(move => executeInstantMove(move));
+                    
+                    // Після відновлення – знімаємо прапорець
                     isRestoring = false;
+                    
+                    // Якщо режим Auto і є збережений алгоритм, ми не додаємо його в чергу автоматично
+                    // Користувач сам вирішить, коли запустити
                 }
             } catch (err) {
                 isRestoring = false;
