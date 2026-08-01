@@ -10,6 +10,10 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
 
+    <!-- ========== ОПТИМІЗАЦІЯ: PRELOAD ========== -->
+    <link rel="preload" href="js/three.min.js" as="script">
+    <link rel="preload" href="js/OrbitControls.js" as="script">
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -197,8 +201,9 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <<script src="js/three.min.js"></script>
-<script src="js/OrbitControls.js"></script>
+    <!-- ========== ОПТИМІЗАЦІЯ: DEFER ДЛЯ НЕБЛОКУЮЧОГО ЗАВАНТАЖЕННЯ ========== -->
+    <script defer src="js/three.min.js"></script>
+    <script defer src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -534,7 +539,7 @@
             setupFaceLabels();
         }
 
-        // ========== ІНІЦІАЛІЗАЦІЯ 3D ==========
+        // ========== ІНІЦІАЛІЗАЦІЯ 3D (З ОПТИМІЗАЦІЯМИ) ==========
         function init3D() {
             if (typeof THREE === 'undefined') {
                 console.error('❌ Three.js не завантажено!');
@@ -596,21 +601,21 @@
             scene.add(backLight);
             
             scene.add(pivot);
-            buildCube();
             
-            checkProStatus();
-            loadSavedStateSync();
-
-            container.classList.add('loaded');
-
-            window.addEventListener('resize', onWindowResize);
-            
-            // Примусовий рендер після відновлення стану
-            if (renderer) {
-                renderer.render(scene, camera);
-            }
-            
-            animateLoop();
+            // ========== ОПТИМІЗАЦІЯ: ВІДКЛАДЕНА ПОБУДОВА КУБА ТА ВІДНОВЛЕННЯ СТАНУ ==========
+            setTimeout(() => {
+                buildCube();
+                checkProStatus();
+                loadSavedStateSync();
+                container.classList.add('loaded');
+                window.addEventListener('resize', onWindowResize);
+                
+                if (renderer) {
+                    renderer.render(scene, camera);
+                }
+                
+                animateLoop();
+            }, 50);
         }
 
         // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ ==========
@@ -920,13 +925,13 @@
             
             const optionsData = [
                 { value: '', text: '🎓 Choose algorithm...', disabled: true, selected: true },
-                { optgroup: '⚡ Basic Algorithms' },
+                { optgroup: '👶 Basic Algorithms' },
                 { value: "R U R' U'", text: 'Right Sexy Move' },
                 { value: "L' U' L U", text: 'Left Sexy Move' },
                 { value: "R' F R F'", text: 'Sledgehammer' },
                 { value: "R U R' U R U2 R'", text: 'Sune OLL' },
                 { value: "U R U' L' U R' U' L", text: 'Four Corners Swap' },
-                { optgroup: isProUser ? '⭐ Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
+                { optgroup: isProUser ? '🧒 Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
                 { value: "R U2 R' U' R U' R'", text: isProUser ? 'Anti-Sune OLL' : '🔒 Anti-Sune OLL' },
                 { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? 'J-Permutation' : '🔒 J-Permutation' },
                 { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? 'Y-Permutation' : '🔒 Y-Permutation' },
@@ -935,7 +940,7 @@
                 { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? 'Ub-Permutation' : '🔒 Ub-Permutation' },
                 { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? 'E-Permutation' : '🔒 E-Permutation' },
                 { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? 'T-Permutation' : '🔒 T-Permutation' },
-                { optgroup: isProUser ? '🎨 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
+                { optgroup: isProUser ? '🧔 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
                 { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? 'Cube in a Cube' : '🔒 Cube in a Cube' },
                 { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? 'Dot Pattern' : '🔒 Dot Pattern' },
                 { value: "R L U2 R' L' U2", text: isProUser ? 'Snake Pattern' : '🔒 Snake Pattern' },
@@ -1202,15 +1207,25 @@
                 .catch(err => console.error('❌ Помилка реєстрації SW:', err));
         }
 
-        // ========== ЗАПУСК ==========
-        window.onload = function() {
+        // ========== ЗАПУСК (З ОПТИМІЗАЦІЄЮ requestIdleCallback) ==========
+        function startApp() {
             const canvas = document.getElementById('canvas-container');
             if (canvas) {
                 canvas.addEventListener('webglcontextlost', handleContextLost, false);
                 canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
             }
-            init3D();
-        };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => init3D(), { timeout: 3000 });
+            } else {
+                init3D();
+            }
+        }
+
+        if (document.readyState === 'complete') {
+            startApp();
+        } else {
+            window.addEventListener('load', startApp);
+        }
     </script>
 </body>
 </html>
