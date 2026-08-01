@@ -10,7 +10,6 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
 
-    <!-- ========== ОПТИМІЗАЦІЯ: PRELOAD ========== -->
     <link rel="preload" href="js/three.min.js" as="script">
     <link rel="preload" href="js/OrbitControls.js" as="script">
 
@@ -201,7 +200,7 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- ========== ОПТИМІЗАЦІЯ: DEFER ДЛЯ НЕБЛОКУЮЧОГО ЗАВАНТАЖЕННЯ ========== -->
+    <!-- ========== ВИПРАВЛЕНО: ПРАВИЛЬНІ ТЕГИ ========== -->
     <script defer src="js/three.min.js"></script>
     <script defer src="js/OrbitControls.js"></script>
 </head>
@@ -250,14 +249,14 @@
         <div class="alg-select-wrapper">
             <select class="alg-select" id="alg-select" aria-label="Вибір алгоритму" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
                 <option value="" disabled selected>🎓 Choose algorithm...</option>
-                <optgroup label="👶 Basic Algorithms">
+                <optgroup label="⚡ Basic Algorithms">
                     <option value="R U R' U'">Right Sexy Move</option>
                     <option value="L' U' L U">Left Sexy Move</option>
                     <option value="R' F R F'">Sledgehammer</option>
                     <option value="R U R' U R U2 R'">Sune OLL</option>
                     <option value="U R U' L' U R' U' L">Four Corners Swap</option>
                 </optgroup>
-                <optgroup label="🧒 PRO: Advanced Speedcubing (CFOP)">
+                <optgroup label="🔒 PRO: Advanced Speedcubing (CFOP)">
                     <option value="R U2 R' U' R U' R'">🔒 Anti-Sune OLL</option>
                     <option value="R U R' F' R U R' U' R' F R2 U' R'">🔒 J-Permutation</option>
                     <option value="F R U' R' U' R U R' F' R U R' U' R' F R F'">🔒 Y-Permutation</option>
@@ -267,7 +266,7 @@
                     <option value="R' U R' U' R D' R' D R' U2 R D' R' D R2">🔒 E-Permutation</option>
                     <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🔒 T-Permutation</option>
                 </optgroup>
-                <optgroup label="🧔 PRO: Creative Art & Patterns">
+                <optgroup label="🔒 PRO: Creative Art & Patterns">
                     <option value="F R U R' U' F' R U R' U' R' F R F'">🔒 Cube in a Cube</option>
                     <option value="U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2">🔒 Dot Pattern</option>
                     <option value="R L U2 R' L' U2">🔒 Snake Pattern</option>
@@ -287,7 +286,7 @@
 
     <div id="pro-modal">
         <div class="modal-content">
-            <h3>🏆 LogixCube PRO</h3>
+            <h3>⭐ LogixCube PRO</h3>
             <p>Select subscription plan or enter your license key:</p>
             <div class="plan-selector">
                 <div id="plan-monthly" class="plan-card active" onclick="selectPlan('monthly')">
@@ -539,7 +538,7 @@
             setupFaceLabels();
         }
 
-        // ========== ІНІЦІАЛІЗАЦІЯ 3D (З ОПТИМІЗАЦІЯМИ) ==========
+        // ========== ІНІЦІАЛІЗАЦІЯ 3D ==========
         function init3D() {
             if (typeof THREE === 'undefined') {
                 console.error('❌ Three.js не завантажено!');
@@ -602,7 +601,6 @@
             
             scene.add(pivot);
             
-            // ========== ОПТИМІЗАЦІЯ: ВІДКЛАДЕНА ПОБУДОВА КУБА ТА ВІДНОВЛЕННЯ СТАНУ ==========
             setTimeout(() => {
                 buildCube();
                 checkProStatus();
@@ -645,7 +643,6 @@
             
             if (!renderer) return;
             
-            // Виконуємо чергу тільки якщо не відновлюємо стан
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
@@ -854,7 +851,6 @@
             }));
         }
 
-        // ========== ВІДНОВЛЕННЯ СТАНУ ==========
         function loadSavedStateSync() {
             const savedRaw = localStorage.getItem('rubik_cube_save_data');
             if (!savedRaw) return;
@@ -879,7 +875,6 @@
                         document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
                     }
 
-                    // Виконуємо всі збережені ходи
                     historyMoves.forEach(move => executeInstantMove(move));
                     
                     isRestoring = false;
@@ -889,7 +884,6 @@
             }
         }
         
-        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ ==========
         function switchTheme(themeKey, element) {
             document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
             element.classList.add('active');
@@ -918,20 +912,19 @@
             renderer.setSize(w, h);
         }
 
-        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ ==========
         function updateAlgorithmList() {
             const select = document.getElementById('alg-select');
             const currentValue = select.value;
             
             const optionsData = [
                 { value: '', text: '🎓 Choose algorithm...', disabled: true, selected: true },
-                { optgroup: '👶 Basic Algorithms' },
+                { optgroup: '⚡ Basic Algorithms' },
                 { value: "R U R' U'", text: 'Right Sexy Move' },
                 { value: "L' U' L U", text: 'Left Sexy Move' },
                 { value: "R' F R F'", text: 'Sledgehammer' },
                 { value: "R U R' U R U2 R'", text: 'Sune OLL' },
                 { value: "U R U' L' U R' U' L", text: 'Four Corners Swap' },
-                { optgroup: isProUser ? '🧒 Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
+                { optgroup: isProUser ? '⭐ Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
                 { value: "R U2 R' U' R U' R'", text: isProUser ? 'Anti-Sune OLL' : '🔒 Anti-Sune OLL' },
                 { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? 'J-Permutation' : '🔒 J-Permutation' },
                 { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? 'Y-Permutation' : '🔒 Y-Permutation' },
@@ -940,7 +933,7 @@
                 { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? 'Ub-Permutation' : '🔒 Ub-Permutation' },
                 { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? 'E-Permutation' : '🔒 E-Permutation' },
                 { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? 'T-Permutation' : '🔒 T-Permutation' },
-                { optgroup: isProUser ? '🧔 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
+                { optgroup: isProUser ? '🎨 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
                 { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? 'Cube in a Cube' : '🔒 Cube in a Cube' },
                 { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? 'Dot Pattern' : '🔒 Dot Pattern' },
                 { value: "R L U2 R' L' U2", text: isProUser ? 'Snake Pattern' : '🔒 Snake Pattern' },
@@ -1140,7 +1133,6 @@
             }
         }
 
-        // ========== АЛГОРИТМИ ==========
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
@@ -1162,7 +1154,6 @@
             saveState();
         }
 
-        // ========== ЗВУК ==========
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
@@ -1200,14 +1191,13 @@
             } catch (e) {}
         }
 
-        // ========== РЕЄСТРАЦІЯ SERVICE WORKER ==========
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(() => console.log('✅ Service Worker зареєстровано'))
                 .catch(err => console.error('❌ Помилка реєстрації SW:', err));
         }
 
-        // ========== ЗАПУСК (З ОПТИМІЗАЦІЄЮ requestIdleCallback) ==========
+        // ========== ЗАПУСК ==========
         function startApp() {
             const canvas = document.getElementById('canvas-container');
             if (canvas) {
