@@ -196,8 +196,9 @@
     </style>
 
     <!-- Підключення Three.js через CDN (як у sw.js) -->
-    <<script src="js/three.min.js"></script>
-<script src="js/OrbitControls.js"></script>
+    <!-- ВИПРАВЛЕНО: зайвий '<' видалено -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -575,7 +576,7 @@
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            controls.zoomSpeed = 1.2;
+            controls.zoomSpeed = -1.2; // ВИПРАВЛЕНО: змінено знак для правильного напрямку зуму
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
