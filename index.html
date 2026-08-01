@@ -10,9 +10,6 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#529b89">
 
-    <link rel="preload" href="js/three.min.js" as="script">
-    <link rel="preload" href="js/OrbitControls.js" as="script">
-
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -56,7 +53,7 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
-            background: #529b89;
+            /* фон встановлюється через JS */
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -182,9 +179,7 @@
         .modal-input {
             width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3a3a52;
             margin-bottom: 12px; background: #09090e; color: #fff; text-align: center;
-            font-family: monospace; 
-            font-size: 16px;
-            outline: none;
+            font-family: monospace; font-size: 13px; outline: none;
         }
         .modal-btn-confirm {
             width: 100%; background: #27ae60; color: #fff; border: none; padding: 10px;
@@ -200,9 +195,9 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- ========== ВИПРАВЛЕНО: ПРАВИЛЬНІ ТЕГИ ========== -->
-    <script defer src="js/three.min.js"></script>
-    <script defer src="js/OrbitControls.js"></script>
+    <!-- Підключення Three.js через CDN (як у sw.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -249,14 +244,14 @@
         <div class="alg-select-wrapper">
             <select class="alg-select" id="alg-select" aria-label="Вибір алгоритму" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
                 <option value="" disabled selected>🎓 Choose algorithm...</option>
-                <optgroup label="⚡ Basic Algorithms">
+                <optgroup label="👶 Basic Algorithms">
                     <option value="R U R' U'">Right Sexy Move</option>
                     <option value="L' U' L U">Left Sexy Move</option>
                     <option value="R' F R F'">Sledgehammer</option>
                     <option value="R U R' U R U2 R'">Sune OLL</option>
                     <option value="U R U' L' U R' U' L">Four Corners Swap</option>
                 </optgroup>
-                <optgroup label="🔒 PRO: Advanced Speedcubing (CFOP)">
+                <optgroup label="🧒 PRO: Advanced Speedcubing (CFOP)">
                     <option value="R U2 R' U' R U' R'">🔒 Anti-Sune OLL</option>
                     <option value="R U R' F' R U R' U' R' F R2 U' R'">🔒 J-Permutation</option>
                     <option value="F R U' R' U' R U R' F' R U R' U' R' F R F'">🔒 Y-Permutation</option>
@@ -266,7 +261,7 @@
                     <option value="R' U R' U' R D' R' D R' U2 R D' R' D R2">🔒 E-Permutation</option>
                     <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🔒 T-Permutation</option>
                 </optgroup>
-                <optgroup label="🔒 PRO: Creative Art & Patterns">
+                <optgroup label="🧔 PRO: Creative Art & Patterns">
                     <option value="F R U R' U' F' R U R' U' R' F R F'">🔒 Cube in a Cube</option>
                     <option value="U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2">🔒 Dot Pattern</option>
                     <option value="R L U2 R' L' U2">🔒 Snake Pattern</option>
@@ -286,7 +281,7 @@
 
     <div id="pro-modal">
         <div class="modal-content">
-            <h3>⭐ LogixCube PRO</h3>
+            <h3>🏆 LogixCube PRO</h3>
             <p>Select subscription plan or enter your license key:</p>
             <div class="plan-selector">
                 <div id="plan-monthly" class="plan-card active" onclick="selectPlan('monthly')">
@@ -309,7 +304,7 @@
     </div>
 
     <script>
-        // ========== ОБРОБКА ПОМИЛОК ==========
+        // ========== ОБРОБКА ПОМИЛОК ЗАВАНТАЖЕННЯ ==========
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT') {
                 console.warn('⚠️ Помилка завантаження скрипта:', e.target.src);
@@ -339,6 +334,7 @@
             L: '#0066ff', F: '#ff0055', B: '#ff7700'
         };
         
+        // ========== ТЕМИ З КОЛЬОРОМ ДЛЯ РЕНДЕРЕРА ==========
         const THEMES = {
             dark: { 
                 gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)',
@@ -382,7 +378,7 @@
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
-        // ========== ФУНКЦІЇ МАЛЮВАННЯ ==========
+        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ (без roundRect) ==========
         function drawRoundedRect(ctx, x, y, w, h, r) {
             ctx.beginPath();
             ctx.moveTo(x + r, y);
@@ -538,8 +534,8 @@
             setupFaceLabels();
         }
 
-        // ========== ІНІЦІАЛІЗАЦІЯ 3D ==========
         function init3D() {
+            // Перевірка, чи Three.js завантажився
             if (typeof THREE === 'undefined') {
                 console.error('❌ Three.js не завантажено!');
                 document.getElementById('canvas-container').innerHTML = `
@@ -554,12 +550,6 @@
             }
 
             const container = document.getElementById('canvas-container');
-            
-            if (container.clientWidth === 0 || container.clientHeight === 0) {
-                setTimeout(init3D, 100);
-                return;
-            }
-
             scene = new THREE.Scene(); 
             
             camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -573,8 +563,7 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x529b89, 1);
-            
+            renderer.setClearColor(0x529b89, 1); // за замовчуванням mint
             container.appendChild(renderer.domElement);
             container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
             
@@ -588,61 +577,25 @@
             controls.maxDistance = 25;
             controls.zoomSpeed = 1.2;
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-            scene.add(ambientLight);
-            
+            scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
             dirLight.position.set(5, 15, 7);
             scene.add(dirLight);
             
-            const backLight = new THREE.DirectionalLight(0x4488ff, 0.2);
-            backLight.position.set(-3, -1, -5);
-            scene.add(backLight);
-            
             scene.add(pivot);
+            buildCube();
             
-            setTimeout(() => {
-                buildCube();
-                checkProStatus();
-                loadSavedStateSync();
-                container.classList.add('loaded');
-                window.addEventListener('resize', onWindowResize);
-                
-                if (renderer) {
-                    renderer.render(scene, camera);
-                }
-                
-                animateLoop();
-            }, 50);
+            checkProStatus();
+            loadSavedStateSync();
+
+            container.classList.add('loaded');
+
+            window.addEventListener('resize', onWindowResize);
+            animateLoop();
         }
 
-        // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ ==========
-        function handleContextLost(event) {
-            event.preventDefault();
-            console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
-            setTimeout(() => { location.reload(); }, 1000);
-        }
-
-        function handleContextRestored() {
-            console.log('✅ WebGL контекст відновлено');
-            if (renderer) {
-                const currentTheme = document.querySelector('.theme-dot.active');
-                if (currentTheme) {
-                    const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
-                    switchTheme(themeKey, currentTheme);
-                } else {
-                    renderer.setClearColor(0x529b89, 1);
-                }
-                renderer.render(scene, camera);
-            }
-        }
-
-        // ========== АНІМАЦІЙНИЙ ЦИКЛ ==========
         function animateLoop() {
             requestAnimationFrame(animateLoop);
-            
-            if (!renderer) return;
-            
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
@@ -657,7 +610,6 @@
                 saveState();
                 executeMove(nextMove);
             }
-            
             controls.update();
             renderer.render(scene, camera);
         }
@@ -791,13 +743,11 @@
             
             if (mode === 'auto') {
                 if (storedAlgoStr) {
-                    if (!isRestoring) {
-                        moveQueue = []; 
-                        currentStepIndex = -1;
-                        activeAlgoSteps = storedAlgoStr.split(' ');
-                        updateAlgoHighlight();
-                        activeAlgoSteps.forEach(step => moveQueue.push(step));
-                    }
+                    moveQueue = []; 
+                    currentStepIndex = -1;
+                    activeAlgoSteps = storedAlgoStr.split(' ');
+                    updateAlgoHighlight();
+                    activeAlgoSteps.forEach(step => moveQueue.push(step));
                 }
             } else {
                 moveQueue = [];
@@ -869,14 +819,9 @@
                         document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                     }
 
-                    if (data.currentMode) {
-                        currentMode = data.currentMode;
-                        document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
-                        document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
-                    }
+                    if (data.currentMode) setMode(data.currentMode);
 
                     historyMoves.forEach(move => executeInstantMove(move));
-                    
                     isRestoring = false;
                 }
             } catch (err) {
@@ -884,47 +829,52 @@
             }
         }
         
+        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ (ВИПРАВЛЕНО) ==========
         function switchTheme(themeKey, element) {
             document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
             element.classList.add('active');
             const theme = THEMES[themeKey];
             if (!theme) return;
             
+            // Змінюємо фон body
             document.body.style.background = theme.gradient;
+            
+            // Змінюємо фон контейнера
             const container = document.getElementById('canvas-container');
             if (container) {
                 container.style.background = theme.gradient;
             }
+            
+            // Змінюємо фон рендерера
             if (renderer) {
                 renderer.setClearColor(theme.clearColor, 1);
-                renderer.render(scene, camera);
             }
         }
 
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
-            if (!container || !renderer) return;
+            if (!container) return;
             const w = container.clientWidth;
             const h = container.clientHeight;
-            if (w === 0 || h === 0) return;
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
             renderer.setSize(w, h);
         }
 
+        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ (прибирання замків) ==========
         function updateAlgorithmList() {
             const select = document.getElementById('alg-select');
             const currentValue = select.value;
             
             const optionsData = [
                 { value: '', text: '🎓 Choose algorithm...', disabled: true, selected: true },
-                { optgroup: '⚡ Basic Algorithms' },
+                { optgroup: '👶 Basic Algorithms' },
                 { value: "R U R' U'", text: 'Right Sexy Move' },
                 { value: "L' U' L U", text: 'Left Sexy Move' },
                 { value: "R' F R F'", text: 'Sledgehammer' },
                 { value: "R U R' U R U2 R'", text: 'Sune OLL' },
                 { value: "U R U' L' U R' U' L", text: 'Four Corners Swap' },
-                { optgroup: isProUser ? '⭐ Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
+                { optgroup: isProUser ? '🧒 Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
                 { value: "R U2 R' U' R U' R'", text: isProUser ? 'Anti-Sune OLL' : '🔒 Anti-Sune OLL' },
                 { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? 'J-Permutation' : '🔒 J-Permutation' },
                 { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? 'Y-Permutation' : '🔒 Y-Permutation' },
@@ -933,7 +883,7 @@
                 { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? 'Ub-Permutation' : '🔒 Ub-Permutation' },
                 { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? 'E-Permutation' : '🔒 E-Permutation' },
                 { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? 'T-Permutation' : '🔒 T-Permutation' },
-                { optgroup: isProUser ? '🎨 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
+                { optgroup: isProUser ? '🧔 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
                 { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? 'Cube in a Cube' : '🔒 Cube in a Cube' },
                 { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? 'Dot Pattern' : '🔒 Dot Pattern' },
                 { value: "R L U2 R' L' U2", text: isProUser ? 'Snake Pattern' : '🔒 Snake Pattern' },
@@ -1049,19 +999,8 @@
             updateAlgorithmList();
         }
 
-        function openActivationModal() { 
-            document.getElementById('pro-modal').style.display = 'flex'; 
-        }
-
-        function closeActivationModal() { 
-            document.getElementById('pro-modal').style.display = 'none';
-            if (window.visualViewport) {
-                try {
-                    window.visualViewport.scale = 1;
-                } catch (e) {}
-            }
-            window.scrollTo(0, 0);
-        }
+        function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
+        function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
 
         let currentSelectedPlan = 'monthly';
 
@@ -1133,6 +1072,7 @@
             }
         }
 
+        // ========== АЛГОРИТМИ ==========
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
@@ -1154,6 +1094,7 @@
             saveState();
         }
 
+        // ========== ЗВУК ==========
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
@@ -1191,6 +1132,7 @@
             } catch (e) {}
         }
 
+        // ========== РЕЄСТРАЦІЯ SERVICE WORKER ==========
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(() => console.log('✅ Service Worker зареєстровано'))
@@ -1198,24 +1140,7 @@
         }
 
         // ========== ЗАПУСК ==========
-        function startApp() {
-            const canvas = document.getElementById('canvas-container');
-            if (canvas) {
-                canvas.addEventListener('webglcontextlost', handleContextLost, false);
-                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
-            }
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(() => init3D(), { timeout: 3000 });
-            } else {
-                init3D();
-            }
-        }
-
-        if (document.readyState === 'complete') {
-            startApp();
-        } else {
-            window.addEventListener('load', startApp);
-        }
+        window.onload = init3D;
     </script>
 </body>
 </html>
