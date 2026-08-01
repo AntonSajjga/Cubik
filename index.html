@@ -571,12 +571,13 @@
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
-            controls.target.set(0, -1.2, 0);
+            // ========== ВИПРАВЛЕНО: центр обертання точно по центру куба ==========
+            controls.target.set(0, 0, 0);
             controls.minPolarAngle = 0;
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
             controls.maxDistance = 25;
-            controls.zoomSpeed = -1.2; // ВИПРАВЛЕНО: змінено знак для правильного напрямку зуму
+            controls.zoomSpeed = -1.2;
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.85));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
@@ -789,7 +790,8 @@
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
-            if (controls) controls.target.set(0, -1.2, 0);
+            // ========== ВИПРАВЛЕНО: центр обертання точно по центру куба ==========
+            if (controls) controls.target.set(0, 0, 0);
             updateResetButtonState();
         }
 
