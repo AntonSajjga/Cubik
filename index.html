@@ -53,7 +53,7 @@
             opacity: 0; 
             transition: opacity 0.15s ease-out;
             touch-action: none;
-            /* фон встановлюється через JS */
+            background: #529b89;
         }
         #canvas-container.loaded { opacity: 1; }
         
@@ -195,8 +195,6 @@
         .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 
-    <!-- Підключення Three.js через CDN (як у sw.js) -->
-    <!-- ВИПРАВЛЕНО: зайвий '<' видалено -->
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
 </head>
@@ -571,8 +569,7 @@
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
-            // ========== ВИПРАВЛЕНО: центр обертання точно по центру куба ==========
-            controls.target.set(0, 0, 0);
+            controls.target.set(0, -1.2, 0); // зміщення для підняття куба в центр вікна
             controls.minPolarAngle = 0;
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
@@ -790,8 +787,7 @@
             document.getElementById('counter').innerText = '0';
             document.getElementById('algo-display').innerText = "Choose combination...";
             buildCube();
-            // ========== ВИПРАВЛЕНО: центр обертання точно по центру куба ==========
-            if (controls) controls.target.set(0, 0, 0);
+            if (controls) controls.target.set(0, -1.2, 0);
             updateResetButtonState();
         }
 
