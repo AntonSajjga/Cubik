@@ -742,11 +742,13 @@
             
             if (mode === 'auto') {
                 if (storedAlgoStr) {
-                    moveQueue = []; 
-                    currentStepIndex = -1;
-                    activeAlgoSteps = storedAlgoStr.split(' ');
-                    updateAlgoHighlight();
-                    activeAlgoSteps.forEach(step => moveQueue.push(step));
+                    if (!isRestoring) {
+                        moveQueue = []; 
+                        currentStepIndex = -1;
+                        activeAlgoSteps = storedAlgoStr.split(' ');
+                        updateAlgoHighlight();
+                        activeAlgoSteps.forEach(step => moveQueue.push(step));
+                    }
                 }
             } else {
                 moveQueue = [];
@@ -818,9 +820,31 @@
                         document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                     }
 
-                    if (data.currentMode) setMode(data.currentMode);
+                    // Встановлюємо режим, але НЕ викликаємо setMode, щоб не заповнювати чергу
+                    if (data.currentMode) {
+                        currentMode = data.currentMode;
+                        document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
+                        document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
+                    }
 
+                    // Виконуємо всі збережені ходи (миттєво, без анімації)
                     historyMoves.forEach(move => executeInstantMove(move));
+                    
+                    isRestoring = false;
+                } else {
+                    // Якщо historyMoves порожній, але є збережений режим – відновлюємо його без заповнення черги
+                    if (data.currentMode) {
+                        currentMode = data.currentMode;
+                        document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
+                        document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
+                    }
+                    if (data.storedAlgoStr) {
+                        storedAlgoStr = data.storedAlgoStr;
+                        activeAlgoSteps = storedAlgoStr.split(' ');
+                        document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+                    }
+                    moveCount = data.moveCount || 0;
+                    document.getElementById('counter').innerText = moveCount;
                     isRestoring = false;
                 }
             } catch (err) {
@@ -828,23 +852,18 @@
             }
         }
         
-        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ (ВИПРАВЛЕНО) ==========
+        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ ==========
         function switchTheme(themeKey, element) {
             document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
             element.classList.add('active');
             const theme = THEMES[themeKey];
             if (!theme) return;
             
-            // Змінюємо фон body
             document.body.style.background = theme.gradient;
-            
-            // Змінюємо фон контейнера
             const container = document.getElementById('canvas-container');
             if (container) {
                 container.style.background = theme.gradient;
             }
-            
-            // Змінюємо фон рендерера
             if (renderer) {
                 renderer.setClearColor(theme.clearColor, 1);
             }
