@@ -119,7 +119,7 @@
             background: var(--btn-bg); border: none; color: #fff; 
             padding: 8px 0; border-radius: 6px; 
             font-size: 14px; 
-            font-family: monospace; /* ========== ШРИФТ ЯК У АЛГОРИТМІВ ========== */
+            font-family: monospace;
             font-weight: 600; 
             cursor: pointer; 
             transition: all 0.1s ease; 
@@ -128,7 +128,6 @@
         }
         button.move-btn:hover { background: var(--btn-hover); }
         
-        /* ========== БІЛІ ТА ВИДИМІ АПОСТРОФИ ========== */
         button.move-btn span {
             color: #ffffff;
             font-size: 1.5em;
@@ -345,7 +344,6 @@
             L: '#0066ff', F: '#ff0055', B: '#ff7700'
         };
         
-        // ========== ТЕМИ З КОЛЬОРОМ ДЛЯ РЕНДЕРЕРА ==========
         const THEMES = {
             dark: { 
                 gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)',
@@ -389,7 +387,7 @@
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
 
-        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ (без roundRect) ==========
+        // ========== ФУНКЦІЯ МАЛЮВАННЯ ЗАКРУГЛЕНИХ ПРЯМОКУТНИКІВ ==========
         function drawRoundedRect(ctx, x, y, w, h, r) {
             ctx.beginPath();
             ctx.moveTo(x + r, y);
@@ -545,8 +543,10 @@
             setupFaceLabels();
         }
 
+        // ========== ВИПРАВЛЕНА ІНІЦІАЛІЗАЦІЯ ==========
+        let isFirstRender = true; // прапорець для першого рендера
+
         function init3D() {
-            // Перевірка, чи Three.js завантажився
             if (typeof THREE === 'undefined') {
                 console.error('❌ Three.js не завантажено!');
                 document.getElementById('canvas-container').innerHTML = `
@@ -574,14 +574,14 @@
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x529b89, 1); // за замовчуванням mint
+            renderer.setClearColor(0x529b89, 1);
             container.appendChild(renderer.domElement);
             container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
             
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
-            controls.target.set(0, -1.2, 0); // зміщення для підняття куба в центр вікна
+            controls.target.set(0, -1.2, 0);
             controls.minPolarAngle = 0;
             controls.maxPolarAngle = Math.PI;
             controls.minDistance = 2.5;
@@ -596,17 +596,65 @@
             scene.add(pivot);
             buildCube();
             
+            // Відновлення стану ТІЛЬКИ після побудови куба та рендерера
             checkProStatus();
-            loadSavedStateSync();
-
+            
+            // Встановлюємо прапорець, що це перший рендер
+            isFirstRender = true;
+            
             container.classList.add('loaded');
 
             window.addEventListener('resize', onWindowResize);
+            
+            // Запускаємо анімаційний цикл
             animateLoop();
+            
+            // Відкладаємо відновлення стану на 100 мс, щоб дати WebGL стабілізуватися
+            setTimeout(() => {
+                loadSavedStateSync();
+                // Після відновлення примусово рендеримо
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }, 150);
         }
 
+        // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ ==========
+        function handleContextLost(event) {
+            event.preventDefault();
+            console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
+            setTimeout(() => { location.reload(); }, 1000);
+        }
+
+        function handleContextRestored() {
+            console.log('✅ WebGL контекст відновлено');
+            if (renderer) {
+                const currentTheme = document.querySelector('.theme-dot.active');
+                if (currentTheme) {
+                    const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
+                    switchTheme(themeKey, currentTheme);
+                } else {
+                    renderer.setClearColor(0x529b89, 1);
+                }
+                renderer.render(scene, camera);
+            }
+        }
+
+        // ========== АНІМАЦІЙНИЙ ЦИКЛ ==========
         function animateLoop() {
             requestAnimationFrame(animateLoop);
+            
+            if (!renderer) return;
+            
+            // Якщо це перший рендер – пропускаємо виконання черги
+            if (isFirstRender) {
+                isFirstRender = false;
+                // Рендеримо один раз, щоб куб з'явився
+                controls.update();
+                renderer.render(scene, camera);
+                return;
+            }
+            
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
@@ -621,6 +669,7 @@
                 saveState();
                 executeMove(nextMove);
             }
+            
             controls.update();
             renderer.render(scene, camera);
         }
@@ -814,12 +863,14 @@
             }));
         }
 
+        // ========== ВІДНОВЛЕННЯ СТАНУ (З ЗАТРИМКОЮ) ==========
         function loadSavedStateSync() {
             const savedRaw = localStorage.getItem('rubik_cube_save_data');
             if (!savedRaw) return;
 
             try {
                 const data = JSON.parse(savedRaw);
+                // Відновлюємо тільки якщо є історія або налаштування
                 if (data.historyMoves && data.historyMoves.length > 0) {
                     isRestoring = true;
                     historyMoves = [...data.historyMoves];
@@ -832,19 +883,17 @@
                         document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
                     }
 
-                    // Встановлюємо режим, але НЕ викликаємо setMode, щоб не заповнювати чергу
                     if (data.currentMode) {
                         currentMode = data.currentMode;
                         document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
                         document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
                     }
 
-                    // Виконуємо всі збережені ходи (миттєво, без анімації)
+                    // Виконуємо всі ходи миттєво, без анімації
                     historyMoves.forEach(move => executeInstantMove(move));
-                    
                     isRestoring = false;
                 } else {
-                    // Якщо historyMoves порожній, але є збережений режим – відновлюємо його без заповнення черги
+                    // Якщо немає історії, але є режим або алгоритм
                     if (data.currentMode) {
                         currentMode = data.currentMode;
                         document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
@@ -878,6 +927,7 @@
             }
             if (renderer) {
                 renderer.setClearColor(theme.clearColor, 1);
+                renderer.render(scene, camera);
             }
         }
 
@@ -891,7 +941,7 @@
             renderer.setSize(w, h);
         }
 
-        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ (прибирання замків) ==========
+        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ ==========
         function updateAlgorithmList() {
             const select = document.getElementById('alg-select');
             const currentValue = select.value;
@@ -1170,7 +1220,14 @@
         }
 
         // ========== ЗАПУСК ==========
-        window.onload = init3D;
+        window.onload = function() {
+            const canvas = document.getElementById('canvas-container');
+            if (canvas) {
+                canvas.addEventListener('webglcontextlost', handleContextLost, false);
+                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+            }
+            init3D();
+        };
     </script>
 </body>
 </html>
