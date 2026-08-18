@@ -67,6 +67,22 @@
         .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
         .stat-badge span { color: #00d2ff; font-size: 13px; }
 
+        /* ===== КНОПКА НАЛАШТУВАНЬ ===== */
+        .settings-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            line-height: 1;
+        }
+        .settings-btn:hover {
+            transform: scale(1.15) rotate(90deg);
+        }
+
         .sound-btn {
             background: none; border: none; color: var(--text-color); font-size: 16px;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -163,6 +179,190 @@
         .danger-btn { background: #922b21; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
         .danger-btn:hover { background: #a93226; }
 
+        /* ===== МОДАЛЬНЕ ВІКНО НАЛАШТУВАНЬ ===== */
+        #settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            touch-action: none;
+        }
+
+        .settings-modal-content {
+            background: #1e1e2a;
+            padding: 24px 20px;
+            border-radius: 16px;
+            max-width: 380px;
+            width: 92%;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .settings-modal-content h2 {
+            color: #f1c40f;
+            font-size: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .settings-modal-content h2 span {
+            font-size: 24px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border-radius: 6px;
+        }
+
+        .settings-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .settings-item .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #d0d0d8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-item .label .icon {
+            font-size: 18px;
+            width: 28px;
+            text-align: center;
+        }
+
+        .settings-item .value {
+            font-size: 13px;
+            color: #00d2ff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .settings-item .arrow {
+            color: #555566;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .settings-close-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px;
+            background: #3a3a52;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .settings-close-btn:hover {
+            background: #4a4a62;
+        }
+
+        /* Мова */
+        .lang-selector {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .lang-option {
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #2a2a3a;
+            color: #a0a0ab;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .lang-option.active {
+            background: #1e8449;
+            color: #fff;
+            border-color: #2ecc71;
+        }
+
+        .lang-option:hover {
+            background: #3a3a52;
+        }
+
+        /* Версія */
+        .version-badge {
+            background: #2a2a3a;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #888899;
+            font-weight: 600;
+        }
+
+        /* Рейтинг */
+        .rating-stars {
+            color: #f1c40f;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #2a2a3a;
+            color: #d0d0d8;
+            font-size: 12px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .social-link:hover {
+            background: #3a3a52;
+            color: #fff;
+        }
+
+        .social-link.facebook:hover { background: #1877f2; }
+        .social-link.instagram:hover { background: #e4405f; }
+        .social-link.x:hover { background: #000000; }
+        .social-link.youtube:hover { background: #ff0000; }
+        .social-link.telegram:hover { background: #0088cc; }
+
+        /* ===== PRO МОДАЛЬНЕ ВІКНО ===== */
         #pro-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 100; align-items: center; justify-content: center;
@@ -214,7 +414,8 @@
     <div id="canvas-container"></div>
     
     <div id="top-bar">
-        <div class="stat-badge">Moves: <span id="counter">0</span></div>
+        <div class="stat-badge">Ходів: <span id="counter">0</span></div>
+        <button id="settings-btn" class="settings-btn" onclick="openSettings()" title="Налаштування">⚙️</button>
         <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Sound On/Off">🔊</button>
         <div class="theme-dots">
             <div class="theme-dot" style="background: #09090e;" onclick="switchTheme('dark', this)"></div>
@@ -226,7 +427,7 @@
     <div id="controls-panel">
         <div class="algo-header-wrapper">
             <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Show Labels">?</button>
-            <div id="algo-display">Choose combination...</div>
+            <div id="algo-display">Виберіть комбінацію...</div>
         </div>
 
         <div class="button-group">
@@ -253,7 +454,7 @@
 
         <div class="alg-select-wrapper">
             <select class="alg-select" id="alg-select" aria-label="Вибір алгоритму" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
-                <option value="" disabled selected>🎓 Choose algorithm...</option>
+                <option value="" disabled selected>🎓 Виберіть алгоритм...</option>
                 <optgroup label="👶 Basic Algorithms">
                     <option value="R U R' U'">Right Sexy Move</option>
                     <option value="L' U' L U">Left Sexy Move</option>
@@ -289,10 +490,82 @@
         </div>
     </div>
 
+    <!-- ===== МОДАЛЬНЕ ВІКНО НАЛАШТУВАНЬ ===== -->
+    <div id="settings-modal">
+        <div class="settings-modal-content">
+            <h2><span>⚙️</span> Налаштування</h2>
+            
+            <!-- Версія додатку -->
+            <div class="settings-item">
+                <div class="label"><span class="icon">📦</span> Версія</div>
+                <div class="version-badge">v2.0.0</div>
+            </div>
+            
+            <!-- Мова (10 мов, без російської) -->
+            <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div class="label"><span class="icon">🌐</span> Мова</div>
+                <div class="lang-selector" id="lang-selector">
+                    <span class="lang-option active" onclick="setLanguage('uk', this)">🇺🇦 Українська</span>
+                    <span class="lang-option" onclick="setLanguage('en', this)">🇬🇧 English</span>
+                    <span class="lang-option" onclick="setLanguage('de', this)">🇩🇪 Deutsch</span>
+                    <span class="lang-option" onclick="setLanguage('fr', this)">🇫🇷 Français</span>
+                    <span class="lang-option" onclick="setLanguage('es', this)">🇪🇸 Español</span>
+                    <span class="lang-option" onclick="setLanguage('it', this)">🇮🇹 Italiano</span>
+                    <span class="lang-option" onclick="setLanguage('pl', this)">🇵🇱 Polski</span>
+                    <span class="lang-option" onclick="setLanguage('pt', this)">🇵🇹 Português</span>
+                    <span class="lang-option" onclick="setLanguage('ja', this)">🇯🇵 日本語</span>
+                    <span class="lang-option" onclick="setLanguage('ko', this)">🇰🇷 한국어</span>
+                </div>
+            </div>
+            
+            <!-- Соціальні мережі (з X) -->
+            <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div class="label"><span class="icon">📱</span> Соціальні мережі</div>
+                <div class="social-links">
+                    <a href="#" class="social-link facebook">📘 Facebook</a>
+                    <a href="#" class="social-link instagram">📸 Instagram</a>
+                    <a href="#" class="social-link x">🐦 X</a>
+                    <a href="#" class="social-link youtube">▶️ YouTube</a>
+                    <a href="#" class="social-link telegram">✈️ Telegram</a>
+                </div>
+            </div>
+            
+            <!-- Рейтинг -->
+            <div class="settings-item" onclick="rateApp()">
+                <div class="label"><span class="icon">⭐</span> Рейтинг</div>
+                <div class="value">
+                    <span class="rating-stars">★★★★★</span>
+                    <span class="arrow">›</span>
+                </div>
+            </div>
+            
+            <!-- Поділитися з друзями -->
+            <div class="settings-item" onclick="shareApp()">
+                <div class="label"><span class="icon">📤</span> Поділитися з друзями</div>
+                <div class="value">
+                    <span>➜</span>
+                    <span class="arrow">›</span>
+                </div>
+            </div>
+            
+            <!-- Зворотній зв'язок -->
+            <div class="settings-item" onclick="feedbackApp()">
+                <div class="label"><span class="icon">💬</span> Зворотній зв'язок</div>
+                <div class="value">
+                    <span>📧</span>
+                    <span class="arrow">›</span>
+                </div>
+            </div>
+            
+            <!-- Кнопка закриття -->
+            <button class="settings-close-btn" onclick="closeSettings()">✕ Закрити</button>
+        </div>
+    </div>
+
     <div id="pro-modal">
         <div class="modal-content">
             <h3>🏆 LogixCube PRO</h3>
-            <p>Select subscription plan or enter your license key:</p>
+            <p>Виберіть план підписки або введіть ліцензійний ключ:</p>
             <div class="plan-selector">
                 <div id="plan-monthly" class="plan-card active" onclick="selectPlan('monthly')">
                     <div class="plan-title">Monthly</div>
@@ -610,6 +883,7 @@
             
             setTimeout(() => {
                 loadSavedStateSync();
+                loadLanguage();
                 if (renderer && scene && camera) {
                     renderer.render(scene, camera);
                 }
@@ -778,7 +1052,7 @@
             const container = document.getElementById('algo-display');
             
             if (!storedAlgoStr || activeAlgoSteps.length === 0) {
-                container.innerHTML = "Choose combination...";
+                container.innerHTML = "Виберіть комбінацію...";
                 return;
             }
             
@@ -863,7 +1137,7 @@
             currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
             localStorage.removeItem('rubik_cube_save_data');
             document.getElementById('counter').innerText = '0';
-            document.getElementById('algo-display').innerText = "Choose combination...";
+            document.getElementById('algo-display').innerText = "Виберіть комбінацію...";
             buildCube();
             if (controls) controls.target.set(0, -1.2, 0);
             updateResetButtonState();
@@ -959,7 +1233,7 @@
             const currentValue = select.value;
             
             const optionsData = [
-                { value: '', text: '🎓 Choose algorithm...', disabled: true, selected: true },
+                { value: '', text: '🎓 Виберіть алгоритм...', disabled: true, selected: true },
                 { optgroup: '👶 Basic Algorithms' },
                 { value: "R U R' U'", text: 'Right Sexy Move' },
                 { value: "L' U' L U", text: 'Left Sexy Move' },
@@ -1020,15 +1294,12 @@
                 return;
             }
             
-            // Зберігаємо алгоритм, але НЕ запускаємо автоматично
             storedAlgoStr = algoStr;
             activeAlgoSteps = algoStr.split(' ');
             currentStepIndex = -1;
             
-            // Показуємо алгоритм у відображенні
             updateAlgoDisplay();
             
-            // ОЧИЩУЄМО чергу - алгоритм НЕ запускається автоматично!
             moveQueue = [];
             
             saveState();
@@ -1185,6 +1456,119 @@
             } catch (error) {
                 alert('Помилка з\'єднання.');
             }
+        }
+
+        // ========== НАЛАШТУВАННЯ ==========
+        function openSettings() {
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        // Закриття по кліку на фон
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('settings-modal');
+            if (e.target === modal) {
+                closeSettings();
+            }
+        });
+
+        // ===== МОВА (10 мов, без російської) =====
+        function setLanguage(lang, element) {
+            document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            
+            const langMap = {
+                'uk': { moves: 'Ходів:', choose: 'Виберіть комбінацію...', title: 'Кубик Рубіка 3D PRO' },
+                'en': { moves: 'Moves:', choose: 'Choose combination...', title: 'Rubik\'s Cube 3D PRO' },
+                'de': { moves: 'Züge:', choose: 'Kombination wählen...', title: 'Rubik\'s Cube 3D PRO' },
+                'fr': { moves: 'Mouvements:', choose: 'Choisissez la combinaison...', title: 'Rubik\'s Cube 3D PRO' },
+                'es': { moves: 'Movimientos:', choose: 'Elige combinación...', title: 'Cubo de Rubik 3D PRO' },
+                'it': { moves: 'Mosse:', choose: 'Scegli combinazione...', title: 'Cubo di Rubik 3D PRO' },
+                'pl': { moves: 'Ruchy:', choose: 'Wybierz kombinację...', title: 'Kostka Rubika 3D PRO' },
+                'pt': { moves: 'Movimentos:', choose: 'Escolha combinação...', title: 'Cubo Mágico 3D PRO' },
+                'ja': { moves: '手数:', choose: '組み合わせを選択...', title: 'ルービックキューブ 3D PRO' },
+                'ko': { moves: '이동:', choose: '조합 선택...', title: '루빅스 큐브 3D PRO' }
+            };
+            
+            const texts = langMap[lang] || langMap['uk'];
+            
+            const counter = document.getElementById('counter').innerText;
+            document.querySelector('.stat-badge').innerHTML = texts.moves + ' <span id="counter">' + counter + '</span>';
+            
+            if (!storedAlgoStr) {
+                document.getElementById('algo-display').innerText = texts.choose;
+            }
+            
+            document.title = texts.title;
+            
+            localStorage.setItem('rubik_language', lang);
+        }
+
+        function loadLanguage() {
+            const savedLang = localStorage.getItem('rubik_language');
+            if (savedLang) {
+                const options = document.querySelectorAll('.lang-option');
+                const langMap = {
+                    'uk': 'Українська',
+                    'en': 'English',
+                    'de': 'Deutsch',
+                    'fr': 'Français',
+                    'es': 'Español',
+                    'it': 'Italiano',
+                    'pl': 'Polski',
+                    'pt': 'Português',
+                    'ja': '日本語',
+                    'ko': '한국어'
+                };
+                
+                options.forEach(el => {
+                    if (el.textContent.includes(langMap[savedLang] || '')) {
+                        el.classList.add('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                });
+                
+                const activeLang = document.querySelector('.lang-option.active');
+                if (activeLang) {
+                    setLanguage(savedLang, activeLang);
+                }
+            }
+        }
+
+        // ===== РЕЙТИНГ =====
+        function rateApp() {
+            const url = 'https://play.google.com/store/apps/details?id=your.app.id';
+            window.open(url, '_blank');
+        }
+
+        // ===== ПОДІЛИТИСЯ =====
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Кубик Рубіка 3D',
+                    text: 'Спробуй Кубик Рубіка 3D! Збирай та вчи алгоритми! 🎲',
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                const url = window.location.href;
+                const text = 'Спробуй Кубик Рубіка 3D! 🎲 ' + url;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('📋 Посилання скопійовано! Поділіться з друзями.');
+                    });
+                } else {
+                    prompt('Скопіюйте посилання:', text);
+                }
+            }
+        }
+
+        // ===== ЗВОРОТНІЙ ЗВ'ЯЗОК =====
+        function feedbackApp() {
+            window.location.href = 'mailto:support@your-app.com?subject=Зворотній зв\'язок Кубик Рубіка 3D';
         }
 
         // ========== ЗВУК ==========
