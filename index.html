@@ -67,7 +67,6 @@
         .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
         .stat-badge span { color: #00d2ff; font-size: 13px; }
 
-        /* ===== КНОПКА НАЛАШТУВАНЬ ===== */
         .settings-btn {
             background: none;
             border: none;
@@ -179,7 +178,6 @@
         .danger-btn { background: #922b21; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
         .danger-btn:hover { background: #a93226; }
 
-        /* ===== МОДАЛЬНЕ ВІКНО НАЛАШТУВАНЬ ===== */
         #settings-modal {
             display: none;
             position: fixed;
@@ -286,7 +284,6 @@
             background: #4a4a62;
         }
 
-        /* Мова */
         .lang-selector {
             display: flex;
             gap: 6px;
@@ -315,7 +312,6 @@
             background: #3a3a52;
         }
 
-        /* Версія */
         .version-badge {
             background: #2a2a3a;
             padding: 2px 10px;
@@ -325,7 +321,6 @@
             font-weight: 600;
         }
 
-        /* Рейтинг */
         .rating-stars {
             color: #f1c40f;
             font-size: 16px;
@@ -362,7 +357,6 @@
         .social-link.youtube:hover { background: #ff0000; }
         .social-link.telegram:hover { background: #0088cc; }
 
-        /* ===== PRO МОДАЛЬНЕ ВІКНО ===== */
         #pro-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 100; align-items: center; justify-content: center;
@@ -416,7 +410,7 @@
     <div id="top-bar">
         <div class="stat-badge">Ходів: <span id="counter">0</span></div>
         <button id="settings-btn" class="settings-btn" onclick="openSettings()" title="Налаштування">⚙️</button>
-        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Sound On/Off">🔊</button>
+        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Звук">🔊</button>
         <div class="theme-dots">
             <div class="theme-dot" style="background: #09090e;" onclick="switchTheme('dark', this)"></div>
             <div class="theme-dot active" style="background: #529b89;" onclick="switchTheme('mint', this)"></div>
@@ -426,7 +420,7 @@
 
     <div id="controls-panel">
         <div class="algo-header-wrapper">
-            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Show Labels">?</button>
+            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати мітки">?</button>
             <div id="algo-display">Виберіть комбінацію...</div>
         </div>
 
@@ -462,7 +456,7 @@
                     <option value="R U R' U R U2 R'">Sune OLL</option>
                     <option value="U R U' L' U R' U' L">Four Corners Swap</option>
                 </optgroup>
-                <optgroup label="🧒 PRO: Advanced Speedcubing (CFOP)">
+                <optgroup label="🔒 PRO: Advanced Speedcubing (CFOP)">
                     <option value="R U2 R' U' R U' R'">🔒 Anti-Sune OLL</option>
                     <option value="R U R' F' R U R' U' R' F R2 U' R'">🔒 J-Permutation</option>
                     <option value="F R U' R' U' R U R' F' R U R' U' R' F R F'">🔒 Y-Permutation</option>
@@ -472,7 +466,7 @@
                     <option value="R' U R' U' R D' R' D R' U2 R D' R' D R2">🔒 E-Permutation</option>
                     <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🔒 T-Permutation</option>
                 </optgroup>
-                <optgroup label="🧔 PRO: Creative Art & Patterns">
+                <optgroup label="🔒 PRO: Creative Art & Patterns">
                     <option value="F R U R' U' F' R U R' U' R' F R F'">🔒 Cube in a Cube</option>
                     <option value="U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2">🔒 Dot Pattern</option>
                     <option value="R L U2 R' L' U2">🔒 Snake Pattern</option>
@@ -495,13 +489,11 @@
         <div class="settings-modal-content">
             <h2><span>⚙️</span> Налаштування</h2>
             
-            <!-- Версія додатку -->
             <div class="settings-item">
                 <div class="label"><span class="icon">📦</span> Версія</div>
                 <div class="version-badge">v2.0.0</div>
             </div>
             
-            <!-- Мова (10 мов, без російської) -->
             <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
                 <div class="label"><span class="icon">🌐</span> Мова</div>
                 <div class="lang-selector" id="lang-selector">
@@ -518,7 +510,6 @@
                 </div>
             </div>
             
-            <!-- Соціальні мережі (з X) -->
             <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
                 <div class="label"><span class="icon">📱</span> Соціальні мережі</div>
                 <div class="social-links">
@@ -530,7 +521,6 @@
                 </div>
             </div>
             
-            <!-- Рейтинг -->
             <div class="settings-item" onclick="rateApp()">
                 <div class="label"><span class="icon">⭐</span> Рейтинг</div>
                 <div class="value">
@@ -539,7 +529,6 @@
                 </div>
             </div>
             
-            <!-- Поділитися з друзями -->
             <div class="settings-item" onclick="shareApp()">
                 <div class="label"><span class="icon">📤</span> Поділитися з друзями</div>
                 <div class="value">
@@ -548,7 +537,6 @@
                 </div>
             </div>
             
-            <!-- Зворотній зв'язок -->
             <div class="settings-item" onclick="feedbackApp()">
                 <div class="label"><span class="icon">💬</span> Зворотній зв'язок</div>
                 <div class="value">
@@ -557,7 +545,6 @@
                 </div>
             </div>
             
-            <!-- Кнопка закриття -->
             <button class="settings-close-btn" onclick="closeSettings()">✕ Закрити</button>
         </div>
     </div>
@@ -587,6 +574,810 @@
     </div>
 
     <script>
+        // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ, БЕЗ РОСІЙСЬКОЇ) ==========
+        const TRANSLATIONS = {
+            'uk': {
+                moves: 'Ходів:',
+                settings: 'Налаштування',
+                sound: 'Звук',
+                choose: 'Виберіть комбінацію...',
+                manual: 'Manual',
+                auto: 'Auto',
+                choose_algo: '🎓 Виберіть алгоритм...',
+                scramble: '🔀 Scramble',
+                pro: '🔑 PRO',
+                reset: '⟳ Reset',
+                basic: '👶 Basic Algorithms',
+                pro_cfop: '🧒 PRO: Advanced Speedcubing (CFOP)',
+                pro_patterns: '🧔 PRO: Creative Art & Patterns',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Налаштування',
+                version: '📦 Версія',
+                language: '🌐 Мова',
+                social: '📱 Соціальні мережі',
+                rating: '⭐ Рейтинг',
+                share: '📤 Поділитися з друзями',
+                feedback: '💬 Зворотній зв\'язок',
+                close: '✕ Закрити',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Виберіть план підписки або введіть ліцензійний ключ:',
+                monthly: 'Monthly',
+                yearly: 'Yearly',
+                month: '/ month',
+                save_50: 'Save 50%',
+                subscribe_month: '🛒 Subscribe for $4.99 / mo',
+                subscribe_year: '🛒 Subscribe for $29.99 / yr',
+                activate: 'Activate PRO',
+                close_pro: 'Close',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Алгоритм доступний у PRO версії!',
+                pro_activated: '👑 PRO Режим активовано на 2 години!',
+                pro_activated_license: '🎉 PRO версія активована!',
+                invalid_key: '❌ Недійсний ключ!',
+                connection_error: 'Помилка з\'єднання.',
+                no_undo: 'Немає ходів для скасування!',
+                auto_hint: '⏸️ Натисніть Auto для запуску',
+                lang_uk: '🇺🇦 Українська',
+                lang_en: '🇬🇧 English',
+                lang_de: '🇩🇪 Deutsch',
+                lang_fr: '🇫🇷 Français',
+                lang_es: '🇪🇸 Español',
+                lang_it: '🇮🇹 Italiano',
+                lang_pl: '🇵🇱 Polski',
+                lang_pt: '🇵🇹 Português',
+                lang_ja: '🇯🇵 日本語',
+                lang_ko: '🇰🇷 한국어',
+                share_title: 'Кубик Рубіка 3D',
+                share_text: 'Спробуй Кубик Рубіка 3D! Збирай та вчи алгоритми! 🎲',
+                share_copied: '📋 Посилання скопійовано! Поділіться з друзями.',
+                copy_link: 'Скопіюйте посилання:',
+                email_subject: 'Зворотній зв\'язок Кубик Рубіка 3D'
+            },
+            'en': {
+                moves: 'Moves:',
+                settings: 'Settings',
+                sound: 'Sound',
+                choose: 'Choose combination...',
+                manual: 'Manual',
+                auto: 'Auto',
+                choose_algo: '🎓 Choose algorithm...',
+                scramble: '🔀 Scramble',
+                pro: '🔑 PRO',
+                reset: '⟳ Reset',
+                basic: '👶 Basic Algorithms',
+                pro_cfop: '🧒 PRO: Advanced Speedcubing (CFOP)',
+                pro_patterns: '🧔 PRO: Creative Art & Patterns',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Settings',
+                version: '📦 Version',
+                language: '🌐 Language',
+                social: '📱 Social Networks',
+                rating: '⭐ Rating',
+                share: '📤 Share with Friends',
+                feedback: '💬 Feedback',
+                close: '✕ Close',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Select subscription plan or enter your license key:',
+                monthly: 'Monthly',
+                yearly: 'Yearly',
+                month: '/ month',
+                save_50: 'Save 50%',
+                subscribe_month: '🛒 Subscribe for $4.99 / mo',
+                subscribe_year: '🛒 Subscribe for $29.99 / yr',
+                activate: 'Activate PRO',
+                close_pro: 'Close',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algorithm available in PRO version!',
+                pro_activated: '👑 PRO Mode activated for 2 hours!',
+                pro_activated_license: '🎉 PRO version activated!',
+                invalid_key: '❌ Invalid key!',
+                connection_error: 'Connection error.',
+                no_undo: 'No moves to undo!',
+                auto_hint: '⏸️ Press Auto to start',
+                lang_uk: '🇺🇦 Ukrainian',
+                lang_en: '🇬🇧 English',
+                lang_de: '🇩🇪 Deutsch',
+                lang_fr: '🇫🇷 Français',
+                lang_es: '🇪🇸 Español',
+                lang_it: '🇮🇹 Italiano',
+                lang_pl: '🇵🇱 Polski',
+                lang_pt: '🇵🇹 Português',
+                lang_ja: '🇯🇵 日本語',
+                lang_ko: '🇰🇷 한국어',
+                share_title: 'Rubik\'s Cube 3D',
+                share_text: 'Try Rubik\'s Cube 3D! Solve and learn algorithms! 🎲',
+                share_copied: '📋 Link copied! Share with friends.',
+                copy_link: 'Copy link:',
+                email_subject: 'Feedback Rubik\'s Cube 3D'
+            },
+            'de': {
+                moves: 'Züge:',
+                settings: 'Einstellungen',
+                sound: 'Sound',
+                choose: 'Kombination wählen...',
+                manual: 'Manuell',
+                auto: 'Auto',
+                choose_algo: '🎓 Algorithmus wählen...',
+                scramble: '🔀 Mischen',
+                pro: '🔑 PRO',
+                reset: '⟳ Zurücksetzen',
+                basic: '👶 Basis Algorithmen',
+                pro_cfop: '🧒 PRO: Fortgeschritten (CFOP)',
+                pro_patterns: '🧔 PRO: Kreative Muster',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Einstellungen',
+                version: '📦 Version',
+                language: '🌐 Sprache',
+                social: '📱 Soziale Netzwerke',
+                rating: '⭐ Bewertung',
+                share: '📤 Teilen mit Freunden',
+                feedback: '💬 Feedback',
+                close: '✕ Schließen',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Abonnementplan wählen oder Lizenzschlüssel eingeben:',
+                monthly: 'Monatlich',
+                yearly: 'Jährlich',
+                month: '/ Monat',
+                save_50: '50% sparen',
+                subscribe_month: '🛒 Abonnieren für $4.99 / Monat',
+                subscribe_year: '🛒 Abonnieren für $29.99 / Jahr',
+                activate: 'PRO aktivieren',
+                close_pro: 'Schließen',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algorithmus in PRO-Version verfügbar!',
+                pro_activated: '👑 PRO-Modus für 2 Stunden aktiviert!',
+                pro_activated_license: '🎉 PRO-Version aktiviert!',
+                invalid_key: '❌ Ungültiger Schlüssel!',
+                connection_error: 'Verbindungsfehler.',
+                no_undo: 'Keine Züge zum Rückgängig machen!',
+                auto_hint: '⏸️ Drücken Sie Auto zum Starten',
+                lang_uk: '🇺🇦 Ukrainisch',
+                lang_en: '🇬🇧 Englisch',
+                lang_de: '🇩🇪 Deutsch',
+                lang_fr: '🇫🇷 Französisch',
+                lang_es: '🇪🇸 Spanisch',
+                lang_it: '🇮🇹 Italienisch',
+                lang_pl: '🇵🇱 Polnisch',
+                lang_pt: '🇵🇹 Portugiesisch',
+                lang_ja: '🇯🇵 Japanisch',
+                lang_ko: '🇰🇷 Koreanisch',
+                share_title: 'Rubik\'s Cube 3D',
+                share_text: 'Probiere Rubik\'s Cube 3D! Löse und lerne Algorithmen! 🎲',
+                share_copied: '📋 Link kopiert! Mit Freunden teilen.',
+                copy_link: 'Link kopieren:',
+                email_subject: 'Feedback Rubik\'s Cube 3D'
+            },
+            'fr': {
+                moves: 'Mouvements:',
+                settings: 'Paramètres',
+                sound: 'Son',
+                choose: 'Choisissez la combinaison...',
+                manual: 'Manuel',
+                auto: 'Auto',
+                choose_algo: '🎓 Choisir un algorithme...',
+                scramble: '🔀 Mélanger',
+                pro: '🔑 PRO',
+                reset: '⟳ Réinitialiser',
+                basic: '👶 Algorithmes de base',
+                pro_cfop: '🧒 PRO: Speedcubing avancé (CFOP)',
+                pro_patterns: '🧔 PRO: Motifs créatifs',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Paramètres',
+                version: '📦 Version',
+                language: '🌐 Langue',
+                social: '📱 Réseaux sociaux',
+                rating: '⭐ Évaluation',
+                share: '📤 Partager avec des amis',
+                feedback: '💬 Retour d\'information',
+                close: '✕ Fermer',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Choisissez un plan d\'abonnement ou entrez votre clé de licence:',
+                monthly: 'Mensuel',
+                yearly: 'Annuel',
+                month: '/ mois',
+                save_50: 'Économisez 50%',
+                subscribe_month: '🛒 Abonnez-vous pour 4,99 $ / mois',
+                subscribe_year: '🛒 Abonnez-vous pour 29,99 $ / an',
+                activate: 'Activer PRO',
+                close_pro: 'Fermer',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algorithme disponible en version PRO!',
+                pro_activated: '👑 Mode PRO activé pour 2 heures!',
+                pro_activated_license: '🎉 Version PRO activée!',
+                invalid_key: '❌ Clé invalide!',
+                connection_error: 'Erreur de connexion.',
+                no_undo: 'Aucun mouvement à annuler!',
+                auto_hint: '⏸️ Appuyez sur Auto pour démarrer',
+                lang_uk: '🇺🇦 Ukrainien',
+                lang_en: '🇬🇧 Anglais',
+                lang_de: '🇩🇪 Allemand',
+                lang_fr: '🇫🇷 Français',
+                lang_es: '🇪🇸 Espagnol',
+                lang_it: '🇮🇹 Italien',
+                lang_pl: '🇵🇱 Polonais',
+                lang_pt: '🇵🇹 Portugais',
+                lang_ja: '🇯🇵 Japonais',
+                lang_ko: '🇰🇷 Coréen',
+                share_title: 'Rubik\'s Cube 3D',
+                share_text: 'Essaie Rubik\'s Cube 3D! Résous et apprends des algorithmes! 🎲',
+                share_copied: '📋 Lien copié! Partage avec tes amis.',
+                copy_link: 'Copier le lien:',
+                email_subject: 'Retour d\'information Rubik\'s Cube 3D'
+            },
+            'es': {
+                moves: 'Movimientos:',
+                settings: 'Ajustes',
+                sound: 'Sonido',
+                choose: 'Elige combinación...',
+                manual: 'Manual',
+                auto: 'Auto',
+                choose_algo: '🎓 Elige algoritmo...',
+                scramble: '🔀 Mezclar',
+                pro: '🔑 PRO',
+                reset: '⟳ Reiniciar',
+                basic: '👶 Algoritmos básicos',
+                pro_cfop: '🧒 PRO: Speedcubing avanzado (CFOP)',
+                pro_patterns: '🧔 PRO: Patrones creativos',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Ajustes',
+                version: '📦 Versión',
+                language: '🌐 Idioma',
+                social: '📱 Redes sociales',
+                rating: '⭐ Calificación',
+                share: '📤 Compartir con amigos',
+                feedback: '💬 Comentarios',
+                close: '✕ Cerrar',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Elige un plan de suscripción o ingresa tu clave de licencia:',
+                monthly: 'Mensual',
+                yearly: 'Anual',
+                month: '/ mes',
+                save_50: 'Ahorra 50%',
+                subscribe_month: '🛒 Suscríbete por $4.99 / mes',
+                subscribe_year: '🛒 Suscríbete por $29.99 / año',
+                activate: 'Activar PRO',
+                close_pro: 'Cerrar',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algoritmo disponible en versión PRO!',
+                pro_activated: '👑 Modo PRO activado por 2 horas!',
+                pro_activated_license: '🎉 Versión PRO activada!',
+                invalid_key: '❌ Clave inválida!',
+                connection_error: 'Error de conexión.',
+                no_undo: '¡No hay movimientos para deshacer!',
+                auto_hint: '⏸️ Presiona Auto para iniciar',
+                lang_uk: '🇺🇦 Ucraniano',
+                lang_en: '🇬🇧 Inglés',
+                lang_de: '🇩🇪 Alemán',
+                lang_fr: '🇫🇷 Francés',
+                lang_es: '🇪🇸 Español',
+                lang_it: '🇮🇹 Italiano',
+                lang_pl: '🇵🇱 Polaco',
+                lang_pt: '🇵🇹 Portugués',
+                lang_ja: '🇯🇵 Japonés',
+                lang_ko: '🇰🇷 Coreano',
+                share_title: 'Cubo de Rubik 3D',
+                share_text: '¡Prueba Cubo de Rubik 3D! Resuelve y aprende algoritmos! 🎲',
+                share_copied: '📋 ¡Enlace copiado! Comparte con amigos.',
+                copy_link: 'Copiar enlace:',
+                email_subject: 'Comentarios Cubo de Rubik 3D'
+            },
+            'it': {
+                moves: 'Mosse:',
+                settings: 'Impostazioni',
+                sound: 'Suono',
+                choose: 'Scegli combinazione...',
+                manual: 'Manuale',
+                auto: 'Auto',
+                choose_algo: '🎓 Scegli algoritmo...',
+                scramble: '🔀 Mescola',
+                pro: '🔑 PRO',
+                reset: '⟳ Ripristina',
+                basic: '👶 Algoritmi di base',
+                pro_cfop: '🧒 PRO: Speedcubing avanzato (CFOP)',
+                pro_patterns: '🧔 PRO: Motivi creativi',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Impostazioni',
+                version: '📦 Versione',
+                language: '🌐 Lingua',
+                social: '📱 Social network',
+                rating: '⭐ Valutazione',
+                share: '📤 Condividi con gli amici',
+                feedback: '💬 Feedback',
+                close: '✕ Chiudi',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Scegli un piano di abbonamento o inserisci la tua chiave di licenza:',
+                monthly: 'Mensile',
+                yearly: 'Annuale',
+                month: '/ mese',
+                save_50: 'Risparmia 50%',
+                subscribe_month: '🛒 Abbonati per $4.99 / mese',
+                subscribe_year: '🛒 Abbonati per $29.99 / anno',
+                activate: 'Attiva PRO',
+                close_pro: 'Chiudi',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algoritmo disponibile nella versione PRO!',
+                pro_activated: '👑 Modalità PRO attivata per 2 ore!',
+                pro_activated_license: '🎉 Versione PRO attivata!',
+                invalid_key: '❌ Chiave non valida!',
+                connection_error: 'Errore di connessione.',
+                no_undo: 'Nessuna mossa da annullare!',
+                auto_hint: '⏸️ Premi Auto per avviare',
+                lang_uk: '🇺🇦 Ucraino',
+                lang_en: '🇬🇧 Inglese',
+                lang_de: '🇩🇪 Tedesco',
+                lang_fr: '🇫🇷 Francese',
+                lang_es: '🇪🇸 Spagnolo',
+                lang_it: '🇮🇹 Italiano',
+                lang_pl: '🇵🇱 Polacco',
+                lang_pt: '🇵🇹 Portoghese',
+                lang_ja: '🇯🇵 Giapponese',
+                lang_ko: '🇰🇷 Coreano',
+                share_title: 'Cubo di Rubik 3D',
+                share_text: 'Prova Cubo di Rubik 3D! Risolvi e impara algoritmi! 🎲',
+                share_copied: '📋 Link copiato! Condividi con gli amici.',
+                copy_link: 'Copia link:',
+                email_subject: 'Feedback Cubo di Rubik 3D'
+            },
+            'pl': {
+                moves: 'Ruchy:',
+                settings: 'Ustawienia',
+                sound: 'Dźwięk',
+                choose: 'Wybierz kombinację...',
+                manual: 'Ręczny',
+                auto: 'Auto',
+                choose_algo: '🎓 Wybierz algorytm...',
+                scramble: '🔀 Mieszaj',
+                pro: '🔑 PRO',
+                reset: '⟳ Reset',
+                basic: '👶 Podstawowe algorytmy',
+                pro_cfop: '🧒 PRO: Zaawansowany speedcubing (CFOP)',
+                pro_patterns: '🧔 PRO: Kreatywne wzory',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Ustawienia',
+                version: '📦 Wersja',
+                language: '🌐 Język',
+                social: '📱 Media społecznościowe',
+                rating: '⭐ Ocena',
+                share: '📤 Podziel się z przyjaciółmi',
+                feedback: '💬 Opinia',
+                close: '✕ Zamknij',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Wybierz plan subskrypcji lub wprowadź klucz licencyjny:',
+                monthly: 'Miesięczny',
+                yearly: 'Roczny',
+                month: '/ miesiąc',
+                save_50: 'Zaoszczędź 50%',
+                subscribe_month: '🛒 Subskrybuj za $4.99 / miesiąc',
+                subscribe_year: '🛒 Subskrybuj za $29.99 / rok',
+                activate: 'Aktywuj PRO',
+                close_pro: 'Zamknij',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algorytm dostępny w wersji PRO!',
+                pro_activated: '👑 Tryb PRO aktywowany na 2 godziny!',
+                pro_activated_license: '🎉 Wersja PRO aktywowana!',
+                invalid_key: '❌ Nieprawidłowy klucz!',
+                connection_error: 'Błąd połączenia.',
+                no_undo: 'Brak ruchów do cofnięcia!',
+                auto_hint: '⏸️ Naciśnij Auto, aby uruchomić',
+                lang_uk: '🇺🇦 Ukraiński',
+                lang_en: '🇬🇧 Angielski',
+                lang_de: '🇩🇪 Niemiecki',
+                lang_fr: '🇫🇷 Francuski',
+                lang_es: '🇪🇸 Hiszpański',
+                lang_it: '🇮🇹 Włoski',
+                lang_pl: '🇵🇱 Polski',
+                lang_pt: '🇵🇹 Portugalski',
+                lang_ja: '🇯🇵 Japoński',
+                lang_ko: '🇰🇷 Koreański',
+                share_title: 'Kostka Rubika 3D',
+                share_text: 'Wypróbuj Kostkę Rubika 3D! Rozwiązuj i ucz się algorytmów! 🎲',
+                share_copied: '📋 Link skopiowany! Podziel się z przyjaciółmi.',
+                copy_link: 'Skopiuj link:',
+                email_subject: 'Opinie Kostka Rubika 3D'
+            },
+            'pt': {
+                moves: 'Movimentos:',
+                settings: 'Configurações',
+                sound: 'Som',
+                choose: 'Escolha combinação...',
+                manual: 'Manual',
+                auto: 'Auto',
+                choose_algo: '🎓 Escolha algoritmo...',
+                scramble: '🔀 Embaralhar',
+                pro: '🔑 PRO',
+                reset: '⟳ Reiniciar',
+                basic: '👶 Algoritmos básicos',
+                pro_cfop: '🧒 PRO: Speedcubing avançado (CFOP)',
+                pro_patterns: '🧔 PRO: Padrões criativos',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ Configurações',
+                version: '📦 Versão',
+                language: '🌐 Idioma',
+                social: '📱 Redes sociais',
+                rating: '⭐ Avaliação',
+                share: '📤 Compartilhar com amigos',
+                feedback: '💬 Feedback',
+                close: '✕ Fechar',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'Escolha um plano de assinatura ou insira sua chave de licença:',
+                monthly: 'Mensal',
+                yearly: 'Anual',
+                month: '/ mês',
+                save_50: 'Economize 50%',
+                subscribe_month: '🛒 Assine por $4.99 / mês',
+                subscribe_year: '🛒 Assine por $29.99 / ano',
+                activate: 'Ativar PRO',
+                close_pro: 'Fechar',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 Algoritmo disponível na versão PRO!',
+                pro_activated: '👑 Modo PRO ativado por 2 horas!',
+                pro_activated_license: '🎉 Versão PRO ativada!',
+                invalid_key: '❌ Chave inválida!',
+                connection_error: 'Erro de conexão.',
+                no_undo: 'Nenhum movimento para desfazer!',
+                auto_hint: '⏸️ Pressione Auto para iniciar',
+                lang_uk: '🇺🇦 Ucraniano',
+                lang_en: '🇬🇧 Inglês',
+                lang_de: '🇩🇪 Alemão',
+                lang_fr: '🇫🇷 Francês',
+                lang_es: '🇪🇸 Espanhol',
+                lang_it: '🇮🇹 Italiano',
+                lang_pl: '🇵🇱 Polonês',
+                lang_pt: '🇵🇹 Português',
+                lang_ja: '🇯🇵 Japonês',
+                lang_ko: '🇰🇷 Coreano',
+                share_title: 'Cubo Mágico 3D',
+                share_text: 'Experimente o Cubo Mágico 3D! Resolva e aprenda algoritmos! 🎲',
+                share_copied: '📋 Link copiado! Compartilhe com amigos.',
+                copy_link: 'Copiar link:',
+                email_subject: 'Feedback Cubo Mágico 3D'
+            },
+            'ja': {
+                moves: '手数:',
+                settings: '設定',
+                sound: 'サウンド',
+                choose: '組み合わせを選択...',
+                manual: '手動',
+                auto: '自動',
+                choose_algo: '🎓 アルゴリズムを選択...',
+                scramble: '🔀 シャッフル',
+                pro: '🔑 PRO',
+                reset: '⟳ リセット',
+                basic: '👶 基本アルゴリズム',
+                pro_cfop: '🧒 PRO: 高度なスピードキュービング (CFOP)',
+                pro_patterns: '🧔 PRO: クリエイティブパターン',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ 設定',
+                version: '📦 バージョン',
+                language: '🌐 言語',
+                social: '📱 ソーシャルネットワーク',
+                rating: '⭐ 評価',
+                share: '📤 友達と共有',
+                feedback: '💬 フィードバック',
+                close: '✕ 閉じる',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: 'サブスクリプションプランを選択するか、ライセンスキーを入力してください:',
+                monthly: '月額',
+                yearly: '年間',
+                month: '/ 月',
+                save_50: '50% 節約',
+                subscribe_month: '🛒 $4.99 / 月 で購読',
+                subscribe_year: '🛒 $29.99 / 年 で購読',
+                activate: 'PROを有効化',
+                close_pro: '閉じる',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 このアルゴリズムはPRO版で利用可能です！',
+                pro_activated: '👑 PROモードが2時間有効になりました！',
+                pro_activated_license: '🎉 PRO版が有効になりました！',
+                invalid_key: '❌ 無効なキーです！',
+                connection_error: '接続エラー。',
+                no_undo: '元に戻す操作がありません！',
+                auto_hint: '⏸️ 開始するにはAutoを押してください',
+                lang_uk: '🇺🇦 ウクライナ語',
+                lang_en: '🇬🇧 英語',
+                lang_de: '🇩🇪 ドイツ語',
+                lang_fr: '🇫🇷 フランス語',
+                lang_es: '🇪🇸 スペイン語',
+                lang_it: '🇮🇹 イタリア語',
+                lang_pl: '🇵🇱 ポーランド語',
+                lang_pt: '🇵🇹 ポルトガル語',
+                lang_ja: '🇯🇵 日本語',
+                lang_ko: '🇰🇷 韓国語',
+                share_title: 'ルービックキューブ 3D',
+                share_text: 'ルービックキューブ3Dを試してみよう！アルゴリズムを解いて学ぼう！ 🎲',
+                share_copied: '📋 リンクをコピーしました！友達と共有しましょう。',
+                copy_link: 'リンクをコピー:',
+                email_subject: 'ルービックキューブ3D フィードバック'
+            },
+            'ko': {
+                moves: '이동:',
+                settings: '설정',
+                sound: '소리',
+                choose: '조합 선택...',
+                manual: '수동',
+                auto: '자동',
+                choose_algo: '🎓 알고리즘 선택...',
+                scramble: '🔀 섞기',
+                pro: '🔑 PRO',
+                reset: '⟳ 재설정',
+                basic: '👶 기본 알고리즘',
+                pro_cfop: '🧒 PRO: 고급 스피드큐빙 (CFOP)',
+                pro_patterns: '🧔 PRO: 크리에이티브 패턴',
+                right_sexy: 'Right Sexy Move',
+                left_sexy: 'Left Sexy Move',
+                sledgehammer: 'Sledgehammer',
+                sune: 'Sune OLL',
+                four_corners: 'Four Corners Swap',
+                anti_sune: '🔒 Anti-Sune OLL',
+                j_perm: '🔒 J-Permutation',
+                y_perm: '🔒 Y-Permutation',
+                a_perm: '🔒 A-Permutation',
+                ua_perm: '🔒 Ua-Permutation',
+                ub_perm: '🔒 Ub-Permutation',
+                e_perm: '🔒 E-Permutation',
+                t_perm: '🔒 T-Permutation',
+                cube_in_cube: '🔒 Cube in a Cube',
+                dot_pattern: '🔒 Dot Pattern',
+                snake_pattern: '🔒 Snake Pattern',
+                stripes_pattern: '🔒 Stripes / Banded Pattern',
+                double_cross: '🔒 Double Cross Pattern',
+                nested_cube: '🔒 Nested Cube Pattern',
+                settings_title: '⚙️ 설정',
+                version: '📦 버전',
+                language: '🌐 언어',
+                social: '📱 소셜 네트워크',
+                rating: '⭐ 평가',
+                share: '📤 친구와 공유',
+                feedback: '💬 피드백',
+                close: '✕ 닫기',
+                facebook: '📘 Facebook',
+                instagram: '📸 Instagram',
+                x: '🐦 X',
+                youtube: '▶️ YouTube',
+                telegram: '✈️ Telegram',
+                pro_title: '🏆 LogixCube PRO',
+                pro_desc: '구독 플랜을 선택하거나 라이선스 키를 입력하세요:',
+                monthly: '월간',
+                yearly: '연간',
+                month: '/ 월',
+                save_50: '50% 절약',
+                subscribe_month: '🛒 $4.99 / 월 구독',
+                subscribe_year: '🛒 $29.99 / 년 구독',
+                activate: 'PRO 활성화',
+                close_pro: '닫기',
+                enter_key: 'XXXXX-XXXXX-XXXXX',
+                pro_locked: '🔒 이 알고리즘은 PRO 버전에서 사용 가능합니다!',
+                pro_activated: '👑 PRO 모드가 2시간 동안 활성화되었습니다!',
+                pro_activated_license: '🎉 PRO 버전이 활성화되었습니다!',
+                invalid_key: '❌ 유효하지 않은 키입니다!',
+                connection_error: '연결 오류.',
+                no_undo: '실행 취소할 이동이 없습니다!',
+                auto_hint: '⏸️ 시작하려면 Auto를 누르세요',
+                lang_uk: '🇺🇦 우크라이나어',
+                lang_en: '🇬🇧 영어',
+                lang_de: '🇩🇪 독일어',
+                lang_fr: '🇫🇷 프랑스어',
+                lang_es: '🇪🇸 스페인어',
+                lang_it: '🇮🇹 이탈리아어',
+                lang_pl: '🇵🇱 폴란드어',
+                lang_pt: '🇵🇹 포르투갈어',
+                lang_ja: '🇯🇵 일본어',
+                lang_ko: '🇰🇷 한국어',
+                share_title: '루빅스 큐브 3D',
+                share_text: '루빅스 큐브 3D를 체험해보세요! 알고리즘을 풀고 배우세요! 🎲',
+                share_copied: '📋 링크가 복사되었습니다! 친구와 공유하세요.',
+                copy_link: '링크 복사:',
+                email_subject: '루빅스 큐브 3D 피드백'
+            }
+        };
+
         // ========== ОБРОБКА ПОМИЛОК ЗАВАНТАЖЕННЯ ==========
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT') {
@@ -818,7 +1609,6 @@
             setupFaceLabels();
         }
 
-        // ========== ВИПРАВЛЕНА ІНІЦІАЛІЗАЦІЯ ==========
         let isFirstRender = true;
 
         function init3D() {
@@ -890,7 +1680,6 @@
             }, 150);
         }
 
-        // ========== ОБРОБКА ВТРАТИ КОНТЕКСТУ ==========
         function handleContextLost(event) {
             event.preventDefault();
             console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
@@ -911,7 +1700,6 @@
             }
         }
 
-        // ========== АНІМАЦІЙНИЙ ЦИКЛ ==========
         function animateLoop() {
             requestAnimationFrame(animateLoop);
             
@@ -1047,23 +1835,23 @@
             animFrameId = requestAnimationFrame(animateRotation);
         }
 
-        // ========== ОНОВЛЕНЕ ВІДОБРАЖЕННЯ АЛГОРИТМУ ==========
         function updateAlgoDisplay() {
             const container = document.getElementById('algo-display');
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             
             if (!storedAlgoStr || activeAlgoSteps.length === 0) {
-                container.innerHTML = "Виберіть комбінацію...";
+                container.innerHTML = t.choose;
                 return;
             }
             
             if (currentMode === 'manual') {
                 container.innerHTML = activeAlgoSteps.map(step => 
                     `<span class="algo-step">${step}</span>`
-                ).join(' ') + ' ⏸️ Натисніть Auto для запуску';
+                ).join(' ') + ' ⏸️ ' + t.auto_hint;
                 return;
             }
             
-            // Режим Auto - з підсвічуванням
             let html = '';
             activeAlgoSteps.forEach((step, idx) => {
                 let cls = 'algo-step';
@@ -1079,28 +1867,19 @@
             updateResetButtonState();
         }
 
-        // ========== ОНОВЛЕНИЙ РЕЖИМ РОБОТИ ==========
         function setMode(mode) {
-            // Якщо переходимо в AUTO і є збережений алгоритм
             if (mode === 'auto' && storedAlgoStr && activeAlgoSteps.length > 0) {
-                // Завантажуємо алгоритм у чергу
                 moveQueue = [];
                 activeAlgoSteps = storedAlgoStr.split(' ');
                 currentStepIndex = -1;
-                
-                // Додаємо всі кроки в чергу
                 activeAlgoSteps.forEach(step => moveQueue.push(step));
-                
-                // Оновлюємо відображення з підсвічуванням
                 updateAlgoDisplay();
             }
             
-            // Змінюємо режим
             currentMode = mode;
             document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
             document.getElementById(mode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
             
-            // Якщо переходимо в Manual - зупиняємо виконання алгоритму
             if (mode === 'manual') {
                 moveQueue = [];
                 currentStepIndex = -1;
@@ -1137,7 +1916,9 @@
             currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
             localStorage.removeItem('rubik_cube_save_data');
             document.getElementById('counter').innerText = '0';
-            document.getElementById('algo-display').innerText = "Виберіть комбінацію...";
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            document.getElementById('algo-display').innerText = t.choose;
             buildCube();
             if (controls) controls.target.set(0, -1.2, 0);
             updateResetButtonState();
@@ -1152,7 +1933,6 @@
             }));
         }
 
-        // ========== ВІДНОВЛЕННЯ СТАНУ ==========
         function loadSavedStateSync() {
             const savedRaw = localStorage.getItem('rubik_cube_save_data');
             if (!savedRaw) return;
@@ -1199,7 +1979,6 @@
             }
         }
         
-        // ========== ФУНКЦІЯ ЗМІНИ ТЕМИ ==========
         function switchTheme(themeKey, element) {
             document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
             element.classList.add('active');
@@ -1227,35 +2006,36 @@
             renderer.setSize(w, h);
         }
 
-        // ========== ОНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ ==========
         function updateAlgorithmList() {
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             const select = document.getElementById('alg-select');
             const currentValue = select.value;
             
             const optionsData = [
-                { value: '', text: '🎓 Виберіть алгоритм...', disabled: true, selected: true },
-                { optgroup: '👶 Basic Algorithms' },
-                { value: "R U R' U'", text: 'Right Sexy Move' },
-                { value: "L' U' L U", text: 'Left Sexy Move' },
-                { value: "R' F R F'", text: 'Sledgehammer' },
-                { value: "R U R' U R U2 R'", text: 'Sune OLL' },
-                { value: "U R U' L' U R' U' L", text: 'Four Corners Swap' },
-                { optgroup: isProUser ? '🧒 Advanced Speedcubing (CFOP)' : '🔒 PRO: Advanced Speedcubing (CFOP)' },
-                { value: "R U2 R' U' R U' R'", text: isProUser ? 'Anti-Sune OLL' : '🔒 Anti-Sune OLL' },
-                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? 'J-Permutation' : '🔒 J-Permutation' },
-                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? 'Y-Permutation' : '🔒 Y-Permutation' },
-                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? 'A-Permutation' : '🔒 A-Permutation' },
-                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? 'Ua-Permutation' : '🔒 Ua-Permutation' },
-                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? 'Ub-Permutation' : '🔒 Ub-Permutation' },
-                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? 'E-Permutation' : '🔒 E-Permutation' },
-                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? 'T-Permutation' : '🔒 T-Permutation' },
-                { optgroup: isProUser ? '🧔 Creative Art & Patterns' : '🔒 PRO: Creative Art & Patterns' },
-                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? 'Cube in a Cube' : '🔒 Cube in a Cube' },
-                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? 'Dot Pattern' : '🔒 Dot Pattern' },
-                { value: "R L U2 R' L' U2", text: isProUser ? 'Snake Pattern' : '🔒 Snake Pattern' },
-                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? 'Stripes / Banded Pattern' : '🔒 Stripes / Banded Pattern' },
-                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? 'Double Cross Pattern' : '🔒 Double Cross Pattern' },
-                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? 'Nested Cube Pattern' : '🔒 Nested Cube Pattern' }
+                { value: '', text: t.choose_algo, disabled: true, selected: true },
+                { optgroup: t.basic },
+                { value: "R U R' U'", text: t.right_sexy },
+                { value: "L' U' L U", text: t.left_sexy },
+                { value: "R' F R F'", text: t.sledgehammer },
+                { value: "R U R' U R U2 R'", text: t.sune },
+                { value: "U R U' L' U R' U' L", text: t.four_corners },
+                { optgroup: isProUser ? t.pro_cfop : '🔒 ' + t.pro_cfop },
+                { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune.replace('🔒 ', '') : t.anti_sune },
+                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm.replace('🔒 ', '') : t.j_perm },
+                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm.replace('🔒 ', '') : t.y_perm },
+                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm.replace('🔒 ', '') : t.a_perm },
+                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm.replace('🔒 ', '') : t.ua_perm },
+                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm.replace('🔒 ', '') : t.ub_perm },
+                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm.replace('🔒 ', '') : t.e_perm },
+                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm.replace('🔒 ', '') : t.t_perm },
+                { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
+                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube.replace('🔒 ', '') : t.cube_in_cube },
+                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern.replace('🔒 ', '') : t.dot_pattern },
+                { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern.replace('🔒 ', '') : t.snake_pattern },
+                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern.replace('🔒 ', '') : t.stripes_pattern },
+                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross.replace('🔒 ', '') : t.double_cross },
+                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube.replace('🔒 ', '') : t.nested_cube }
             ];
 
             select.innerHTML = '';
@@ -1285,11 +2065,13 @@
             }
         }
 
-        // ========== ОНОВЛЕНИЙ ВИБІР АЛГОРИТМУ ==========
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            
             if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
-                alert("🔒 Алгоритм доступний у PRO версії!");
+                alert(t.pro_locked);
                 openActivationModal();
                 return;
             }
@@ -1305,7 +2087,6 @@
             saveState();
         }
 
-        // ========== PRO-ФУНКЦІЇ ==========
         function updateResetButtonState() {
             const resetBtn = document.getElementById('reset-btn');
             if (!resetBtn) return;
@@ -1375,11 +2156,14 @@
 
         function updateProUI() {
             const btn = document.getElementById('pro-status-btn');
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            
             if (isProUser && btn) {
                 btn.innerText = '✅ PRO';
                 btn.style.background = '#27ae60';
             } else if (btn) {
-                btn.innerText = '🔑 PRO';
+                btn.innerText = t.pro;
                 btn.style.background = '#f39c12';
             }
             updateAlgorithmList();
@@ -1392,33 +2176,40 @@
 
         function selectPlan(planType) {
             currentSelectedPlan = planType;
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            
             document.getElementById('plan-monthly').classList.remove('active');
             document.getElementById('plan-yearly').classList.remove('active');
             const buyLink = document.getElementById('buy-btn-link');
             if (planType === 'monthly') {
                 document.getElementById('plan-monthly').classList.add('active');
-                buyLink.innerText = '🛒 Subscribe for $4.99 / mo';
+                buyLink.innerText = t.subscribe_month;
             } else {
                 document.getElementById('plan-yearly').classList.add('active');
-                buyLink.innerText = '🛒 Subscribe for $29.99 / yr';
+                buyLink.innerText = t.subscribe_year;
             }
         }
 
         function openSelectedCheckout() {
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             const checkoutUrl = STORE_URLS[currentSelectedPlan];
             if (checkoutUrl) {
                 window.location.href = checkoutUrl;
             } else {
-                alert("Помилка: посилання на оплату відсутнє.");
+                alert(t.connection_error);
             }
         }
 
         async function validateLicense() {
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             const key = document.getElementById('license-key-input').value.trim();
             if (!key) return alert('Введіть ключ ліцензії!');
 
             if (key.toUpperCase() === ADMIN_MASTER_KEY) {
-                alert('👑 PRO Режим активовано на 2 години!');
+                alert(t.pro_activated);
                 const data = {
                     type: 'admin',
                     activatedAt: Date.now()
@@ -1441,7 +2232,7 @@
                 });
                 const data = await response.json();
                 if (data.valid) {
-                    alert('🎉 PRO версія активована!');
+                    alert(t.pro_activated_license);
                     const saveData = {
                         type: 'license',
                         key: key
@@ -1451,10 +2242,10 @@
                     updateProUI();
                     closeActivationModal();
                 } else {
-                    alert('❌ Недійсний ключ!');
+                    alert(t.invalid_key);
                 }
             } catch (error) {
-                alert('Помилка з\'єднання.');
+                alert(t.connection_error);
             }
         }
 
@@ -1467,7 +2258,6 @@
             document.getElementById('settings-modal').style.display = 'none';
         }
 
-        // Закриття по кліку на фон
         document.addEventListener('click', function(e) {
             const modal = document.getElementById('settings-modal');
             if (e.target === modal) {
@@ -1475,103 +2265,171 @@
             }
         });
 
-        // ===== МОВА (10 мов, без російської) =====
-        function setLanguage(lang, element) {
-            document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        // ===== ЗАСТОСУВАННЯ ПОВНОГО ПЕРЕКЛАДУ =====
+        function applyLanguage(lang) {
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             
-            const langMap = {
-                'uk': { moves: 'Ходів:', choose: 'Виберіть комбінацію...', title: 'Кубик Рубіка 3D PRO' },
-                'en': { moves: 'Moves:', choose: 'Choose combination...', title: 'Rubik\'s Cube 3D PRO' },
-                'de': { moves: 'Züge:', choose: 'Kombination wählen...', title: 'Rubik\'s Cube 3D PRO' },
-                'fr': { moves: 'Mouvements:', choose: 'Choisissez la combinaison...', title: 'Rubik\'s Cube 3D PRO' },
-                'es': { moves: 'Movimientos:', choose: 'Elige combinación...', title: 'Cubo de Rubik 3D PRO' },
-                'it': { moves: 'Mosse:', choose: 'Scegli combinazione...', title: 'Cubo di Rubik 3D PRO' },
-                'pl': { moves: 'Ruchy:', choose: 'Wybierz kombinację...', title: 'Kostka Rubika 3D PRO' },
-                'pt': { moves: 'Movimentos:', choose: 'Escolha combinação...', title: 'Cubo Mágico 3D PRO' },
-                'ja': { moves: '手数:', choose: '組み合わせを選択...', title: 'ルービックキューブ 3D PRO' },
-                'ko': { moves: '이동:', choose: '조합 선택...', title: '루빅스 큐브 3D PRO' }
-            };
+            // Top Bar
+            document.querySelector('.stat-badge').innerHTML = t.moves + ' <span id="counter">' + document.getElementById('counter').innerText + '</span>';
+            document.getElementById('settings-btn').title = t.settings;
+            document.getElementById('sound-btn').title = t.sound;
+            document.getElementById('help-btn').title = 'Показати мітки';
             
-            const texts = langMap[lang] || langMap['uk'];
-            
-            const counter = document.getElementById('counter').innerText;
-            document.querySelector('.stat-badge').innerHTML = texts.moves + ' <span id="counter">' + counter + '</span>';
-            
+            // Algorithm Display
             if (!storedAlgoStr) {
-                document.getElementById('algo-display').innerText = texts.choose;
+                document.getElementById('algo-display').innerText = t.choose;
+            } else {
+                updateAlgoDisplay();
             }
             
-            document.title = texts.title;
+            // Mode Toggles
+            document.getElementById('mode-manual').innerText = t.manual;
+            document.getElementById('mode-auto').innerText = t.auto;
             
+            // Algorithm Select
+            updateAlgorithmList();
+            
+            // Buttons
+            document.querySelector('.action-btn').innerHTML = t.scramble;
+            document.getElementById('pro-status-btn').innerHTML = isProUser ? '✅ PRO' : t.pro;
+            document.getElementById('reset-btn').innerHTML = t.reset;
+            
+            // Settings Modal
+            document.querySelector('#settings-modal h2').innerHTML = t.settings_title;
+            const settingsItems = document.querySelectorAll('.settings-item');
+            if (settingsItems.length >= 5) {
+                const labels = [t.version, t.language, t.social, t.rating, t.share, t.feedback];
+                settingsItems.forEach((item, index) => {
+                    const label = item.querySelector('.label');
+                    if (label && index < labels.length) {
+                        const icon = label.querySelector('.icon');
+                        if (icon) {
+                            label.innerHTML = `<span class="icon">${icon.innerText}</span> ${labels[index]}`;
+                        }
+                    }
+                });
+            }
+            
+            // Social links
+            const socialLinks = document.querySelectorAll('.social-link');
+            const socialMap = [t.facebook, t.instagram, t.x, t.youtube, t.telegram];
+            socialLinks.forEach((link, index) => {
+                if (index < socialMap.length) {
+                    const emoji = link.innerText.match(/^[^\w]+/)?.[0] || '';
+                    const text = socialMap[index].replace(/^[^\w]+\s/, '');
+                    link.innerText = emoji + ' ' + text;
+                }
+            });
+            
+            // Close button
+            document.querySelector('.settings-close-btn').innerText = t.close;
+            
+            // PRO Modal
+            document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
+            document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
+            document.getElementById('plan-monthly').querySelector('.plan-title').innerText = t.monthly;
+            document.getElementById('plan-yearly').querySelector('.plan-title').innerText = t.yearly;
+            document.querySelector('#plan-monthly .plan-badge').innerText = t.month;
+            document.querySelector('#plan-yearly .plan-badge').innerText = t.save_50;
+            const buyBtn = document.getElementById('buy-btn-link');
+            if (currentSelectedPlan === 'monthly') {
+                buyBtn.innerText = t.subscribe_month;
+            } else {
+                buyBtn.innerText = t.subscribe_year;
+            }
+            document.querySelector('.modal-btn-confirm').innerText = t.activate;
+            document.querySelector('#pro-modal .close-modal-btn').innerText = t.close_pro;
+            document.getElementById('license-key-input').placeholder = t.enter_key;
+            
+            // Title
+            document.title = t.share_title + ' PRO';
+            
+            // Зберігаємо мову
+            localStorage.setItem('rubik_language', lang);
+        }
+
+        function setLanguage(lang, element) {
+            document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+            
+            applyLanguage(lang);
+            
+            // Зберігаємо в localStorage
             localStorage.setItem('rubik_language', lang);
         }
 
         function loadLanguage() {
-            const savedLang = localStorage.getItem('rubik_language');
-            if (savedLang) {
-                const options = document.querySelectorAll('.lang-option');
-                const langMap = {
-                    'uk': 'Українська',
-                    'en': 'English',
-                    'de': 'Deutsch',
-                    'fr': 'Français',
-                    'es': 'Español',
-                    'it': 'Italiano',
-                    'pl': 'Polski',
-                    'pt': 'Português',
-                    'ja': '日本語',
-                    'ko': '한국어'
-                };
-                
-                options.forEach(el => {
-                    if (el.textContent.includes(langMap[savedLang] || '')) {
-                        el.classList.add('active');
-                    } else {
-                        el.classList.remove('active');
-                    }
-                });
-                
-                const activeLang = document.querySelector('.lang-option.active');
-                if (activeLang) {
-                    setLanguage(savedLang, activeLang);
+            const savedLang = localStorage.getItem('rubik_language') || 'uk';
+            const options = document.querySelectorAll('.lang-option');
+            
+            const langMap = {
+                'uk': 'Українська',
+                'en': 'English',
+                'de': 'Deutsch',
+                'fr': 'Français',
+                'es': 'Español',
+                'it': 'Italiano',
+                'pl': 'Polski',
+                'pt': 'Português',
+                'ja': '日本語',
+                'ko': '한국어'
+            };
+            
+            options.forEach(el => {
+                if (el.textContent.includes(langMap[savedLang] || '')) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            
+            const activeLang = document.querySelector('.lang-option.active');
+            if (activeLang) {
+                applyLanguage(savedLang);
+            } else {
+                // Якщо мова не знайдена, встановлюємо українську
+                const firstOption = options[0];
+                if (firstOption) {
+                    firstOption.classList.add('active');
+                    applyLanguage('uk');
                 }
             }
         }
 
-        // ===== РЕЙТИНГ =====
         function rateApp() {
             const url = 'https://play.google.com/store/apps/details?id=your.app.id';
             window.open(url, '_blank');
         }
 
-        // ===== ПОДІЛИТИСЯ =====
         function shareApp() {
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            
             if (navigator.share) {
                 navigator.share({
-                    title: 'Кубик Рубіка 3D',
-                    text: 'Спробуй Кубик Рубіка 3D! Збирай та вчи алгоритми! 🎲',
+                    title: t.share_title,
+                    text: t.share_text,
                     url: window.location.href
                 }).catch(() => {});
             } else {
                 const url = window.location.href;
-                const text = 'Спробуй Кубик Рубіка 3D! 🎲 ' + url;
+                const text = t.share_text + ' ' + url;
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(text).then(() => {
-                        alert('📋 Посилання скопійовано! Поділіться з друзями.');
+                        alert(t.share_copied);
                     });
                 } else {
-                    prompt('Скопіюйте посилання:', text);
+                    prompt(t.copy_link, text);
                 }
             }
         }
 
-        // ===== ЗВОРОТНІЙ ЗВ'ЯЗОК =====
         function feedbackApp() {
-            window.location.href = 'mailto:support@your-app.com?subject=Зворотній зв\'язок Кубик Рубіка 3D';
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            window.location.href = 'mailto:support@your-app.com?subject=' + encodeURIComponent(t.email_subject);
         }
 
-        // ========== ЗВУК ==========
         function toggleSound() {
             isMuted = !isMuted;
             const btn = document.getElementById('sound-btn');
@@ -1609,14 +2467,12 @@
             } catch (e) {}
         }
 
-        // ========== РЕЄСТРАЦІЯ SERVICE WORKER ==========
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(() => console.log('✅ Service Worker зареєстровано'))
                 .catch(err => console.error('❌ Помилка реєстрації SW:', err));
         }
 
-        // ========== ЗАПУСК ==========
         window.onload = function() {
             const canvas = document.getElementById('canvas-container');
             if (canvas) {
