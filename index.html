@@ -397,6 +397,8 @@
             ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
             ctx.lineTo(x + r, y + h);
             ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + h - r);
+            ctx.quadraticCurveTo(x, y + h, x, y + r);
             ctx.lineTo(x, y + r);
             ctx.quadraticCurveTo(x, y, x + r, y);
             ctx.closePath();
@@ -544,7 +546,7 @@
         }
 
         // ========== ВИПРАВЛЕНА ІНІЦІАЛІЗАЦІЯ ==========
-        let isFirstRender = true; // прапорець для першого рендера
+        let isFirstRender = true;
 
         function init3D() {
             if (typeof THREE === 'undefined') {
@@ -596,23 +598,18 @@
             scene.add(pivot);
             buildCube();
             
-            // Відновлення стану ТІЛЬКИ після побудови куба та рендерера
             checkProStatus();
             
-            // Встановлюємо прапорець, що це перший рендер
             isFirstRender = true;
             
             container.classList.add('loaded');
 
             window.addEventListener('resize', onWindowResize);
             
-            // Запускаємо анімаційний цикл
             animateLoop();
             
-            // Відкладаємо відновлення стану на 100 мс, щоб дати WebGL стабілізуватися
             setTimeout(() => {
                 loadSavedStateSync();
-                // Після відновлення примусово рендеримо
                 if (renderer && scene && camera) {
                     renderer.render(scene, camera);
                 }
@@ -646,10 +643,8 @@
             
             if (!renderer) return;
             
-            // Якщо це перший рендер – пропускаємо виконання черги
             if (isFirstRender) {
                 isFirstRender = false;
-                // Рендеримо один раз, щоб куб з'явився
                 controls.update();
                 renderer.render(scene, camera);
                 return;
@@ -658,7 +653,7 @@
             if (!isAnimating && moveQueue.length > 0 && !isRestoring) {
                 if (activeAlgoSteps.length > 0 && currentMode === 'auto') {
                     currentStepIndex++;
-                    updateAlgoHighlight();
+                    updateAlgoDisplay();
                 }
                 const nextMove = moveQueue.shift();
                 historyMoves.push(nextMove);
@@ -778,9 +773,23 @@
             animFrameId = requestAnimationFrame(animateRotation);
         }
 
-        function updateAlgoHighlight() {
-            if (activeAlgoSteps.length === 0) return;
+        // ========== ОНОВЛЕНЕ ВІДОБРАЖЕННЯ АЛГОРИТМУ ==========
+        function updateAlgoDisplay() {
             const container = document.getElementById('algo-display');
+            
+            if (!storedAlgoStr || activeAlgoSteps.length === 0) {
+                container.innerHTML = "Choose combination...";
+                return;
+            }
+            
+            if (currentMode === 'manual') {
+                container.innerHTML = activeAlgoSteps.map(step => 
+                    `<span class="algo-step">${step}</span>`
+                ).join(' ') + ' ⏸️ Натисніть Auto для запуску';
+                return;
+            }
+            
+            // Режим Auto - з підсвічуванням
             let html = '';
             activeAlgoSteps.forEach((step, idx) => {
                 let cls = 'algo-step';
@@ -796,28 +805,34 @@
             updateResetButtonState();
         }
 
+        // ========== ОНОВЛЕНИЙ РЕЖИМ РОБОТИ ==========
         function setMode(mode) {
+            // Якщо переходимо в AUTO і є збережений алгоритм
+            if (mode === 'auto' && storedAlgoStr && activeAlgoSteps.length > 0) {
+                // Завантажуємо алгоритм у чергу
+                moveQueue = [];
+                activeAlgoSteps = storedAlgoStr.split(' ');
+                currentStepIndex = -1;
+                
+                // Додаємо всі кроки в чергу
+                activeAlgoSteps.forEach(step => moveQueue.push(step));
+                
+                // Оновлюємо відображення з підсвічуванням
+                updateAlgoDisplay();
+            }
+            
+            // Змінюємо режим
             currentMode = mode;
             document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
             document.getElementById(mode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
             
-            if (mode === 'auto') {
-                if (storedAlgoStr) {
-                    if (!isRestoring) {
-                        moveQueue = []; 
-                        currentStepIndex = -1;
-                        activeAlgoSteps = storedAlgoStr.split(' ');
-                        updateAlgoHighlight();
-                        activeAlgoSteps.forEach(step => moveQueue.push(step));
-                    }
-                }
-            } else {
+            // Якщо переходимо в Manual - зупиняємо виконання алгоритму
+            if (mode === 'manual') {
                 moveQueue = [];
-                if (storedAlgoStr) {
-                    currentStepIndex = -1;
-                    document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
-                }
+                currentStepIndex = -1;
+                updateAlgoDisplay();
             }
+            
             updateResetButtonState();
             saveState();
         }
@@ -863,14 +878,13 @@
             }));
         }
 
-        // ========== ВІДНОВЛЕННЯ СТАНУ (З ЗАТРИМКОЮ) ==========
+        // ========== ВІДНОВЛЕННЯ СТАНУ ==========
         function loadSavedStateSync() {
             const savedRaw = localStorage.getItem('rubik_cube_save_data');
             if (!savedRaw) return;
 
             try {
                 const data = JSON.parse(savedRaw);
-                // Відновлюємо тільки якщо є історія або налаштування
                 if (data.historyMoves && data.historyMoves.length > 0) {
                     isRestoring = true;
                     historyMoves = [...data.historyMoves];
@@ -880,7 +894,7 @@
                     if (data.storedAlgoStr) {
                         storedAlgoStr = data.storedAlgoStr;
                         activeAlgoSteps = storedAlgoStr.split(' ');
-                        document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+                        updateAlgoDisplay();
                     }
 
                     if (data.currentMode) {
@@ -889,11 +903,9 @@
                         document.getElementById(data.currentMode === 'auto' ? 'mode-auto' : 'mode-manual').classList.add('active');
                     }
 
-                    // Виконуємо всі ходи миттєво, без анімації
                     historyMoves.forEach(move => executeInstantMove(move));
                     isRestoring = false;
                 } else {
-                    // Якщо немає історії, але є режим або алгоритм
                     if (data.currentMode) {
                         currentMode = data.currentMode;
                         document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
@@ -902,7 +914,7 @@
                     if (data.storedAlgoStr) {
                         storedAlgoStr = data.storedAlgoStr;
                         activeAlgoSteps = storedAlgoStr.split(' ');
-                        document.getElementById('algo-display').innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
+                        updateAlgoDisplay();
                     }
                     moveCount = data.moveCount || 0;
                     document.getElementById('counter').innerText = moveCount;
@@ -941,7 +953,7 @@
             renderer.setSize(w, h);
         }
 
-        // ========== ОБНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ ==========
+        // ========== ОНОВЛЕННЯ СПИСКУ АЛГОРИТМІВ ==========
         function updateAlgorithmList() {
             const select = document.getElementById('alg-select');
             const currentValue = select.value;
@@ -997,6 +1009,29 @@
             if (currentValue && [...select.options].some(o => o.value === currentValue)) {
                 select.value = currentValue;
             }
+        }
+
+        // ========== ОНОВЛЕНИЙ ВИБІР АЛГОРИТМУ ==========
+        function selectAlgorithm(algoStr) {
+            if (!algoStr) return;
+            if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
+                alert("🔒 Алгоритм доступний у PRO версії!");
+                openActivationModal();
+                return;
+            }
+            
+            // Зберігаємо алгоритм, але НЕ запускаємо автоматично
+            storedAlgoStr = algoStr;
+            activeAlgoSteps = algoStr.split(' ');
+            currentStepIndex = -1;
+            
+            // Показуємо алгоритм у відображенні
+            updateAlgoDisplay();
+            
+            // ОЧИЩУЄМО чергу - алгоритм НЕ запускається автоматично!
+            moveQueue = [];
+            
+            saveState();
         }
 
         // ========== PRO-ФУНКЦІЇ ==========
@@ -1150,28 +1185,6 @@
             } catch (error) {
                 alert('Помилка з\'єднання.');
             }
-        }
-
-        // ========== АЛГОРИТМИ ==========
-        function selectAlgorithm(algoStr) {
-            if (!algoStr) return;
-            if (!FREE_ALGORITHMS.includes(algoStr) && !isProUser) {
-                alert("🔒 Алгоритм доступний у PRO версії!");
-                openActivationModal();
-                return;
-            }
-            storedAlgoStr = algoStr;
-            activeAlgoSteps = algoStr.split(' ');
-            currentStepIndex = -1;
-            const container = document.getElementById('algo-display');
-            container.innerHTML = activeAlgoSteps.map(step => `<span class="algo-step">${step}</span>`).join('');
-            moveQueue = []; 
-            if (currentMode === 'auto') {
-                moveQueue = [...activeAlgoSteps];
-                currentStepIndex = -1;
-                updateAlgoHighlight();
-            }
-            saveState();
         }
 
         // ========== ЗВУК ==========
