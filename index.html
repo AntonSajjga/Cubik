@@ -714,7 +714,7 @@
     </div>
 
     <script>
-        // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ, БЕЗ РОСІЙСЬКОЇ) ==========
+        // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ) ==========
         const TRANSLATIONS = {
             'uk': {
                 moves: 'Ходів:',
@@ -728,12 +728,12 @@
                 basic: '👶 Базові алгоритми',
                 pro_cfop: '🧒 PRO: Швидкісне збирання (CFOP)',
                 pro_patterns: '🧔 PRO: Творчі візерунки',
-                right_sexy: 'Правильний сексуальний хід',
-                left_sexy: 'Лівий сексуальний хід',
+                right_sexy: 'Правильний піф-паф',
+                left_sexy: 'Лівий піф-паф',
                 sledgehammer: 'Кувалда',
-                sune: 'Sune OLL',
+                sune: 'Сунь Рибка',
                 four_corners: 'Обмін чотирьох кутів',
-                anti_sune: '🔒 Anti-Sune OLL',
+                anti_sune: '🔒 Анти сунь Рибка',
                 j_perm: '🔒 J-Перестановка',
                 y_perm: '🔒 Y-Перестановка',
                 a_perm: '🔒 A-Перестановка',
@@ -747,9 +747,9 @@
                 stripes_pattern: '🔒 Смугастий візерунок',
                 double_cross: '🔒 Подвійний хрест',
                 nested_cube: '🔒 Вкладений куб',
-                scramble: '🔀 Scramble',
+                scramble: '🔀 Скрамбл',
                 pro: '🔑 PRO',
-                reset: '⟳ Reset',
+                reset: '⟳ Зібрати',
                 settings_title: '⚙️ Налаштування',
                 version: 'Версія',
                 language: 'Мова',
@@ -764,14 +764,14 @@
                 telegram: 'Telegram',
                 pro_title: '🏆 LogixCube PRO',
                 pro_desc: 'Виберіть план підписки або введіть ліцензійний ключ:',
-                monthly: 'Monthly',
-                yearly: 'Yearly',
-                month: '/ month',
-                save_50: 'Save 50%',
+                monthly: 'Місяць',
+                yearly: 'Рік',
+                month: '/ місяць',
+                save_50: 'Заощаджити 50%',
                 subscribe_month: '🛒 Subscribe for $4.99 / mo',
                 subscribe_year: '🛒 Subscribe for $29.99 / yr',
-                activate: 'Activate PRO',
-                close_pro: 'Close',
+                activate: 'Активувати PRO',
+                close_pro: 'Закрити',
                 enter_key: 'XXXXX-XXXXX-XXXXX',
                 pro_locked: '🔒 Алгоритм доступний у PRO версії!',
                 pro_activated: '👑 PRO Режим активовано на 2 години!',
@@ -2327,7 +2327,7 @@
             const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             
             if (isProUser && btn) {
-                btn.innerText = '✅ PRO';
+                btn.innerText = '🦾 PRO';
                 btn.style.background = '#27ae60';
             } else if (btn) {
                 btn.innerText = t.pro;
@@ -2485,10 +2485,10 @@
             // Social links
             const socialLinks = document.querySelectorAll('.social-link');
             const socialData = [
-                { icon: '📘', name: t.facebook },
-                { icon: '📸', name: t.instagram },
-                { icon: '▶️', name: t.youtube },
-                { icon: '✈️', name: t.telegram }
+                { icon: 'f', name: t.facebook },
+                { icon: 'I', name: t.instagram },
+                { icon: 'Y', name: t.youtube },
+                { icon: 'T', name: t.telegram }
             ];
             socialLinks.forEach((link, index) => {
                 if (index < socialData.length) {
