@@ -2551,21 +2551,197 @@
             localStorage.setItem('rubik_language', lang);
         }
 
-        function loadLanguage() {
-            const savedLang = localStorage.getItem('rubik_language') || 'uk';
-            const options = document.querySelectorAll('.lang-option');
-            
-            options.forEach(el => {
-                const langKey = el.getAttribute('data-lang');
-                if (langKey === savedLang) {
-                    el.classList.add('active');
-                } else {
-                    el.classList.remove('active');
-                }
-            });
-            
-            applyLanguage(savedLang);
+        function setLanguage(lang, element) {
+    // 1. Оновлюємо активний клас
+    document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+    if (element) element.classList.add('active');
+    
+    // 2. Зберігаємо мову
+    localStorage.setItem('rubik_language', lang);
+    
+    // 3. Застосовуємо переклад до ВСІХ елементів
+    applyLanguage(lang);
+    
+    // 4. Примусово оновлюємо відображення алгоритму
+    if (storedAlgoStr) {
+        updateAlgoDisplay();
+    }
+    
+    // 5. Примусово оновлюємо список алгоритмів
+    updateAlgorithmList();
+    
+    // 6. Примусово оновлюємо кнопки
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+    document.querySelector('.action-btn').innerHTML = t.scramble;
+    document.getElementById('reset-btn').innerHTML = t.reset;
+    
+    // 7. Примусово оновлюємо PRO кнопку
+    const proBtn = document.getElementById('pro-status-btn');
+    if (proBtn) {
+        proBtn.innerHTML = isProUser ? '✅ PRO' : t.pro;
+    }
+    
+    // 8. Примусово оновлюємо режими
+    document.getElementById('mode-manual').innerText = t.manual;
+    document.getElementById('mode-auto').innerText = t.auto;
+    
+    // 9. Примусово оновлюємо Top Bar
+    document.querySelector('.stat-badge').innerHTML = t.moves + ' <span id="counter">' + document.getElementById('counter').innerText + '</span>';
+    document.getElementById('settings-btn').title = t.settings;
+    document.getElementById('sound-btn').title = t.sound;
+    
+    // 10. Примусово оновлюємо модальне вікно налаштувань
+    document.querySelector('#settings-modal h2').innerHTML = t.settings_title;
+    
+    // 11. Примусово оновлюємо назви мов у списку
+    const langOptions = document.querySelectorAll('.lang-option');
+    const langNames = {
+        'uk': t.lang_uk,
+        'en': t.lang_en,
+        'de': t.lang_de,
+        'fr': t.lang_fr,
+        'es': t.lang_es,
+        'it': t.lang_it,
+        'pl': t.lang_pl,
+        'pt': t.lang_pt,
+        'ja': t.lang_ja,
+        'ko': t.lang_ko
+    };
+    langOptions.forEach(el => {
+        const langKey = el.getAttribute('data-lang');
+        if (langKey && langNames[langKey]) {
+            const flag = el.textContent.match(/^[^\s]+\s/)?.[0] || '';
+            el.textContent = flag + langNames[langKey];
         }
+    });
+    
+    // 12. Примусово оновлюємо соціальні мережі
+    const socialLinks = document.querySelectorAll('.social-link');
+    const socialData = [
+        { icon: '❓', name: t.facebook },
+        { icon: '❓', name: t.instagram },
+        { icon: '❓', name: t.youtube },
+        { icon: '❓', name: t.telegram }
+    ];
+    socialLinks.forEach((link, index) => {
+        if (index < socialData.length) {
+            link.innerHTML = `${socialData[index].icon} ${socialData[index].name}`;
+        }
+    });
+    
+    // 13. Примусово оновлюємо PRO модальне вікно
+    document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
+    document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
+    document.getElementById('plan-monthly').querySelector('.plan-title').innerText = t.monthly;
+    document.getElementById('plan-yearly').querySelector('.plan-title').innerText = t.yearly;
+    document.querySelector('#plan-monthly .plan-badge').innerText = t.month;
+    document.querySelector('#plan-yearly .plan-badge').innerText = t.save_50;
+    const buyBtn = document.getElementById('buy-btn-link');
+    if (currentSelectedPlan === 'monthly') {
+        buyBtn.innerText = t.subscribe_month;
+    } else {
+        buyBtn.innerText = t.subscribe_year;
+    }
+    document.querySelector('.modal-btn-confirm').innerText = t.activate;
+    document.querySelector('#pro-modal .close-modal-btn').innerText = t.close_pro;
+    document.getElementById('license-key-input').placeholder = t.enter_key;
+    
+    // 14. Оновлюємо заголовок
+    document.title = t.share_title + ' PRO';
+    
+    // 15. Оновлюємо кнопку "Закрити" в налаштуваннях
+    document.querySelector('.settings-close-btn').innerText = t.close;
+    
+    // 16. Примусово перемальовуємо весь інтерфейс
+    setTimeout(() => {
+        if (renderer && scene && camera) {
+            renderer.render(scene, camera);
+        }
+    }, 10);
+    
+    console.log('✅ Мова змінена на:', lang);
+}
+            
+            function applyLanguage(lang) {
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+    
+    // Top Bar
+    document.querySelector('.stat-badge').innerHTML = t.moves + ' <span id="counter">' + document.getElementById('counter').innerText + '</span>';
+    document.getElementById('settings-btn').title = t.settings;
+    document.getElementById('sound-btn').title = t.sound;
+    
+    // Algorithm Display
+    if (!storedAlgoStr) {
+        document.getElementById('algo-display').innerText = t.choose;
+    }
+    
+    // Mode Toggles
+    document.getElementById('mode-manual').innerText = t.manual;
+    document.getElementById('mode-auto').innerText = t.auto;
+    
+    // Buttons
+    document.querySelector('.action-btn').innerHTML = t.scramble;
+    document.getElementById('reset-btn').innerHTML = t.reset;
+    
+    // Settings items
+    const settingsItems = document.querySelectorAll('.settings-item');
+    const settingsLabels = [
+        { icon: '📦', text: t.version },
+        { icon: '🌐', text: t.language },
+        { icon: '📱', text: t.social },
+        { icon: '⭐', text: t.rating },
+        { icon: '📤', text: t.share },
+        { icon: '💬', text: t.feedback }
+    ];
+    
+    settingsItems.forEach((item, index) => {
+        if (index < settingsLabels.length) {
+            const label = item.querySelector('.label');
+            if (label) {
+                label.innerHTML = `<span class="icon">${settingsLabels[index].icon}</span> ${settingsLabels[index].text}`;
+            }
+        }
+    });
+    
+    // Social links
+    const socialLinks = document.querySelectorAll('.social-link');
+    const socialData = [
+        { icon: '📘', name: t.facebook },
+        { icon: '📸', name: t.instagram },
+        { icon: '▶️', name: t.youtube },
+        { icon: '✈️', name: t.telegram }
+    ];
+    socialLinks.forEach((link, index) => {
+        if (index < socialData.length) {
+            link.innerHTML = `${socialData[index].icon} ${socialData[index].name}`;
+        }
+    });
+    
+    // Close button
+    document.querySelector('.settings-close-btn').innerText = t.close;
+    document.querySelector('#settings-modal h2').innerHTML = t.settings_title;
+    
+    // PRO Modal
+    document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
+    document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
+    document.getElementById('plan-monthly').querySelector('.plan-title').innerText = t.monthly;
+    document.getElementById('plan-yearly').querySelector('.plan-title').innerText = t.yearly;
+    document.querySelector('#plan-monthly .plan-badge').innerText = t.month;
+    document.querySelector('#plan-yearly .plan-badge').innerText = t.save_50;
+    const buyBtn = document.getElementById('buy-btn-link');
+    if (currentSelectedPlan === 'monthly') {
+        buyBtn.innerText = t.subscribe_month;
+    } else {
+        buyBtn.innerText = t.subscribe_year;
+    }
+    document.querySelector('.modal-btn-confirm').innerText = t.activate;
+    document.querySelector('#pro-modal .close-modal-btn').innerText = t.close_pro;
+    document.getElementById('license-key-input').placeholder = t.enter_key;
+    
+    document.title = t.share_title + ' PRO';
+    
+    localStorage.setItem('rubik_language', lang);
+}
 
         function rateApp() {
             const url = 'https://play.google.com/store/apps/details?id=your.app.id';
