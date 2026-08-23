@@ -11,8 +11,29 @@
     <meta name="theme-color" content="#529b89">
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.settings-item,
+.lang-option,
+.social-link,
+.lang-selector {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.settings-item:active,
+.lang-option:active,
+.social-link:active {
+    background: transparent !important;
+}
         :root {
             --bg-gradient: linear-gradient(180deg, #529b89 0%, #3d796a 100%);
             --bg-panel: rgba(20, 20, 30, 0.9);
