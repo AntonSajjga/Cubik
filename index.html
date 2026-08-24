@@ -555,8 +555,8 @@
         }
     </style>
 
-    <script src="js/three.min.js" defer></script>
-<script src="js/OrbitControls.js" defer></script>
+    <script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -1898,13 +1898,11 @@
             scene.add(dirLight);
             
             scene.add(pivot);
-            
-            updateProgress(70, 'Побудова кубика...');
-            // Строим куб чуть позже, чтобы не блокировать главный поток
-requestAnimationFrame(() => {
+
+    updateProgress(70, 'Побудова кубика...');
+    requestAnimationFrame(() => {
     buildCube();
 
-    // Принудительно обновляем текстуры
     cubies.forEach(cubie => {
         if (Array.isArray(cubie.material)) {
             cubie.material.forEach(mat => {
@@ -2850,21 +2848,7 @@ requestAnimationFrame(() => {
         canvas.addEventListener('webglcontextlost', handleContextLost, false);
         canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
-
-    // Ждём, пока Three.js точно загрузится
-    function tryInit() {
-        if (typeof THREE === 'undefined') {
-            // Ещё не загрузился — пробуем снова через 50 мс
-            setTimeout(tryInit, 50);
-            return;
-        }
-        init3D();
-    }
-
-    // Небольшая пауза, чтобы интерфейс успел отрисоваться
-    requestAnimationFrame(() => {
-        setTimeout(tryInit, 100);
-    });
+    init3D();
 };
     </script>
 </body>
