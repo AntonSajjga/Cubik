@@ -1802,16 +1802,16 @@
             
             const geom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
             const internalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-
+            
             const materials = {
-                R: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                L: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                U: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                D: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                D_Logo: new THREE.MeshLambertMaterial({ map: createXeroxLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                F: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                B: new THREE.MeshLambertMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
-            };
+    R: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+    L: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+    U: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+    D: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+    D_Logo: new THREE.MeshBasicMaterial({ map: createXeroxLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+    F: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+    B: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+};
 
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
@@ -1904,24 +1904,30 @@
             requestAnimationFrame(() => {
                 buildCube();
 
+                // Оновлюємо текстури
                 cubies.forEach(cubie => {
                     if (Array.isArray(cubie.material)) {
                         cubie.material.forEach(mat => {
-                            if (mat.map) {
-                                mat.map.needsUpdate = true;
-                                mat.map.generateMipmaps = false;
-                            }
+                            if (mat.map) mat.map.needsUpdate = true;
                             mat.needsUpdate = true;
                         });
                     }
                 });
 
-                // Додатковий примусовий рендер
+                // Другий примусовий рендер через 200 мс (захист від чорного куба)
                 setTimeout(() => {
+                    cubies.forEach(cubie => {
+                        if (Array.isArray(cubie.material)) {
+                            cubie.material.forEach(mat => {
+                                if (mat.map) mat.map.needsUpdate = true;
+                                mat.needsUpdate = true;
+                            });
+                        }
+                    });
                     if (renderer && scene && camera) {
                         renderer.render(scene, camera);
                     }
-                }, 100);
+                }, 200);
             });
             
             updateProgress(85, 'Перевірка PRO статусу...');
