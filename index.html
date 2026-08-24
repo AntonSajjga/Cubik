@@ -2851,12 +2851,21 @@ requestAnimationFrame(() => {
         canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
 
-    // Даём браузеру сначала отрисовать интерфейс, потом запускаем тяжёлый 3D
+    // Ждём, пока Three.js точно загрузится
+    function tryInit() {
+        if (typeof THREE === 'undefined') {
+            // Ещё не загрузился — пробуем снова через 50 мс
+            setTimeout(tryInit, 50);
+            return;
+        }
+        init3D();
+    }
+
+    // Небольшая пауза, чтобы интерфейс успел отрисоваться
     requestAnimationFrame(() => {
-        setTimeout(() => {
-            init3D();
-        }, 80);
+        setTimeout(tryInit, 100);
     });
+};
     </script>
 </body>
 </html>
