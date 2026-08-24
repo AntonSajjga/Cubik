@@ -1900,18 +1900,29 @@
             scene.add(pivot);
 
     updateProgress(70, 'Побудова кубика...');
-    requestAnimationFrame(() => {
-    buildCube();
 
-    cubies.forEach(cubie => {
-        if (Array.isArray(cubie.material)) {
-            cubie.material.forEach(mat => {
-                if (mat.map) mat.map.needsUpdate = true;
-                mat.needsUpdate = true;
+            requestAnimationFrame(() => {
+                buildCube();
+
+                cubies.forEach(cubie => {
+                    if (Array.isArray(cubie.material)) {
+                        cubie.material.forEach(mat => {
+                            if (mat.map) {
+                                mat.map.needsUpdate = true;
+                                mat.map.generateMipmaps = false;
+                            }
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
+
+                // Додатковий примусовий рендер
+                setTimeout(() => {
+                    if (renderer && scene && camera) {
+                        renderer.render(scene, camera);
+                    }
+                }, 100);
             });
-        }
-    });
-});
             
             updateProgress(85, 'Перевірка PRO статусу...');
             checkProStatus();
