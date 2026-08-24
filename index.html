@@ -555,8 +555,8 @@
         }
     </style>
 
-  <script src="js/three.min.js" defer></script>
-<script src="js/OrbitControls.js" defer></script>
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -2842,26 +2842,14 @@
                 .catch(err => console.error('❌ Помилка реєстрації SW:', err));
         }
 
-        window.addEventListener('load', function() {
+        window.onload = function() {
     const canvas = document.getElementById('canvas-container');
     if (canvas) {
         canvas.addEventListener('webglcontextlost', handleContextLost, false);
         canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
-
-    function tryInit(attempts = 0) {
-        if (typeof THREE === 'undefined') {
-            if (attempts < 50) {
-                setTimeout(() => tryInit(attempts + 1), 40);
-            }
-            return;
-        }
-        // Небольшая пауза, чтобы интерфейс успел отрисоваться
-        setTimeout(init3D, 40);
-    }
-
-    tryInit();
-});
+    init3D();
+};
     </script>
 </body>
 </html>
