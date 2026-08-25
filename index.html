@@ -12,28 +12,28 @@
 
     <style>
         * { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
 
-.settings-item,
-.lang-option,
-.social-link,
-.lang-selector {
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
+        .settings-item,
+        .lang-option,
+        .social-link,
+        .lang-selector {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-.settings-item:active,
-.lang-option:active,
-.social-link:active {
-    background: transparent !important;
-}
+        .settings-item:active,
+        .lang-option:active,
+        .social-link:active {
+            background: transparent !important;
+        }
         :root {
             --bg-gradient: linear-gradient(180deg, #529b89 0%, #3d796a 100%);
             --bg-panel: rgba(20, 20, 30, 0.9);
@@ -378,9 +378,9 @@
         }
 
         .social-link img {
-    width: 18px;
-    height: 18px;
-}
+            width: 18px;
+            height: 18px;
+        }
 
         .social-link.facebook:hover { background: #1877f2; border-color: #1877f2; }
         .social-link.instagram:hover { background: #e4405f; border-color: #e4405f; }
@@ -555,8 +555,8 @@
         }
     </style>
 
-<script src="js/three.min.js"></script>
-<script src="js/OrbitControls.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -844,7 +844,7 @@
                 lang_pl: 'Polski',
                 lang_pt: 'Português',
                 lang_ja: '日本語',
-                lang_ko: '한국어'
+                lang_ko: '한국어',
                 loading: 'Завантаження...',
                 init_3d: 'Ініціалізація 3D...',
                 creating_scene: 'Створення сцени...',
@@ -934,7 +934,7 @@
                 lang_pl: 'Polish',
                 lang_pt: 'Portuguese',
                 lang_ja: 'Japanese',
-                lang_ko: 'Korean'
+                lang_ko: 'Korean',
                 loading: 'Loading...',
                 init_3d: 'Initializing 3D...',
                 creating_scene: 'Creating scene...',
@@ -1024,7 +1024,7 @@
                 lang_pl: 'Polnisch',
                 lang_pt: 'Portugiesisch',
                 lang_ja: 'Japanisch',
-                lang_ko: 'Koreanisch'
+                lang_ko: 'Koreanisch',
                 loading: 'Laden...',
                 init_3d: '3D wird initialisiert...',
                 creating_scene: 'Szene wird erstellt...',
@@ -1114,7 +1114,7 @@
                 lang_pl: 'Polonais',
                 lang_pt: 'Portugais',
                 lang_ja: 'Japonais',
-                lang_ko: 'Coréen'
+                lang_ko: 'Coréen',
                 loading: 'Chargement...',
                 init_3d: 'Initialisation 3D...',
                 creating_scene: 'Création de la scène...',
@@ -1204,7 +1204,7 @@
                 lang_pl: 'Polaco',
                 lang_pt: 'Portugués',
                 lang_ja: 'Japonés',
-                lang_ko: 'Coreano'
+                lang_ko: 'Coreano',
                 loading: 'Cargando...',
                 init_3d: 'Inicializando 3D...',
                 creating_scene: 'Creando escena...',
@@ -1294,7 +1294,7 @@
                 lang_pl: 'Polacco',
                 lang_pt: 'Portoghese',
                 lang_ja: 'Giapponese',
-                lang_ko: 'Coreano'
+                lang_ko: 'Coreano',
                 loading: 'Caricamento...',
                 init_3d: 'Inizializzazione 3D...',
                 creating_scene: 'Creazione scena...',
@@ -1384,7 +1384,7 @@
                 lang_pl: 'Polski',
                 lang_pt: 'Portugalski',
                 lang_ja: 'Japoński',
-                lang_ko: 'Koreański'
+                lang_ko: 'Koreański',
                 loading: 'Ładowanie...',
                 init_3d: 'Inicjalizacja 3D...',
                 creating_scene: 'Tworzenie sceny...',
@@ -1474,7 +1474,7 @@
                 lang_pl: 'Polonês',
                 lang_pt: 'Português',
                 lang_ja: 'Japonês',
-                lang_ko: 'Coreano'
+                lang_ko: 'Coreano',
                 loading: 'Carregando...',
                 init_3d: 'Inicializando 3D...',
                 creating_scene: 'Criando cena...',
@@ -1564,7 +1564,7 @@
                 lang_pl: 'ポーランド語',
                 lang_pt: 'ポルトガル語',
                 lang_ja: '日本語',
-                lang_ko: '韓国語'
+                lang_ko: '韓国語',
                 loading: '読み込み中...',
                 init_3d: '3Dを初期化中...',
                 creating_scene: 'シーンを作成中...',
@@ -1654,7 +1654,7 @@
                 lang_pl: '폴란드어',
                 lang_pt: '포르투갈어',
                 lang_ja: '일본어',
-                lang_ko: '한국어'
+                lang_ko: '한국어',
                 loading: '로딩 중...',
                 init_3d: '3D 초기화 중...',
                 creating_scene: '장면 생성 중...',
@@ -1893,15 +1893,15 @@
             const geom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
             const internalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
             
-            const materials = {
-    R: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-    L: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-    U: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-    D: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-    D_Logo: new THREE.MeshBasicMaterial({ map: createXeroxLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-    F: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-    B: new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
-};
+            const materials = [
+                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                new THREE.MeshBasicMaterial({ map: createXeroxLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+            ];
 
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
@@ -1911,12 +1911,12 @@
                         const isWhiteCenter = (x === 0 && y === -1 && z === 0);
                         
                         const mats = [
-                            x === 1 ? materials.R : internalMat,  
-                            x === -1 ? materials.L : internalMat, 
-                            y === 1 ? materials.U : internalMat,  
-                            y === -1 ? (isWhiteCenter ? materials.D_Logo : materials.D) : internalMat, 
-                            z === 1 ? materials.F : internalMat,  
-                            z === -1 ? materials.B : internalMat  
+                            x === 1 ? materials[0] : internalMat,
+                            x === -1 ? materials[1] : internalMat,
+                            y === 1 ? materials[2] : internalMat,
+                            y === -1 ? (isWhiteCenter ? materials[4] : materials[3]) : internalMat,
+                            z === 1 ? materials[5] : internalMat,
+                            z === -1 ? materials[6] : internalMat
                         ];
                         
                         const mesh = new THREE.Mesh(geom, mats); 
@@ -1932,60 +1932,6 @@
         let isFirstRender = true;
 
         function init3D() {
-            updateProgress(10, 'Ініціалізація 3D...');
-            
-            if (typeof THREE === 'undefined') {
-                console.error('❌ Three.js не завантажено!');
-                document.getElementById('canvas-container').innerHTML = `
-                    <div style="display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:10px; color:#fff; text-align:center; padding:20px;">
-                        <h2>⚠️ Помилка завантаження</h2>
-                        <p>Не вдалося завантажити 3D-рушій.<br>Перевірте з'єднання з інтернетом.</p>
-                        <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Оновити</button>
-                    </div>
-                `;
-                document.getElementById('canvas-container').classList.add('loaded');
-                hideLoadingScreen();
-                return;
-            }
-
-            const container = document.getElementById('canvas-container');
-            updateProgress(25, 'Створення сцени...');
-            
-            scene = new THREE.Scene(); 
-            
-            camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-            camera.position.set(6.5, 5.0, 9.5); 
-            
-            updateProgress(40, 'Налаштування рендерера...');
-            
-            renderer = new THREE.WebGLRenderer({ 
-                antialias: true, 
-                alpha: false,
-                precision: 'highp',
-                powerPreference: 'high-performance'
-            });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x529b89, 1);
-            container.appendChild(renderer.domElement);
-            container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
-            
-            updateProgress(55, 'Налаштування керування...');
-            
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.08;
-            controls.target.set(0, -1.2, 0);
-            controls.minPolarAngle = 0;
-            controls.maxPolarAngle = Math.PI;
-            controls.minDistance = 2.5;
-            controls.maxDistance = 25;
-            controls.zoomSpeed = -1.2;
-
-            scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
-            dirLight.position.set(5, 15, 7);
-function init3D() {
             const lang = localStorage.getItem('rubik_language') || 'uk';
             const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
 
@@ -2079,30 +2025,6 @@ function init3D() {
                     renderer.render(scene, camera);
                 }
                 updateProgress(100, t.done);
-                setTimeout(() => {
-                    hideLoadingScreen();
-                }, 500);
-            }, 150);
-        }
-            
-            updateProgress(85, 'Перевірка PRO статусу...');
-            checkProStatus();
-            
-            isFirstRender = true;
-            container.classList.add('loaded');
-
-            window.addEventListener('resize', onWindowResize);
-            
-            updateProgress(95, 'Запуск анімації...');
-            animateLoop();
-            
-            setTimeout(() => {
-                loadSavedStateSync();
-                loadLanguage();
-                if (renderer && scene && camera) {
-                    renderer.render(scene, camera);
-                }
-                updateProgress(100, 'Готово!');
                 setTimeout(() => {
                     hideLoadingScreen();
                 }, 500);
@@ -3015,13 +2937,13 @@ function init3D() {
         }
 
         window.onload = function() {
-    const canvas = document.getElementById('canvas-container');
-    if (canvas) {
-        canvas.addEventListener('webglcontextlost', handleContextLost, false);
-        canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
-    }
-    init3D();
-};
+            const canvas = document.getElementById('canvas-container');
+            if (canvas) {
+                canvas.addEventListener('webglcontextlost', handleContextLost, false);
+                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+            }
+            init3D();
+        };
     </script>
 </body>
 </html>
