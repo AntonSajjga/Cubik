@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Кубик Рубіка 3D PRO</title>
     
     <link rel="manifest" href="manifest.json">
@@ -2506,19 +2506,25 @@
         }
 
         function updateProUI() {
-            const btn = document.getElementById('pro-status-btn');
-            const lang = localStorage.getItem('rubik_language') || 'uk';
-            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
-            
-            if (isProUser && btn) {
-                btn.innerText = '🦾 PRO';
-                btn.style.background = '#27ae60';
-            } else if (btn) {
-                btn.innerText = t.pro;
-                btn.style.background = '#f39c12';
-            }
-            updateAlgorithmList();
-        }
+    const btn = document.getElementById('pro-status-btn');
+    const lang = localStorage.getItem('rubik_language') || 'uk';
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+    
+    if (isProUser && btn) {
+        btn.innerText = '🦾 PRO';
+        btn.style.background = '#27ae60';
+    } else if (btn) {
+        btn.innerText = t.pro;
+        btn.style.background = '#f39c12';
+    }
+    updateAlgorithmList();
+
+    // Захист від зуму на iOS
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.body.style.zoom = 1;
+    }, 50);
+}
 
         function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
         function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
