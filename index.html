@@ -2560,7 +2560,9 @@
             if (!key) return alert('Введіть ключ ліцензії!');
 
             if (key.toUpperCase() === ADMIN_MASTER_KEY) {
-                alert(t.pro_activated);
+                // Замість alert
+                console.log(t.pro_activated);
+                // або покажіть своє модальне повідомлення
                 const data = {
                     type: 'admin',
                     activatedAt: Date.now()
