@@ -1,13 +1,12 @@
-const CACHE_NAME = 'rubik-3d-v4';
+const CACHE_NAME = 'rubik-3d-v5';
 
-// Оновлено шляхи: для PWA надійніше використовувати абсолютні шляхи від кореня сайту
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon.png',
-  '/js/three.min.js',
-  '/js/OrbitControls.js'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.png',
+  './js/three.min.js',
+  './js/OrbitControls.js'
 ];
 
 // Встановлення
@@ -54,7 +53,9 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       fetch(e.request)
         .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200) return networkResponse;
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
+          }
           return caches.open(CACHE_NAME).then((cache) => {
             cache.put(e.request, networkResponse.clone());
             return networkResponse;
@@ -62,7 +63,7 @@ self.addEventListener('fetch', (e) => {
         })
         .catch(() => {
           return caches.match(e.request).then((cached) => {
-            return cached || caches.match('/index.html') || caches.match('/');
+            return cached || caches.match('./index.html') || caches.match('./');
           });
         })
     );
@@ -73,16 +74,15 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cached) => {
       if (cached) {
-        // Захист WebGL: якщо з якихось причин кеш повернув opaque-відповідь (тип 'opaque'),
-        // вона заблокує текстури в Three.js, зробивши їх чорними. Ігноруємо її й беремо з мережі.
+        // Захист від opaque-відповідей (вони можуть робити текстури чорними)
         if (cached.type === 'opaque') {
           return fetch(e.request);
         }
         return cached;
       }
+
       return fetch(e.request)
         .then((networkResponse) => {
-          // Кешуємо тільки успішні відповіді
           if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'opaque') {
             return networkResponse;
           }
