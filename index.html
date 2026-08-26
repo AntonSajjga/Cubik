@@ -2936,14 +2936,23 @@
                 .catch(err => console.error('❌ Помилка реєстрації SW:', err));
         }
 
-        window.onload = function() {
-            const canvas = document.getElementById('canvas-container');
-            if (canvas) {
-                canvas.addEventListener('webglcontextlost', handleContextLost, false);
-                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
-            }
-            init3D();
-        };
+        window.addEventListener('load', () => {
+    const canvas = document.getElementById('canvas-container');
+    if (canvas) {
+        canvas.addEventListener('webglcontextlost', handleContextLost, false);
+        canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+    }
+
+    // Запускаємо ініціалізацію, коли браузер повністю готовий
+    init3D();
+
+    // Невелика затримка для стабілізації WebGL
+    setTimeout(() => {
+        if (renderer && scene && camera) {
+            renderer.render(scene, camera);
+        }
+    }, 50);
+});
     </script>
 </body>
 </html>
