@@ -856,7 +856,7 @@
     </div>
 
     <script>
-        // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ, БЕЗ РОСІЙСЬКОЇ) ==========
+        // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ ==========
         const TRANSLATIONS = {
             'uk': {
                 moves: 'Ходів:',
@@ -2511,6 +2511,7 @@
 
             list.innerHTML = html;
 
+            // ✅ Оновлюємо кнопку вибору алгоритму
             if (btn) {
                 if (storedAlgoStr) {
                     const found = optionsData.find(o => o.value === storedAlgoStr);
@@ -2519,6 +2520,9 @@
                     btn.textContent = t.choose_algo;
                 }
             }
+
+            // ✅ Примусове оновлення відображення
+            updateAlgoDisplay();
         }
 
         function selectAlgorithmFromModal(value, isLocked, element) {
@@ -2532,6 +2536,22 @@
             
             document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
             if (element) element.classList.add('selected');
+            
+            // ✅ Оновлюємо кнопку вибору алгоритму
+            const btn = document.getElementById('alg-select-btn');
+            if (btn) {
+                const lang = localStorage.getItem('rubik_language') || 'uk';
+                const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+                const found = document.querySelector(`.algo-item.selected span`);
+                if (found) {
+                    btn.textContent = found.textContent;
+                } else {
+                    btn.textContent = t.choose_algo;
+                }
+            }
+            
+            // ✅ Примусово оновлюємо відображення алгоритму
+            updateAlgoDisplay();
             
             closeAlgorithmModal();
         }
@@ -2568,10 +2588,38 @@
             activeAlgoSteps = algoStr.split(' ');
             currentStepIndex = -1;
             
+            // ✅ Оновлюємо відображення
             updateAlgoDisplay();
             
-            moveQueue = [];
+            // ✅ Оновлюємо кнопку
+            const btn = document.getElementById('alg-select-btn');
+            if (btn) {
+                const optionsData = [
+                    { value: "R U R' U'", text: t.right_sexy },
+                    { value: "L' U' L U", text: t.left_sexy },
+                    { value: "R' F R F'", text: t.sledgehammer },
+                    { value: "R U R' U R U2 R'", text: t.sune },
+                    { value: "U R U' L' U R' U' L", text: t.four_corners },
+                    { value: "R U2 R' U' R U' R'", text: t.anti_sune.replace('🔒 ', '') },
+                    { value: "R U R' F' R U R' U' R' F R2 U' R'", text: t.j_perm.replace('🔒 ', '') },
+                    { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: t.y_perm.replace('🔒 ', '') },
+                    { value: "R' F R' B2 R F' R' B2 R2", text: t.a_perm.replace('🔒 ', '') },
+                    { value: "R U' R U R U R U' R' U' R2", text: t.ua_perm.replace('🔒 ', '') },
+                    { value: "R2 U R U R' U' R' U' R' U R'", text: t.ub_perm.replace('🔒 ', '') },
+                    { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: t.e_perm.replace('🔒 ', '') },
+                    { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: t.t_perm.replace('🔒 ', '') },
+                    { value: "F R U R' U' F' R U R' U' R' F R F'", text: t.cube_in_cube.replace('🔒 ', '') },
+                    { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: t.dot_pattern.replace('🔒 ', '') },
+                    { value: "R L U2 R' L' U2", text: t.snake_pattern.replace('🔒 ', '') },
+                    { value: "F2 R2 F2 R2 F2 R2", text: t.stripes_pattern.replace('🔒 ', '') },
+                    { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: t.double_cross.replace('🔒 ', '') },
+                    { value: "R U2 L' D2 R' U2 L D2", text: t.nested_cube.replace('🔒 ', '') }
+                ];
+                const found = optionsData.find(o => o.value === algoStr);
+                btn.textContent = found ? found.text : t.choose_algo;
+            }
             
+            moveQueue = [];
             saveState();
         }
 
