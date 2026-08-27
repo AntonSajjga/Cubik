@@ -2458,63 +2458,81 @@ setTimeout(() => {
         }
 
         function updateAlgorithmList() {
-            const lang = localStorage.getItem('rubik_language') || 'uk';
-            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
-            const select = document.getElementById('alg-select');
-            const currentValue = select.value;
-            
-            const optionsData = [
-                { value: '', text: t.choose_algo, disabled: true, selected: true },
-                { optgroup: t.basic },
-                { value: "R U R' U'", text: t.right_sexy },
-                { value: "L' U' L U", text: t.left_sexy },
-                { value: "R' F R F'", text: t.sledgehammer },
-                { value: "R U R' U R U2 R'", text: t.sune },
-                { value: "U R U' L' U R' U' L", text: t.four_corners },
-                { optgroup: isProUser ? t.pro_cfop : '🔒 ' + t.pro_cfop },
-                { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune.replace('🔒 ', '') : t.anti_sune },
-                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm.replace('🔒 ', '') : t.j_perm },
-                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm.replace('🔒 ', '') : t.y_perm },
-                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm.replace('🔒 ', '') : t.a_perm },
-                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm.replace('🔒 ', '') : t.ua_perm },
-                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm.replace('🔒 ', '') : t.ub_perm },
-                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm.replace('🔒 ', '') : t.e_perm },
-                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm.replace('🔒 ', '') : t.t_perm },
-                { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
-                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube.replace('🔒 ', '') : t.cube_in_cube },
-                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern.replace('🔒 ', '') : t.dot_pattern },
-                { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern.replace('🔒 ', '') : t.snake_pattern },
-                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern.replace('🔒 ', '') : t.stripes_pattern },
-                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross.replace('🔒 ', '') : t.double_cross },
-                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube.replace('🔒 ', '') : t.nested_cube }
-            ];
+    const lang = localStorage.getItem('rubik_language') || 'uk';
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+    const list = document.getElementById('algo-list');
+    const btn = document.getElementById('alg-select-btn');
+    
+    if (!list) return;
 
-            select.innerHTML = '';
-            let currentOptgroup = null;
-            optionsData.forEach(item => {
-                if (item.optgroup) {
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = item.optgroup;
-                    select.appendChild(optgroup);
-                    currentOptgroup = optgroup;
-                } else {
-                    const option = document.createElement('option');
-                    option.value = item.value || '';
-                    option.textContent = item.text || '';
-                    if (item.disabled) option.disabled = true;
-                    if (item.selected) option.selected = true;
-                    if (currentOptgroup) {
-                        currentOptgroup.appendChild(option);
-                    } else {
-                        select.appendChild(option);
-                    }
-                }
-            });
+    const optionsData = [
+        { optgroup: t.basic },
+        { value: "R U R' U'", text: t.right_sexy },
+        { value: "L' U' L U", text: t.left_sexy },
+        { value: "R' F R F'", text: t.sledgehammer },
+        { value: "R U R' U R U2 R'", text: t.sune },
+        { value: "U R U' L' U R' U' L", text: t.four_corners },
+        { optgroup: isProUser ? t.pro_cfop : '🔒 ' + t.pro_cfop },
+        { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune.replace('🔒 ', '') : t.anti_sune, locked: !isProUser },
+        { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm.replace('🔒 ', '') : t.j_perm, locked: !isProUser },
+        { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm.replace('🔒 ', '') : t.y_perm, locked: !isProUser },
+        { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm.replace('🔒 ', '') : t.a_perm, locked: !isProUser },
+        { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm.replace('🔒 ', '') : t.ua_perm, locked: !isProUser },
+        { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm.replace('🔒 ', '') : t.ub_perm, locked: !isProUser },
+        { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm.replace('🔒 ', '') : t.e_perm, locked: !isProUser },
+        { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm.replace('🔒 ', '') : t.t_perm, locked: !isProUser },
+        { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
+        { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube.replace('🔒 ', '') : t.cube_in_cube, locked: !isProUser },
+        { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern.replace('🔒 ', '') : t.dot_pattern, locked: !isProUser },
+        { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern.replace('🔒 ', '') : t.snake_pattern, locked: !isProUser },
+        { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern.replace('🔒 ', '') : t.stripes_pattern, locked: !isProUser },
+        { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross.replace('🔒 ', '') : t.double_cross, locked: !isProUser },
+        { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube.replace('🔒 ', '') : t.nested_cube, locked: !isProUser }
+    ];
 
-            if (currentValue && [...select.options].some(o => o.value === currentValue)) {
-                select.value = currentValue;
-            }
+    let html = '';
+    optionsData.forEach(item => {
+        if (item.optgroup) {
+            html += `<div class="algo-group-title">${item.optgroup}</div>`;
+        } else {
+            const lockedClass = item.locked ? 'locked' : '';
+            const selectedClass = (storedAlgoStr === item.value) ? 'selected' : '';
+            html += `
+                <div class="algo-item ${lockedClass} \( {selectedClass}" onclick="selectAlgorithmFromModal(' \){item.value}', ${!!item.locked}, this)">
+                    <div class="radio-circle"></div>
+                    <span>${item.text}</span>
+                </div>
+            `;
         }
+    });
+
+    list.innerHTML = html;
+
+    // Оновлюємо текст кнопки
+    if (btn) {
+        if (storedAlgoStr) {
+            const found = optionsData.find(o => o.value === storedAlgoStr);
+            btn.textContent = found ? found.text : t.choose_algo;
+        } else {
+            btn.textContent = t.choose_algo;
+        }
+    }
+}
+
+function selectAlgorithmFromModal(value, isLocked, element) {
+    if (isLocked) {
+        openActivationModal(); // відкриваємо PRO-вікно
+        return;
+    }
+    
+    selectAlgorithm(value);
+    
+    // Візуально виділяємо вибраний
+    document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
+    if (element) element.classList.add('selected');
+    
+    closeAlgorithmModal();
+}
 
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
