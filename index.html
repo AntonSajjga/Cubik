@@ -2351,29 +2351,53 @@
         }
 
         function triggerReset() {
-            if (animFrameId) {
-                cancelAnimationFrame(animFrameId);
-                animFrameId = null;
-            }
+    if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+    }
 
-            while (pivot.children.length > 0) {
-                scene.attach(pivot.children[0]);
-            }
-            
-            pivot.rotation.set(0, 0, 0);
-            pivot.position.set(0, 0, 0);
+    while (pivot.children.length > 0) {
+        scene.attach(pivot.children[0]);
+    }
+    
+    pivot.rotation.set(0, 0, 0);
+    pivot.position.set(0, 0, 0);
 
-            moveQueue = []; historyMoves = []; activeAlgoSteps = [];
-            currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
-            localStorage.removeItem('rubik_cube_save_data');
-            document.getElementById('counter').innerText = '0';
-            const lang = localStorage.getItem('rubik_language') || 'uk';
-            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
-            document.getElementById('algo-display').innerText = t.choose;
-            buildCube();
-            if (controls) controls.target.set(0, -1.2, 0);
-            updateResetButtonState();
-        }
+    // Очищуємо всі дані
+    moveQueue = []; 
+    historyMoves = []; 
+    activeAlgoSteps = [];
+    currentStepIndex = -1; 
+    isAnimating = false; 
+    isScrambling = false; 
+    moveCount = 0; 
+    storedAlgoStr = "";  // ← Очищуємо збережений алгоритм
+    
+    localStorage.removeItem('rubik_cube_save_data');
+    document.getElementById('counter').innerText = '0';
+    
+    const lang = localStorage.getItem('rubik_language') || 'uk';
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+    
+    // ✅ Оновлюємо відображення алгоритму
+    document.getElementById('algo-display').innerText = t.choose;
+    
+    // ✅ Оновлюємо кнопку вибору алгоритму
+    const btn = document.getElementById('alg-select-btn');
+    if (btn) {
+        btn.textContent = t.choose_algo;
+    }
+    
+    // ✅ Оновлюємо список алгоритмів (знімаємо виділення)
+    document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
+    
+    buildCube();
+    if (controls) controls.target.set(0, -1.2, 0);
+    updateResetButtonState();
+    
+    // ✅ Зберігаємо стан
+    saveState();
+}
 
         function saveState() {
             localStorage.setItem('rubik_cube_save_data', JSON.stringify({
