@@ -553,6 +553,110 @@
             font-weight: 600;
             font-variant-numeric: tabular-nums;
         }
+        /* ===== КАСТОМНИЙ СПИСОК АЛГОРИТМІВ ===== */
+.algo-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.algo-modal.active {
+    display: flex;
+}
+
+.algo-modal-content {
+    background: #1e1e2a;
+    width: 100%;
+    max-height: 75vh;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.algo-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #252532;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.algo-modal-close {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.algo-list {
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.algo-group-title {
+    padding: 10px 16px 4px;
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+}
+
+.algo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    cursor: pointer;
+    color: #e0e0e5;
+    font-size: 14px;
+    transition: background 0.15s;
+}
+
+.algo-item:active {
+    background: rgba(255,255,255,0.07);
+}
+
+.algo-item .radio-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #555;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.algo-item.selected .radio-circle {
+    border-color: #2ecc71;
+    background: #2ecc71;
+}
+
+.algo-item.selected .radio-circle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.algo-item.locked {
+    opacity: 0.55;
+}
     </style>
 
     <script src="js/three.min.js"></script>
@@ -621,35 +725,23 @@
         </div>
 
         <div class="alg-select-wrapper">
-            <select class="alg-select" id="alg-select" aria-label="Вибір алгоритму" onchange="selectAlgorithm(this.value); this.selectedIndex=0;">
-                <option value="" disabled selected>🎓 Виберіть алгоритм...</option>
-                <optgroup label="👶 Basic Algorithms">
-                    <option value="R U R' U'">Right Sexy Move</option>
-                    <option value="L' U' L U">Left Sexy Move</option>
-                    <option value="R' F R F'">Sledgehammer</option>
-                    <option value="R U R' U R U2 R'">Sune OLL</option>
-                    <option value="U R U' L' U R' U' L">Four Corners Swap</option>
-                </optgroup>
-                <optgroup label="🔒 PRO: Advanced Speedcubing (CFOP)">
-                    <option value="R U2 R' U' R U' R'">🔒 Anti-Sune OLL</option>
-                    <option value="R U R' F' R U R' U' R' F R2 U' R'">🔒 J-Permutation</option>
-                    <option value="F R U' R' U' R U R' F' R U R' U' R' F R F'">🔒 Y-Permutation</option>
-                    <option value="R' F R' B2 R F' R' B2 R2">🔒 A-Permutation</option>
-                    <option value="R U' R U R U R U' R' U' R2">🔒 Ua-Permutation</option>
-                    <option value="R2 U R U R' U' R' U' R' U R'">🔒 Ub-Permutation</option>
-                    <option value="R' U R' U' R D' R' D R' U2 R D' R' D R2">🔒 E-Permutation</option>
-                    <option value="R U R' U' R' F R2 U' R' U' R U R' F'">🔒 T-Permutation</option>
-                </optgroup>
-                <optgroup label="🔒 PRO: Creative Art & Patterns">
-                    <option value="F R U R' U' F' R U R' U' R' F R F'">🔒 Cube in a Cube</option>
-                    <option value="U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2">🔒 Dot Pattern</option>
-                    <option value="R L U2 R' L' U2">🔒 Snake Pattern</option>
-                    <option value="F2 R2 F2 R2 F2 R2">🔒 Stripes / Banded Pattern</option>
-                    <option value="U2 R2 U2 L2 U2 F2 U2 B2">🔒 Double Cross Pattern</option>
-                    <option value="R U2 L' D2 R' U2 L D2">🔒 Nested Cube Pattern</option>
-                </optgroup>
-            </select>
+    <button type="button" class="alg-select" id="alg-select-btn" onclick="openAlgorithmModal()">
+        🎓 Виберіть алгоритм...
+    </button>
+</div>
+
+<!-- Кастомне модальне вікно алгоритмів -->
+<div id="algo-modal" class="algo-modal">
+    <div class="algo-modal-content">
+        <div class="algo-modal-header">
+            <span>Виберіть алгоритм</span>
+            <button class="algo-modal-close" onclick="closeAlgorithmModal()">✕</button>
         </div>
+        <div class="algo-list" id="algo-list">
+            <!-- Сюди буде додаватися список -->
+        </div>
+    </div>
+</div>
 
         <div class="fx-group">
             <button class="action-btn" onclick="triggerScramble()">🔀 Scramble</button>
