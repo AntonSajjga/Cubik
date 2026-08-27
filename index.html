@@ -553,595 +553,6 @@
             font-weight: 600;
             font-variant-numeric: tabular-nums;
         }
-        /* ===== КАСТОМНИЙ СПИСОК АЛГОРИТМІВ ===== */
-.algo-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 300;
-    align-items: flex-end;
-    justify-content: center;
-}
-
-.algo-modal.active {
-    display: flex;
-}
-
-.algo-modal-content {
-    background: #1e1e2a;
-    width: 100%;
-    max-height: 75vh;
-    border-radius: 16px 16px 0 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.algo-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    background: #252532;
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.algo-modal-close {
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px 8px;
-}
-<style>
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-        }
-
-        .settings-item,
-        .lang-option,
-        .social-link,
-        .lang-selector {
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .settings-item:active,
-        .lang-option:active,
-        .social-link:active {
-            background: transparent !important;
-        }
-        :root {
-            --bg-gradient: linear-gradient(180deg, #529b89 0%, #3d796a 100%);
-            --bg-panel: rgba(20, 20, 30, 0.9);
-            --bg-topbar: rgba(20, 20, 30, 0.6);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-color: #f0f0f5;
-            --btn-bg: #272736;
-            --btn-hover: #3a3a52;
-        }
-
-        html {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            touch-action: none;
-            overscroll-behavior: none;
-        }
-
-        body { 
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow: hidden; 
-            background: var(--bg-gradient); 
-            font-family: system-ui, -apple-system, sans-serif; 
-            color: var(--text-color); 
-            height: 100%;
-            width: 100%;
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: none;
-            overscroll-behavior: none;
-        }
-
-        #canvas-container { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; 
-            opacity: 0; 
-            transition: opacity 0.15s ease-out;
-            touch-action: none;
-            background: #529b89;
-        }
-        #canvas-container.loaded { opacity: 1; }
-        
-        #top-bar { 
-            position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10; 
-            background: var(--bg-topbar); padding: 4px 12px; border-radius: 30px; 
-            border: 1px solid var(--border-color); backdrop-filter: blur(15px); 
-            display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            touch-action: none;
-        }
-        .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
-        .stat-badge span { color: #00d2ff; font-size: 13px; }
-
-        .settings-btn {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 50%;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-            line-height: 1;
-        }
-        .settings-btn:hover {
-            transform: scale(1.15) rotate(90deg);
-        }
-
-        .sound-btn {
-            background: none; border: none; color: var(--text-color); font-size: 16px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            padding: 2px 4px; border-radius: 50%; transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-        .sound-btn:hover { transform: scale(1.15); }
-        .sound-btn.muted { opacity: 0.5; }
-
-        .theme-dots { display: flex; gap: 5px; align-items: center; }
-        .theme-dot {
-            width: 14px; height: 14px; border-radius: 50%; cursor: pointer;
-            border: 2px solid transparent; transition: all 0.2s ease;
-        }
-        .theme-dot.active { border-color: #fff; transform: scale(1.1); }
-
-        #controls-panel { 
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 10; 
-            width: 100%; max-width: 100%; background: var(--bg-panel); 
-            border-top: 1px solid var(--border-color); padding: 12px 10px 15px 10px; backdrop-filter: blur(20px); 
-            box-shadow: 0 -5px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 8px; 
-            border-radius: 20px 20px 0 0;
-            touch-action: none;
-        }
-
-        .algo-header-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
-
-        .help-btn {
-            background: #f39c12; color: #fff; border: none; width: 32px; height: 32px;
-            border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s ease;
-        }
-        .help-btn:hover { background: #f1c40f; transform: scale(1.05); }
-        .help-btn.active { background: #00d2ff; color: #141420; box-shadow: 0 0 10px #00d2ff; }
-
-        #algo-display {
-            flex-grow: 1; background: #15151e; padding: 6px; border-radius: 8px; text-align: center;
-            font-family: monospace; font-size: 14px; color: #ffcc00; font-weight: bold;
-            border: 1px solid rgba(255,255,255,0.05); min-height: 32px; 
-            display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; line-height: 1.2;
-        }
-        
-        .algo-step { padding: 2px 4px; border-radius: 3px; transition: all 0.15s ease; color: #ffcc00; }
-        .algo-step.current { background: #c0392b; color: #ffffff; transform: scale(1.15); box-shadow: 0 0 5px #c0392b; }
-        .algo-step.done { color: #555566; }
-        
-        .button-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
-        
-        button.move-btn { 
-            background: var(--btn-bg); border: none; color: #fff; 
-            padding: 8px 0; border-radius: 6px; 
-            font-size: 14px; 
-            font-family: monospace;
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.1s ease; 
-            text-align: center;
-            touch-action: manipulation;
-        }
-        button.move-btn:hover { background: var(--btn-hover); }
-        
-        button.move-btn span {
-            color: #ffffff;
-            font-size: 1.5em;
-            font-weight: 900;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-        }
-
-        .mode-wrapper { display: flex; background: #1e1e2a; border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.05); }
-        .mode-toggle {
-            flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 700; 
-            cursor: pointer; border-radius: 6px; transition: all 0.1s ease; color: #e0e0e5;
-            touch-action: manipulation;
-        }
-        .mode-toggle.active { background: #1e8449; color: #fff; box-shadow: 0 0 8px rgba(30, 132, 73, 0.5); }
-
-        .alg-select-wrapper { position: relative; width: 100%; }
-        .alg-select {
-            width: 100%; background: #1e8449; color: #fff; border: none; 
-            padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; 
-            cursor: pointer; appearance: none; -webkit-appearance: none; outline: none; text-align: center;
-            touch-action: manipulation;
-        }
-        .alg-select:hover { background: #229954; }
-        .alg-select-wrapper::after {
-            content: '▼'; font-size: 7px; color: white; position: absolute; right: 12px; top: 13px; pointer-events: none;
-        }
-
-        .fx-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-        .action-btn { background: #1a5276; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
-        .action-btn:hover { background: #1f618d; }
-        .pro-btn { background: #d68910; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
-        .pro-btn:hover { background: #e67e22; }
-        .danger-btn { background: #922b21; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
-        .danger-btn:hover { background: #a93226; }
-
-        /* ===== МОДАЛЬНЕ ВІКНО НАЛАШТУВАНЬ ===== */
-        #settings-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-            touch-action: none;
-        }
-
-        .settings-modal-content {
-            background: #1e1e2a;
-            padding: 24px 20px;
-            border-radius: 16px;
-            max-width: 380px;
-            width: 92%;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .settings-modal-content h2 {
-            color: #f1c40f;
-            font-size: 20px;
-            margin-bottom: 16px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .settings-modal-content h2 span {
-            font-size: 24px;
-        }
-
-        .settings-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer;
-            transition: background 0.15s ease;
-            border-radius: 6px;
-        }
-
-        .settings-item:hover {
-            background: rgba(255,255,255,0.05);
-        }
-
-        .settings-item .label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #d0d0d8;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .settings-item .label .icon {
-            font-size: 18px;
-            width: 28px;
-            text-align: center;
-        }
-
-        .settings-item .value {
-            font-size: 13px;
-            color: #00d2ff;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .settings-item .arrow {
-            color: #555566;
-            font-size: 12px;
-            margin-left: 4px;
-        }
-
-        .settings-close-btn {
-            width: 100%;
-            margin-top: 16px;
-            padding: 10px;
-            background: #3a3a52;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .settings-close-btn:hover {
-            background: #4a4a62;
-        }
-
-        .lang-selector {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .lang-option {
-            padding: 4px 10px;
-            border-radius: 12px;
-            background: #2a2a3a;
-            color: #a0a0ab;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-
-        .lang-option.active {
-            background: #1e8449;
-            color: #fff;
-            border-color: #2ecc71;
-        }
-
-        .lang-option:hover {
-            background: #3a3a52;
-        }
-
-        .version-badge {
-            background: #2a2a3a;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            color: #888899;
-            font-weight: 600;
-        }
-
-        .rating-stars {
-            color: #f1c40f;
-            font-size: 16px;
-            letter-spacing: 2px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .social-link {
-            padding: 6px 14px;
-            border-radius: 20px;
-            background: #2a2a3a;
-            color: #d0d0d8;
-            font-size: 13px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .social-link:hover {
-            background: #3a3a52;
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .social-link img {
-            width: 18px;
-            height: 18px;
-        }
-
-        .social-link.facebook:hover { background: #1877f2; border-color: #1877f2; }
-        .social-link.instagram:hover { background: #e4405f; border-color: #e4405f; }
-        .social-link.youtube:hover { background: #ff0000; border-color: #ff0000; }
-        .social-link.telegram:hover { background: #0088cc; border-color: #0088cc; }
-        .social-link.tiktok:hover { background: #000000; border-color: #000000; }
-        .social-link.x:hover { background: #000000; border-color: #000000; }
-        .social-link.gmail:hover { background: #ea4335; border-color: #ea4335; }
-
-        /* ===== PRO МОДАЛЬНЕ ВІКНО ===== */
-        #pro-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 100; align-items: center; justify-content: center;
-            backdrop-filter: blur(5px);
-            touch-action: none;
-        }
-        .modal-content {
-            background: #1e1e2a; padding: 24px; border-radius: 16px; text-align: center;
-            max-width: 340px; width: 90%; color: #fff; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .modal-content h3 { color: #f1c40f; font-size: 20px; margin-bottom: 8px; }
-        .modal-content p { font-size: 13px; color: #a0a0ab; margin-bottom: 12px; line-height: 1.4; }
-
-        .plan-selector { display: flex; gap: 8px; margin-bottom: 14px; }
-        .plan-card {
-            flex: 1; background: #141420; border: 2px solid #3a3a52; border-radius: 10px;
-            padding: 8px; cursor: pointer; transition: all 0.2s ease;
-        }
-        .plan-card.active { border-color: #f1c40f; background: rgba(241, 196, 15, 0.08); }
-        .plan-title { font-size: 12px; color: #a0a0ab; font-weight: 600; }
-        .plan-price { font-size: 15px; color: #fff; font-weight: bold; margin-top: 2px; }
-        .plan-badge { font-size: 9px; color: #2ecc71; font-weight: bold; text-transform: uppercase; margin-top: 2px; }
-
-        .modal-input {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3a3a52;
-            margin-bottom: 12px; background: #09090e; color: #fff; text-align: center;
-            font-family: monospace; font-size: 13px; outline: none;
-        }
-        .modal-btn-confirm {
-            width: 100%; background: #27ae60; color: #fff; border: none; padding: 10px;
-            border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: background 0.2s;
-        }
-        .modal-btn-confirm:hover { background: #2ecc71; }
-        .buy-link {
-            display: block; margin-top: 10px; color: #00d2ff; font-size: 13px; font-weight: bold;
-            text-decoration: none; padding: 10px; border-radius: 6px; background: rgba(0, 210, 255, 0.1);
-            cursor: pointer;
-        }
-        .buy-link:hover { background: rgba(0, 210, 255, 0.2); }
-        .close-modal-btn { background: transparent; color: #a0a0ab; border: none; font-size: 12px; margin-top: 10px; cursor: pointer; }
-
-        /* ===== ІНДИКАТОР ЗАВАНТАЖЕННЯ ===== */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #529b89 0%, #3d796a 100%);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease-out;
-        }
-
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loader-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .cube-loader {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            transform-style: preserve-3d;
-            animation: spinCube 2s ease-in-out infinite;
-        }
-
-        .cube-face {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(4px);
-        }
-
-        .cube-face.top {
-            transform: rotateX(90deg) translateZ(40px);
-            background: rgba(255, 215, 0, 0.3);
-            border-color: #ffd700;
-        }
-        .cube-face.bottom {
-            transform: rotateX(-90deg) translateZ(40px);
-            background: rgba(255, 255, 255, 0.3);
-            border-color: #ffffff;
-        }
-        .cube-face.left {
-            transform: rotateY(-90deg) translateZ(40px);
-            background: rgba(0, 100, 255, 0.3);
-            border-color: #0066ff;
-        }
-        .cube-face.right {
-            transform: rotateY(90deg) translateZ(40px);
-            background: rgba(0, 255, 100, 0.3);
-            border-color: #00ff66;
-        }
-        .cube-face.front {
-            transform: rotateY(0deg) translateZ(40px);
-            background: rgba(255, 0, 85, 0.3);
-            border-color: #ff0055;
-        }
-        .cube-face.back {
-            transform: rotateY(180deg) translateZ(40px);
-            background: rgba(255, 100, 0, 0.3);
-            border-color: #ff7700;
-        }
-
-        @keyframes spinCube {
-            0% { transform: rotateX(0deg) rotateY(0deg); }
-            25% { transform: rotateX(90deg) rotateY(45deg); }
-            50% { transform: rotateX(180deg) rotateY(90deg); }
-            75% { transform: rotateX(270deg) rotateY(135deg); }
-            100% { transform: rotateX(360deg) rotateY(180deg); }
-        }
-
-        .loader-text {
-            color: #fff;
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            animation: pulseText 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulseText {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .loader-progress {
-            width: 200px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .loader-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #00d2ff, #2ecc71);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .loader-percent {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 13px;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
 
         /* ===== КАСТОМНИЙ СПИСОК АЛГОРИТМІВ ===== */
         .algo-modal {
@@ -1315,23 +726,23 @@
         </div>
 
         <div class="alg-select-wrapper">
-    <button type="button" class="alg-select" id="alg-select-btn" onclick="openAlgorithmModal()">
-        🎓 Виберіть алгоритм...
-    </button>
-</div>
+            <button type="button" class="alg-select" id="alg-select-btn" onclick="openAlgorithmModal()">
+                🎓 Виберіть алгоритм...
+            </button>
+        </div>
 
-<!-- Кастомне модальне вікно алгоритмів -->
-<div id="algo-modal" class="algo-modal">
-    <div class="algo-modal-content">
-        <div class="algo-modal-header">
-            <span>Виберіть алгоритм</span>
-            <button class="algo-modal-close" onclick="closeAlgorithmModal()">✕</button>
+        <!-- Кастомне модальне вікно алгоритмів -->
+        <div id="algo-modal" class="algo-modal">
+            <div class="algo-modal-content">
+                <div class="algo-modal-header">
+                    <span>Виберіть алгоритм</span>
+                    <button class="algo-modal-close" onclick="closeAlgorithmModal()">✕</button>
+                </div>
+                <div class="algo-list" id="algo-list">
+                    <!-- Сюди буде додаватися список -->
+                </div>
+            </div>
         </div>
-        <div class="algo-list" id="algo-list">
-            <!-- Сюди буде додаватися список -->
-        </div>
-    </div>
-</div>
 
         <div class="fx-group">
             <button class="action-btn" onclick="triggerScramble()">🔀 Scramble</button>
@@ -2679,23 +2090,22 @@
 
             updateProgress(70, 'Побудова кубика...');
 
-// Відкладаємо важку роботу, щоб не блокувати головний потік
-setTimeout(() => {
-    buildCube();
+            setTimeout(() => {
+                buildCube();
 
-    cubies.forEach(cubie => {
-        if (Array.isArray(cubie.material)) {
-            cubie.material.forEach(mat => {
-                if (mat.map) mat.map.needsUpdate = true;
-                mat.needsUpdate = true;
-            });
-        }
-    });
+                cubies.forEach(cubie => {
+                    if (Array.isArray(cubie.material)) {
+                        cubie.material.forEach(mat => {
+                            if (mat.map) mat.map.needsUpdate = true;
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
 
-    if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-    }
-}, 100);
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }, 100);
             
             updateProgress(85, t.checking_pro);
             checkProStatus();
@@ -3047,82 +2457,101 @@ setTimeout(() => {
             renderer.setSize(w, h);
         }
 
+        // ===== ВИПРАВЛЕНІ ФУНКЦІЇ ДЛЯ РОБОТИ АЛГОРИТМІВ =====
+
         function updateAlgorithmList() {
-    const lang = localStorage.getItem('rubik_language') || 'uk';
-    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
-    const list = document.getElementById('algo-list');
-    const btn = document.getElementById('alg-select-btn');
-    
-    if (!list) return;
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            const list = document.getElementById('algo-list');
+            const btn = document.getElementById('alg-select-btn');
+            
+            if (!list) return;
 
-    const optionsData = [
-        { optgroup: t.basic },
-        { value: "R U R' U'", text: t.right_sexy },
-        { value: "L' U' L U", text: t.left_sexy },
-        { value: "R' F R F'", text: t.sledgehammer },
-        { value: "R U R' U R U2 R'", text: t.sune },
-        { value: "U R U' L' U R' U' L", text: t.four_corners },
-        { optgroup: isProUser ? t.pro_cfop : '🔒 ' + t.pro_cfop },
-        { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune.replace('🔒 ', '') : t.anti_sune, locked: !isProUser },
-        { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm.replace('🔒 ', '') : t.j_perm, locked: !isProUser },
-        { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm.replace('🔒 ', '') : t.y_perm, locked: !isProUser },
-        { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm.replace('🔒 ', '') : t.a_perm, locked: !isProUser },
-        { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm.replace('🔒 ', '') : t.ua_perm, locked: !isProUser },
-        { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm.replace('🔒 ', '') : t.ub_perm, locked: !isProUser },
-        { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm.replace('🔒 ', '') : t.e_perm, locked: !isProUser },
-        { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm.replace('🔒 ', '') : t.t_perm, locked: !isProUser },
-        { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
-        { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube.replace('🔒 ', '') : t.cube_in_cube, locked: !isProUser },
-        { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern.replace('🔒 ', '') : t.dot_pattern, locked: !isProUser },
-        { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern.replace('🔒 ', '') : t.snake_pattern, locked: !isProUser },
-        { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern.replace('🔒 ', '') : t.stripes_pattern, locked: !isProUser },
-        { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross.replace('🔒 ', '') : t.double_cross, locked: !isProUser },
-        { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube.replace('🔒 ', '') : t.nested_cube, locked: !isProUser }
-    ];
+            const optionsData = [
+                { optgroup: t.basic },
+                { value: "R U R' U'", text: t.right_sexy },
+                { value: "L' U' L U", text: t.left_sexy },
+                { value: "R' F R F'", text: t.sledgehammer },
+                { value: "R U R' U R U2 R'", text: t.sune },
+                { value: "U R U' L' U R' U' L", text: t.four_corners },
+                { optgroup: isProUser ? t.pro_cfop : '🔒 ' + t.pro_cfop },
+                { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune.replace('🔒 ', '') : t.anti_sune, locked: !isProUser },
+                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm.replace('🔒 ', '') : t.j_perm, locked: !isProUser },
+                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm.replace('🔒 ', '') : t.y_perm, locked: !isProUser },
+                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm.replace('🔒 ', '') : t.a_perm, locked: !isProUser },
+                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm.replace('🔒 ', '') : t.ua_perm, locked: !isProUser },
+                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm.replace('🔒 ', '') : t.ub_perm, locked: !isProUser },
+                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm.replace('🔒 ', '') : t.e_perm, locked: !isProUser },
+                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm.replace('🔒 ', '') : t.t_perm, locked: !isProUser },
+                { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
+                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube.replace('🔒 ', '') : t.cube_in_cube, locked: !isProUser },
+                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern.replace('🔒 ', '') : t.dot_pattern, locked: !isProUser },
+                { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern.replace('🔒 ', '') : t.snake_pattern, locked: !isProUser },
+                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern.replace('🔒 ', '') : t.stripes_pattern, locked: !isProUser },
+                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross.replace('🔒 ', '') : t.double_cross, locked: !isProUser },
+                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube.replace('🔒 ', '') : t.nested_cube, locked: !isProUser }
+            ];
 
-    let html = '';
-    optionsData.forEach(item => {
-        if (item.optgroup) {
-            html += `<div class="algo-group-title">${item.optgroup}</div>`;
-        } else {
-            const lockedClass = item.locked ? 'locked' : '';
-            const selectedClass = (storedAlgoStr === item.value) ? 'selected' : '';
-            html += `
-                <div class="algo-item ${lockedClass} \( {selectedClass}" onclick="selectAlgorithmFromModal(' \){item.value}', ${!!item.locked}, this)">
-                    <div class="radio-circle"></div>
-                    <span>${item.text}</span>
-                </div>
-            `;
+            let html = '';
+            optionsData.forEach(item => {
+                if (item.optgroup) {
+                    html += `<div class="algo-group-title">${item.optgroup}</div>`;
+                } else {
+                    const lockedClass = item.locked ? 'locked' : '';
+                    const selectedClass = (storedAlgoStr === item.value) ? 'selected' : '';
+                    const escapedValue = item.value.replace(/'/g, "\\'");
+                    html += `
+                        <div class="algo-item ${lockedClass} ${selectedClass}" onclick="selectAlgorithmFromModal('${escapedValue}', ${!!item.locked}, this)">
+                            <div class="radio-circle"></div>
+                            <span>${item.text}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            list.innerHTML = html;
+
+            if (btn) {
+                if (storedAlgoStr) {
+                    const found = optionsData.find(o => o.value === storedAlgoStr);
+                    btn.textContent = found ? found.text : t.choose_algo;
+                } else {
+                    btn.textContent = t.choose_algo;
+                }
+            }
         }
-    });
 
-    list.innerHTML = html;
-
-    // Оновлюємо текст кнопки
-    if (btn) {
-        if (storedAlgoStr) {
-            const found = optionsData.find(o => o.value === storedAlgoStr);
-            btn.textContent = found ? found.text : t.choose_algo;
-        } else {
-            btn.textContent = t.choose_algo;
+        function selectAlgorithmFromModal(value, isLocked, element) {
+            if (isLocked) {
+                openActivationModal();
+                return;
+            }
+            
+            const decodedValue = value.replace(/\\'/g, "'");
+            selectAlgorithm(decodedValue);
+            
+            document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
+            if (element) element.classList.add('selected');
+            
+            closeAlgorithmModal();
         }
-    }
-}
 
-function selectAlgorithmFromModal(value, isLocked, element) {
-    if (isLocked) {
-        openActivationModal(); // відкриваємо PRO-вікно
-        return;
-    }
-    
-    selectAlgorithm(value);
-    
-    // Візуально виділяємо вибраний
-    document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
-    if (element) element.classList.add('selected');
-    
-    closeAlgorithmModal();
-}
+        function openAlgorithmModal() {
+            const modal = document.getElementById('algo-modal');
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.display = 'flex';
+                updateAlgorithmList();
+            }
+        }
+
+        function closeAlgorithmModal() {
+            const modal = document.getElementById('algo-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+        }
 
         function selectAlgorithm(algoStr) {
             if (!algoStr) return;
@@ -3214,25 +2643,24 @@ function selectAlgorithmFromModal(value, isLocked, element) {
         }
 
         function updateProUI() {
-    const btn = document.getElementById('pro-status-btn');
-    const lang = localStorage.getItem('rubik_language') || 'uk';
-    const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
-    
-    if (isProUser && btn) {
-        btn.innerText = '🦾 PRO';
-        btn.style.background = '#27ae60';
-    } else if (btn) {
-        btn.innerText = t.pro;
-        btn.style.background = '#f39c12';
-    }
-    updateAlgorithmList();
+            const btn = document.getElementById('pro-status-btn');
+            const lang = localStorage.getItem('rubik_language') || 'uk';
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            
+            if (isProUser && btn) {
+                btn.innerText = '🦾 PRO';
+                btn.style.background = '#27ae60';
+            } else if (btn) {
+                btn.innerText = t.pro;
+                btn.style.background = '#f39c12';
+            }
+            updateAlgorithmList();
 
-    // Захист від зуму на iOS
-    setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.body.style.zoom = 1;
-    }, 50);
-}
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.body.style.zoom = 1;
+            }, 50);
+        }
 
         function openActivationModal() { document.getElementById('pro-modal').style.display = 'flex'; }
         function closeActivationModal() { document.getElementById('pro-modal').style.display = 'none'; }
@@ -3274,9 +2702,6 @@ function selectAlgorithmFromModal(value, isLocked, element) {
             if (!key) return alert('Введіть ключ ліцензії!');
 
             if (key.toUpperCase() === ADMIN_MASTER_KEY) {
-                // Замість alert
-                console.log(t.pro_activated);
-                // або покажіть своє модальне повідомлення
                 const data = {
                     type: 'admin',
                     activatedAt: Date.now()
@@ -3447,48 +2872,37 @@ function selectAlgorithmFromModal(value, isLocked, element) {
 
         // ===== ВСТАНОВЛЕННЯ МОВИ З МИТТЄВИМ ОНОВЛЕННЯМ =====
         function setLanguage(lang, element) {
-            // 1. Оновлюємо активний клас
             document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
             if (element) element.classList.add('active');
             
-            // 2. Зберігаємо мову
             localStorage.setItem('rubik_language', lang);
             
-            // 3. Застосовуємо переклад до ВСІХ елементів
             applyLanguage(lang);
             
-            // 4. Примусово оновлюємо відображення алгоритму
             if (storedAlgoStr) {
                 updateAlgoDisplay();
             }
             
-            // 5. Примусово оновлюємо список алгоритмів
             updateAlgorithmList();
             
-            // 6. Примусово оновлюємо кнопки
             const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             document.querySelector('.action-btn').innerHTML = t.scramble;
             document.getElementById('reset-btn').innerHTML = t.reset;
             
-            // 7. Примусово оновлюємо PRO кнопку
             const proBtn = document.getElementById('pro-status-btn');
             if (proBtn) {
                 proBtn.innerHTML = isProUser ? '🦾 PRO' : t.pro;
             }
             
-            // 8. Примусово оновлюємо режими
             document.getElementById('mode-manual').innerText = t.manual;
             document.getElementById('mode-auto').innerText = t.auto;
             
-            // 9. Примусово оновлюємо Top Bar
             document.querySelector('.stat-badge').innerHTML = t.moves + ' <span id="counter">' + document.getElementById('counter').innerText + '</span>';
             document.getElementById('settings-btn').title = t.settings;
             document.getElementById('sound-btn').title = t.sound;
             
-            // 10. Примусово оновлюємо модальне вікно налаштувань
             document.querySelector('#settings-modal h2').innerHTML = t.settings_title;
             
-            // 11. Примусово оновлюємо назви мов у списку
             const langOptions = document.querySelectorAll('.lang-option');
             const langNames = {
                 'uk': t.lang_uk,
@@ -3510,7 +2924,6 @@ function selectAlgorithmFromModal(value, isLocked, element) {
                 }
             });
             
-            // 12. Примусово оновлюємо соціальні мережі
             const socialLinks = document.querySelectorAll('.social-link');
             const socialData = [
                 { icon: 'icons/facebook.svg', name: t.facebook || 'Facebook' },
@@ -3526,7 +2939,6 @@ function selectAlgorithmFromModal(value, isLocked, element) {
                 }
             });
             
-            // 13. Примусово оновлюємо PRO модальне вікно
             document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
             document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
             document.getElementById('plan-monthly').querySelector('.plan-title').innerText = t.monthly;
@@ -3543,13 +2955,10 @@ function selectAlgorithmFromModal(value, isLocked, element) {
             document.querySelector('#pro-modal .close-modal-btn').innerText = t.close_pro;
             document.getElementById('license-key-input').placeholder = t.enter_key;
             
-            // 14. Оновлюємо заголовок
             document.title = t.share_title + ' PRO';
             
-            // 15. Оновлюємо кнопку "Закрити" в налаштуваннях
             document.querySelector('.settings-close-btn').innerText = t.close;
             
-            // 16. Примусово перемальовуємо весь інтерфейс
             setTimeout(() => {
                 if (renderer && scene && camera) {
                     renderer.render(scene, camera);
@@ -3653,22 +3062,20 @@ function selectAlgorithmFromModal(value, isLocked, element) {
         }
 
         window.addEventListener('load', () => {
-    const canvas = document.getElementById('canvas-container');
-    if (canvas) {
-        canvas.addEventListener('webglcontextlost', handleContextLost, false);
-        canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
-    }
+            const canvas = document.getElementById('canvas-container');
+            if (canvas) {
+                canvas.addEventListener('webglcontextlost', handleContextLost, false);
+                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+            }
 
-    // Запускаємо ініціалізацію, коли браузер повністю готовий
-    init3D();
+            init3D();
 
-    // Невелика затримка для стабілізації WebGL
-    setTimeout(() => {
-        if (renderer && scene && camera) {
-            renderer.render(scene, camera);
-        }
-    }, 50);
-});
+            setTimeout(() => {
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }, 50);
+        });
     </script>
 </body>
 </html>
