@@ -735,7 +735,7 @@
         <div id="algo-modal" class="algo-modal">
             <div class="algo-modal-content">
                 <div class="algo-modal-header">
-                    <span>Виберіть алгоритм</span>
+                    <span id="algo-modal-title">Виберіть алгоритм</span>
                     <button class="algo-modal-close" onclick="closeAlgorithmModal()">✕</button>
                 </div>
                 <div class="algo-list" id="algo-list">
@@ -2371,13 +2371,11 @@
             const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
             document.getElementById('algo-display').innerText = t.choose;
             
-            // ✅ Оновлюємо кнопку вибору алгоритму
             const btn = document.getElementById('alg-select-btn');
             if (btn) {
                 btn.textContent = t.choose_algo;
             }
             
-            // ✅ Знімаємо виділення зі списку
             document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
             
             buildCube();
@@ -2485,21 +2483,21 @@
                 { value: "R U R' U R U2 R'", text: t.sune },
                 { value: "U R U' L' U R' U' L", text: t.four_corners },
                 { optgroup: isProUser ? t.pro_cfop : '🔒 ' + t.pro_cfop },
-                { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune.replace('🔒 ', '') : t.anti_sune, locked: !isProUser },
-                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm.replace('🔒 ', '') : t.j_perm, locked: !isProUser },
-                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm.replace('🔒 ', '') : t.y_perm, locked: !isProUser },
-                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm.replace('🔒 ', '') : t.a_perm, locked: !isProUser },
-                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm.replace('🔒 ', '') : t.ua_perm, locked: !isProUser },
-                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm.replace('🔒 ', '') : t.ub_perm, locked: !isProUser },
-                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm.replace('🔒 ', '') : t.e_perm, locked: !isProUser },
-                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm.replace('🔒 ', '') : t.t_perm, locked: !isProUser },
+                { value: "R U2 R' U' R U' R'", text: isProUser ? t.anti_sune : '🔒 ' + t.anti_sune, locked: !isProUser },
+                { value: "R U R' F' R U R' U' R' F R2 U' R'", text: isProUser ? t.j_perm : '🔒 ' + t.j_perm, locked: !isProUser },
+                { value: "F R U' R' U' R U R' F' R U R' U' R' F R F'", text: isProUser ? t.y_perm : '🔒 ' + t.y_perm, locked: !isProUser },
+                { value: "R' F R' B2 R F' R' B2 R2", text: isProUser ? t.a_perm : '🔒 ' + t.a_perm, locked: !isProUser },
+                { value: "R U' R U R U R U' R' U' R2", text: isProUser ? t.ua_perm : '🔒 ' + t.ua_perm, locked: !isProUser },
+                { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm : '🔒 ' + t.ub_perm, locked: !isProUser },
+                { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm : '🔒 ' + t.e_perm, locked: !isProUser },
+                { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm : '🔒 ' + t.t_perm, locked: !isProUser },
                 { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
-                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube.replace('🔒 ', '') : t.cube_in_cube, locked: !isProUser },
-                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern.replace('🔒 ', '') : t.dot_pattern, locked: !isProUser },
-                { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern.replace('🔒 ', '') : t.snake_pattern, locked: !isProUser },
-                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern.replace('🔒 ', '') : t.stripes_pattern, locked: !isProUser },
-                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross.replace('🔒 ', '') : t.double_cross, locked: !isProUser },
-                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube.replace('🔒 ', '') : t.nested_cube, locked: !isProUser }
+                { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube : '🔒 ' + t.cube_in_cube, locked: !isProUser },
+                { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern : '🔒 ' + t.dot_pattern, locked: !isProUser },
+                { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern : '🔒 ' + t.snake_pattern, locked: !isProUser },
+                { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern : '🔒 ' + t.stripes_pattern, locked: !isProUser },
+                { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross : '🔒 ' + t.double_cross, locked: !isProUser },
+                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube : '🔒 ' + t.nested_cube, locked: !isProUser }
             ];
 
             let html = '';
@@ -2567,6 +2565,15 @@
             if (modal) {
                 modal.classList.add('active');
                 modal.style.display = 'flex';
+                
+                // ✅ Оновлюємо заголовок при відкритті
+                const lang = localStorage.getItem('rubik_language') || 'uk';
+                const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+                const modalTitle = document.getElementById('algo-modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = t.choose_algo;
+                }
+                
                 updateAlgorithmList();
             }
         }
@@ -2812,6 +2819,12 @@
         // ===== ЗАСТОСУВАННЯ ПОВНОГО ПЕРЕКЛАДУ =====
         function applyLanguage(lang) {
             const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
+            
+            // ✅ ОНОВЛЮЄМО ЗАГОЛОВОК МОДАЛЬНОГО ВІКНА АЛГОРИТМІВ
+            const modalTitle = document.getElementById('algo-modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = t.choose_algo;
+            }
             
             // ✅ ОНОВЛЮЄМО КНОПКУ АЛГОРИТМУ
             const btn = document.getElementById('alg-select-btn');
@@ -3067,7 +3080,6 @@
             
             applyLanguage(savedLang);
             
-            // ✅ ОНОВЛЮЄМО КНОПКУ ПРИ ЗАВАНТАЖЕННІ
             const btn = document.getElementById('alg-select-btn');
             const t = TRANSLATIONS[savedLang] || TRANSLATIONS['uk'];
             if (btn && !storedAlgoStr) {
