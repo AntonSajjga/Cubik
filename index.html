@@ -1836,6 +1836,8 @@
         let showLabels = false;
 
         const pivot = new THREE.Group();
+        // ✅ Додаємо змінну для загальної орієнтації куба
+        let cubeQuaternion = new THREE.Quaternion();
         
         const CUBIE_SIZE = 0.98; 
         const PLASTIC_COLOR = '#2b2b32'; 
@@ -2026,6 +2028,8 @@
                 }
             }
             setupFaceLabels();
+            // Скидаємо орієнтацію куба при перебудові
+            cubeQuaternion.identity();
         }
 
         let isFirstRender = true;
@@ -2121,6 +2125,9 @@
 
             window.addEventListener('resize', onWindowResize);
             
+            // Додаємо слухача для оновлення підписів при русі камери
+            controls.addEventListener('change', updateButtonLabels);
+            
             updateProgress(95, t.starting_animation);
             animateLoop();
             
@@ -2182,6 +2189,8 @@
                 }
                 saveState();
                 executeMove(nextMove);
+                // Оновлюємо підписи після руху
+                updateButtonLabels();
             }
             
             controls.update();
@@ -2233,6 +2242,16 @@
                 c.rotation.y = Math.round(c.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
                 c.rotation.z = Math.round(c.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
             });
+
+            // Оновлюємо загальний кватерніон
+            const rotationQuat = new THREE.Quaternion();
+            const axis = new THREE.Vector3();
+            if (face === 'R' || face === 'L') axis.set(1,0,0);
+            else if (face === 'U' || face === 'D') axis.set(0,1,0);
+            else if (face === 'F' || face === 'B') axis.set(0,0,1);
+            rotationQuat.setFromAxisAngle(axis, angle);
+            cubeQuaternion.multiply(rotationQuat);
+            cubeQuaternion.normalize();
         }
 
         function executeMove(moveStr) {
@@ -2283,10 +2302,21 @@
                         c.rotation.z = Math.round(c.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
                     });
                     
+                    // Оновлюємо загальний кватерніон
+                    const rotationQuat = new THREE.Quaternion();
+                    const axis = new THREE.Vector3();
+                    if (face === 'R' || face === 'L') axis.set(1,0,0);
+                    else if (face === 'U' || face === 'D') axis.set(0,1,0);
+                    else if (face === 'F' || face === 'B') axis.set(0,0,1);
+                    rotationQuat.setFromAxisAngle(axis, angle);
+                    cubeQuaternion.multiply(rotationQuat);
+                    cubeQuaternion.normalize();
+
                     isAnimating = false;
                     animFrameId = null;
                     if (isScrambling && moveQueue.length === 0) isScrambling = false;
                     updateResetButtonState();
+                    updateButtonLabels();
                 }
             }
             animFrameId = requestAnimationFrame(animateRotation);
@@ -2319,24 +2349,21 @@
             container.innerHTML = html;
         }
 
-        // ✅ НОВА ФУНКЦІЯ – ДИНАМІЧНЕ ВИЗНАЧЕННЯ ГРАНІ
+        // ===== ДИНАМІЧНЕ ВИЗНАЧЕННЯ ГРАНІ =====
         function getPhysicalFace(virtualLabel) {
-            if (cubies.length === 0 || !camera) return virtualLabel;
-
-            const q = cubies[0].quaternion.clone();
-
+            if (!camera || !cubeQuaternion) return virtualLabel;
+            const q = cubeQuaternion.clone();
             const axes = {
-                'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
-                'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
-                'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
-                'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
-                'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
-                'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
+                'R': new THREE.Vector3(1,0,0).applyQuaternion(q),
+                'L': new THREE.Vector3(-1,0,0).applyQuaternion(q),
+                'U': new THREE.Vector3(0,1,0).applyQuaternion(q),
+                'D': new THREE.Vector3(0,-1,0).applyQuaternion(q),
+                'F': new THREE.Vector3(0,0,1).applyQuaternion(q),
+                'B': new THREE.Vector3(0,0,-1).applyQuaternion(q)
             };
-
             const viewDir = new THREE.Vector3().copy(camera.position).normalize();
-            const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
-            const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+            const rightDir = new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+            const upDir = new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
 
             let targetVec;
             if (virtualLabel === 'F') targetVec = viewDir;
@@ -2347,19 +2374,72 @@
             else if (virtualLabel === 'D') targetVec = upDir.clone().negate();
             else return virtualLabel;
 
-            let maxDot = -Infinity;
-            let bestKey = 'F';
+            let maxDot = -Infinity, bestKey = 'R';
             for (const [key, vec] of Object.entries(axes)) {
                 const dot = vec.dot(targetVec);
-                if (dot > maxDot) {
-                    maxDot = dot;
-                    bestKey = key;
-                }
+                if (dot > maxDot) { maxDot = dot; bestKey = key; }
             }
             return bestKey;
         }
 
-        // ✅ ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ HANDLE MOVE
+        // ===== ФУНКЦІЯ ОНОВЛЕННЯ ПІДПИСІВ НА КНОПКАХ =====
+        function updateButtonLabels() {
+            if (!camera || !cubeQuaternion) return;
+            const q = cubeQuaternion.clone();
+            const axes = {
+                'R': new THREE.Vector3(1,0,0).applyQuaternion(q),
+                'L': new THREE.Vector3(-1,0,0).applyQuaternion(q),
+                'U': new THREE.Vector3(0,1,0).applyQuaternion(q),
+                'D': new THREE.Vector3(0,-1,0).applyQuaternion(q),
+                'F': new THREE.Vector3(0,0,1).applyQuaternion(q),
+                'B': new THREE.Vector3(0,0,-1).applyQuaternion(q)
+            };
+            const viewDir = new THREE.Vector3().copy(camera.position).normalize();
+            const rightDir = new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+            const upDir = new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
+
+            function getBestAxis(target) {
+                let maxDot = -Infinity, best = 'R';
+                for (const [key, vec] of Object.entries(axes)) {
+                    const dot = vec.dot(target);
+                    if (dot > maxDot) { maxDot = dot; best = key; }
+                }
+                return best;
+            }
+
+            const fLabel = getBestAxis(viewDir);
+            const rLabel = getBestAxis(rightDir);
+            const uLabel = getBestAxis(upDir);
+            const bLabel = getBestAxis(viewDir.clone().negate());
+            const lLabel = getBestAxis(rightDir.clone().negate());
+            const dLabel = getBestAxis(upDir.clone().negate());
+
+            // Оновлюємо текст на кнопках
+            document.querySelectorAll('.move-btn').forEach(btn => {
+                let txt = btn.textContent.trim();
+                // Перевіряємо, чи містить апостроф або 2
+                let hasPrime = txt.includes("'");
+                let hasDouble = txt.includes("2");
+                let base = txt.replace(/'/g, '').replace(/2/g, '').trim();
+                let newLabel = base;
+                if (base === 'U') newLabel = uLabel;
+                else if (base === 'D') newLabel = dLabel;
+                else if (base === 'R') newLabel = rLabel;
+                else if (base === 'L') newLabel = lLabel;
+                else if (base === 'F') newLabel = fLabel;
+                else if (base === 'B') newLabel = bLabel;
+                // Додаємо суфікс назад
+                let suffix = '';
+                if (hasPrime) suffix = "'";
+                if (hasDouble) suffix = "2";
+                // Якщо вже є апостроф або 2, не додаємо зайвий раз
+                if (txt.includes("'") && !hasPrime) suffix += "'";
+                if (txt.includes("2") && !hasDouble) suffix += "2";
+                btn.textContent = newLabel + suffix;
+            });
+        }
+
+        // ===== ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ HANDLE MOVE =====
         function handleMove(move) {
             const base = move[0];
             const suffix = move.substring(1);
@@ -2416,6 +2496,7 @@
 
             moveQueue = []; historyMoves = []; activeAlgoSteps = [];
             currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
+            cubeQuaternion.identity(); // скидаємо орієнтацію
             localStorage.removeItem('rubik_cube_save_data');
             document.getElementById('counter').innerText = '0';
             const lang = localStorage.getItem('rubik_language') || 'uk';
@@ -2432,6 +2513,7 @@
             buildCube();
             if (controls) controls.target.set(0, -1.2, 0);
             updateResetButtonState();
+            updateButtonLabels();
         }
 
         function saveState() {
@@ -2484,6 +2566,7 @@
                     document.getElementById('counter').innerText = moveCount;
                     isRestoring = false;
                 }
+                updateButtonLabels();
             } catch (err) {
                 isRestoring = false;
             }
