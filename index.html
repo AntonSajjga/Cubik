@@ -861,7 +861,6 @@
             <button class="close-modal-btn" onclick="closeActivationModal()">Close</button>
         </div>
     </div>
-
     <script>
         // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ) ==========
         const TRANSLATIONS = {
@@ -2320,8 +2319,53 @@
             container.innerHTML = html;
         }
 
-        function handleMove(move) { 
-            moveQueue.push(move); 
+        // ✅ НОВА ФУНКЦІЯ – ДИНАМІЧНЕ ВИЗНАЧЕННЯ ГРАНІ
+        function getPhysicalFace(virtualLabel) {
+            if (cubies.length === 0 || !camera) return virtualLabel;
+
+            const q = cubies[0].quaternion.clone();
+
+            const axes = {
+                'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
+                'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
+                'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
+                'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
+                'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
+                'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
+            };
+
+            const viewDir = new THREE.Vector3().copy(camera.position).normalize();
+            const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+            const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+
+            let targetVec;
+            if (virtualLabel === 'F') targetVec = viewDir;
+            else if (virtualLabel === 'B') targetVec = viewDir.clone().negate();
+            else if (virtualLabel === 'R') targetVec = rightDir;
+            else if (virtualLabel === 'L') targetVec = rightDir.clone().negate();
+            else if (virtualLabel === 'U') targetVec = upDir;
+            else if (virtualLabel === 'D') targetVec = upDir.clone().negate();
+            else return virtualLabel;
+
+            let maxDot = -Infinity;
+            let bestKey = 'F';
+            for (const [key, vec] of Object.entries(axes)) {
+                const dot = vec.dot(targetVec);
+                if (dot > maxDot) {
+                    maxDot = dot;
+                    bestKey = key;
+                }
+            }
+            return bestKey;
+        }
+
+        // ✅ ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ HANDLE MOVE
+        function handleMove(move) {
+            const base = move[0];
+            const suffix = move.substring(1);
+            const physicalBase = getPhysicalFace(base);
+            const physicalMove = physicalBase + suffix;
+            moveQueue.push(physicalMove);
             updateResetButtonState();
         }
 
