@@ -1995,8 +1995,8 @@
     };
 
     const targets = {
-        F: viewDir,
-        B: viewDir.clone().negate(),
+        F: viewDir.clone().negate(),  // грань до камери
+        B: viewDir
         R: rightDir,
         L: rightDir.clone().negate(),
         U: upDir,
@@ -2053,8 +2053,8 @@
     }
 
     const labelMap = {};
-    labelMap[getBestAxis(viewDir)] = 'F';
-    labelMap[getBestAxis(viewDir.clone().negate())] = 'B';
+    labelMap[getBestAxis(viewDir.clone().negate())] = 'F';
+    labelMap[getBestAxis(viewDir)] = 'B';
     labelMap[getBestAxis(rightDir)] = 'R';
     labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
     labelMap[getBestAxis(upDir)] = 'U';
