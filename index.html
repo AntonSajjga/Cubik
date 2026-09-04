@@ -11,7 +11,6 @@
     <meta name="theme-color" content="#529b89">
 
     <style>
-        /* ===== ВЕСЬ ВАШ ОРИГІНАЛЬНИЙ CSS (без змін) ===== */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -862,15 +861,8 @@
             <button class="close-modal-btn" onclick="closeActivationModal()">Close</button>
         </div>
     </div>
-
-    <!-- ===== ПОЧАТОК СКРИПТУ (ЧАСТИНА 2) ===== -->
     <script>
-        // ... (весь JavaScript подано в Частині 2)
-    </script>
-</body>
-</html>
-<script>
-    // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ) – БЕЗ ЗМІН ==========
+    // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ) ==========
     const TRANSLATIONS = {
         'uk': {
             moves: 'Ходів:',
@@ -1805,16 +1797,6 @@
         L: '#0066ff', F: '#ff0055', B: '#ff7700'
     };
     
-    // ========== НОВЕ: ФІКСОВАНІ СВІТОВІ НОРМАЛІ ==========
-    const FACE_NORMALS = {
-        R: new THREE.Vector3(1, 0, 0),
-        L: new THREE.Vector3(-1, 0, 0),
-        U: new THREE.Vector3(0, 1, 0),
-        D: new THREE.Vector3(0, -1, 0),
-        F: new THREE.Vector3(0, 0, 1),
-        B: new THREE.Vector3(0, 0, -1)
-    };
-
     const THEMES = {
         dark: { 
             gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)',
@@ -1835,7 +1817,6 @@
         yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
     };
 
-    // ========== ГЛОБАЛЬНІ ЗМІННІ ==========
     let scene, camera, renderer, controls, cubies = [];
     let moveQueue = [];
     let historyMoves = [];
@@ -1855,7 +1836,9 @@
     let showLabels = false;
 
     const pivot = new THREE.Group();
-    
+    // ===== НОВА ЗМІННА ДЛЯ ОРІЄНТАЦІЇ КУБА =====
+    let cubeQuaternion = new THREE.Quaternion();
+
     const CUBIE_SIZE = 0.98; 
     const PLASTIC_COLOR = '#2b2b32'; 
 
@@ -1975,21 +1958,31 @@
         return sprite;
     }
 
-    // ========== НОВА ФУНКЦІЯ: ВИЗНАЧЕННЯ ФІЗИЧНОЇ ГРАНІ ==========
+    // ========== ВИПРАВЛЕНА ФУНКЦІЯ ВИЗНАЧЕННЯ ФІЗИЧНОЇ ГРАНІ ==========
     function getPhysicalFace(virtualLabel) {
-        if (!camera) return virtualLabel;
+        if (!camera || !cubeQuaternion) return virtualLabel;
 
-        const viewDir = camera.position.clone().normalize();
-        const upDir = camera.up.clone().normalize();
-        const rightDir = new THREE.Vector3().crossVectors(viewDir, upDir).normalize();
+        const q = cubeQuaternion.clone();
+        const axes = {
+            'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
+            'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
+            'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
+            'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
+            'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
+            'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
+        };
+
+        const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+        const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+        const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
 
         const targets = {
             F: viewDir,
             B: viewDir.clone().negate(),
-            U: upDir,
-            D: upDir.clone().negate(),
             R: rightDir,
-            L: rightDir.clone().negate()
+            L: rightDir.clone().negate(),
+            U: upDir,
+            D: upDir.clone().negate()
         };
 
         const target = targets[virtualLabel];
@@ -1997,9 +1990,8 @@
 
         let bestFace = 'F';
         let bestDot = -Infinity;
-
-        for (const [face, normal] of Object.entries(FACE_NORMALS)) {
-            const dot = normal.dot(target);
+        for (const [face, vec] of Object.entries(axes)) {
+            const dot = vec.dot(target);
             if (dot > bestDot) {
                 bestDot = dot;
                 bestFace = face;
@@ -2008,7 +2000,7 @@
         return bestFace;
     }
 
-    // ========== НОВА ФУНКЦІЯ: ОНОВЛЕННЯ ПІДКАЗОК ==========
+    // ========== ВИПРАВЛЕНА ФУНКЦІЯ ОНОВЛЕННЯ ПІДКАЗОК ==========
     function updateFaceLabels() {
         scene.remove(faceLabelsGroup);
         faceLabelsGroup = new THREE.Group();
@@ -2018,26 +2010,57 @@
             return;
         }
 
-        const labelData = [
-            { text: 'U', pos: new THREE.Vector3(0, 2.1, 0), color: COLORS.U },
-            { text: 'D', pos: new THREE.Vector3(0, -2.1, 0), color: COLORS.D },
-            { text: 'R', pos: new THREE.Vector3(2.1, 0, 0), color: COLORS.R },
-            { text: 'L', pos: new THREE.Vector3(-2.1, 0, 0), color: COLORS.L },
-            { text: 'F', pos: new THREE.Vector3(0, 0, 2.1), color: COLORS.F },
-            { text: 'B', pos: new THREE.Vector3(0, 0, -2.1), color: COLORS.B }
-        ];
+        if (!cubeQuaternion) return;
 
-        labelData.forEach(item => {
-            const physical = getPhysicalFace(item.text);
-            const sprite = createLabelSprite(physical, item.color);
-            sprite.position.copy(item.pos);
+        const q = cubeQuaternion.clone();
+        const axes = {
+            'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
+            'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
+            'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
+            'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
+            'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
+            'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
+        };
+
+        const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+        const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+        const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
+
+        function getBestAxis(target) {
+            let maxDot = -Infinity, best = 'R';
+            for (const [key, vec] of Object.entries(axes)) {
+                const dot = vec.dot(target);
+                if (dot > maxDot) { maxDot = dot; best = key; }
+            }
+            return best;
+        }
+
+        const labelMap = {};
+        labelMap[getBestAxis(viewDir)] = 'F';
+        labelMap[getBestAxis(viewDir.clone().negate())] = 'B';
+        labelMap[getBestAxis(rightDir)] = 'R';
+        labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
+        labelMap[getBestAxis(upDir)] = 'U';
+        labelMap[getBestAxis(upDir.clone().negate())] = 'D';
+
+        const colorMap = {
+            'R': '#00ff66', 'L': '#0066ff', 'U': '#fffb00',
+            'D': '#ffffff', 'F': '#ff0055', 'B': '#ff7700'
+        };
+
+        for (const [phys, vec] of Object.entries(axes)) {
+            const letter = labelMap[phys] || phys;
+            const color = colorMap[phys] || '#ffffff';
+            const sprite = createLabelSprite(letter, color);
+            const pos = vec.clone().multiplyScalar(2.1);
+            sprite.position.copy(pos);
             faceLabelsGroup.add(sprite);
-        });
+        }
 
         scene.add(faceLabelsGroup);
     }
 
-    // ========== ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ ВКЛЮЧЕННЯ ПІДКАЗОК ==========
+    // ========== ФУНКЦІЯ ВКЛЮЧЕННЯ ПІДКАЗОК ==========
     function toggleFaceLabels() {
         showLabels = !showLabels;
         if (showLabels) {
@@ -2091,6 +2114,8 @@
                 }
             }
         }
+        // Скидаємо орієнтацію куба
+        cubeQuaternion.identity();
         updateFaceLabels();
     }
 
@@ -2306,6 +2331,17 @@
             c.rotation.y = Math.round(c.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
             c.rotation.z = Math.round(c.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
         });
+
+        // Оновлюємо загальну орієнтацію куба
+        const rotQuat = new THREE.Quaternion();
+        const axis = new THREE.Vector3();
+        if (face === 'R' || face === 'L') axis.set(1, 0, 0);
+        else if (face === 'U' || face === 'D') axis.set(0, 1, 0);
+        else if (face === 'F' || face === 'B') axis.set(0, 0, 1);
+        rotQuat.setFromAxisAngle(axis, angle);
+        cubeQuaternion.multiply(rotQuat);
+        cubeQuaternion.normalize();
+
         updateFaceLabels();
     }
 
@@ -2358,6 +2394,16 @@
                     c.rotation.z = Math.round(c.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
                 });
                 
+                // Оновлюємо загальну орієнтацію куба
+                const rotQuat = new THREE.Quaternion();
+                const axis = new THREE.Vector3();
+                if (face === 'R' || face === 'L') axis.set(1, 0, 0);
+                else if (face === 'U' || face === 'D') axis.set(0, 1, 0);
+                else if (face === 'F' || face === 'B') axis.set(0, 0, 1);
+                rotQuat.setFromAxisAngle(axis, angle);
+                cubeQuaternion.multiply(rotQuat);
+                cubeQuaternion.normalize();
+
                 isAnimating = false;
                 animFrameId = null;
                 if (isScrambling && moveQueue.length === 0) isScrambling = false;
@@ -2464,6 +2510,7 @@
 
         moveQueue = []; historyMoves = []; activeAlgoSteps = [];
         currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
+        cubeQuaternion.identity(); // скидаємо орієнтацію
         localStorage.removeItem('rubik_cube_save_data');
         document.getElementById('counter').innerText = '0';
         const lang = localStorage.getItem('rubik_language') || 'uk';
