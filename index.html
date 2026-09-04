@@ -1977,23 +1977,22 @@
 
     // ========== НОВА ФУНКЦІЯ: ВИЗНАЧЕННЯ ФІЗИЧНОЇ ГРАНІ ==========
     function getPhysicalFace(virtualLabel) {
-    function getPhysicalFace(virtualLabel) {
-    if (!camera || !cubeQuaternion) return virtualLabel;
+    if (!camera) return virtualLabel;
 
-    const q = cubeQuaternion.clone();
-    const axes = {
-        'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
-        'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
-        'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
-        'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
-        'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
-        'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
-    };
-
-    // Напрямки відносно камери (а не світові)
+    // Напрямки відносно камери
     const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
     const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
     const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
+
+    // Фіксовані світові осі (без трансформації)
+    const axes = {
+        'R': new THREE.Vector3(1, 0, 0),
+        'L': new THREE.Vector3(-1, 0, 0),
+        'U': new THREE.Vector3(0, 1, 0),
+        'D': new THREE.Vector3(0, -1, 0),
+        'F': new THREE.Vector3(0, 0, 1),
+        'B': new THREE.Vector3(0, 0, -1)
+    };
 
     const targets = {
         F: viewDir,
@@ -2021,7 +2020,6 @@
 
     // ========== НОВА ФУНКЦІЯ: ОНОВЛЕННЯ ПІДКАЗОК ==========
     function updateFaceLabels() {
-    function updateFaceLabels() {
     scene.remove(faceLabelsGroup);
     faceLabelsGroup = new THREE.Group();
 
@@ -2030,22 +2028,20 @@
         return;
     }
 
-    if (!cubeQuaternion) return;
-
-    const q = cubeQuaternion.clone();
-    const axes = {
-        'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
-        'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
-        'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
-        'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
-        'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
-        'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
-    };
-
     // Напрямки відносно камери
     const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
     const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
     const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
+
+    // Фіксовані світові осі
+    const axes = {
+        'R': new THREE.Vector3(1, 0, 0),
+        'L': new THREE.Vector3(-1, 0, 0),
+        'U': new THREE.Vector3(0, 1, 0),
+        'D': new THREE.Vector3(0, -1, 0),
+        'F': new THREE.Vector3(0, 0, 1),
+        'B': new THREE.Vector3(0, 0, -1)
+    };
 
     function getBestAxis(target) {
         let maxDot = -Infinity, best = 'R';
@@ -2069,11 +2065,20 @@
         'D': '#ffffff', 'F': '#ff0055', 'B': '#ff7700'
     };
 
-    for (const [phys, vec] of Object.entries(axes)) {
+    // Позиції спрайтів – фіксовані (як у вашому оригіналі)
+    const positions = {
+        'R': new THREE.Vector3(2.1, 0, 0),
+        'L': new THREE.Vector3(-2.1, 0, 0),
+        'U': new THREE.Vector3(0, 2.1, 0),
+        'D': new THREE.Vector3(0, -2.1, 0),
+        'F': new THREE.Vector3(0, 0, 2.1),
+        'B': new THREE.Vector3(0, 0, -2.1)
+    };
+
+    for (const [phys, pos] of Object.entries(positions)) {
         const letter = labelMap[phys] || phys;
         const color = colorMap[phys] || '#ffffff';
         const sprite = createLabelSprite(letter, color);
-        const pos = vec.clone().multiplyScalar(2.1);
         sprite.position.copy(pos);
         faceLabelsGroup.add(sprite);
     }
