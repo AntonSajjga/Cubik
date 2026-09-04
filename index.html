@@ -1977,65 +1977,109 @@
 
     // ========== НОВА ФУНКЦІЯ: ВИЗНАЧЕННЯ ФІЗИЧНОЇ ГРАНІ ==========
     function getPhysicalFace(virtualLabel) {
-        if (!camera) return virtualLabel;
+    function getPhysicalFace(virtualLabel) {
+    if (!camera || !cubeQuaternion) return virtualLabel;
 
-        const viewDir = camera.position.clone().normalize();
-        const upDir = camera.up.clone().normalize();
-        const rightDir = new THREE.Vector3().crossVectors(viewDir, upDir).normalize();
+    const q = cubeQuaternion.clone();
+    const axes = {
+        'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
+        'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
+        'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
+        'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
+        'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
+        'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
+    };
 
-        const targets = {
-            F: viewDir,
-            B: viewDir.clone().negate(),
-            U: upDir,
-            D: upDir.clone().negate(),
-            R: rightDir,
-            L: rightDir.clone().negate()
-        };
+    // Напрямки відносно камери (а не світові)
+    const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+    const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+    const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
 
-        const target = targets[virtualLabel];
-        if (!target) return virtualLabel;
+    const targets = {
+        F: viewDir,
+        B: viewDir.clone().negate(),
+        R: rightDir,
+        L: rightDir.clone().negate(),
+        U: upDir,
+        D: upDir.clone().negate()
+    };
 
-        let bestFace = 'F';
-        let bestDot = -Infinity;
+    const target = targets[virtualLabel];
+    if (!target) return virtualLabel;
 
-        for (const [face, normal] of Object.entries(FACE_NORMALS)) {
-            const dot = normal.dot(target);
-            if (dot > bestDot) {
-                bestDot = dot;
-                bestFace = face;
-            }
+    let bestFace = 'F';
+    let bestDot = -Infinity;
+    for (const [face, vec] of Object.entries(axes)) {
+        const dot = vec.dot(target);
+        if (dot > bestDot) {
+            bestDot = dot;
+            bestFace = face;
         }
-        return bestFace;
     }
+    return bestFace;
+}
 
     // ========== НОВА ФУНКЦІЯ: ОНОВЛЕННЯ ПІДКАЗОК ==========
     function updateFaceLabels() {
-        scene.remove(faceLabelsGroup);
-        faceLabelsGroup = new THREE.Group();
+    function updateFaceLabels() {
+    scene.remove(faceLabelsGroup);
+    faceLabelsGroup = new THREE.Group();
 
-        if (!showLabels) {
-            scene.add(faceLabelsGroup);
-            return;
-        }
-
-        const labelData = [
-            { text: 'U', pos: new THREE.Vector3(0, 2.1, 0), color: COLORS.U },
-            { text: 'D', pos: new THREE.Vector3(0, -2.1, 0), color: COLORS.D },
-            { text: 'R', pos: new THREE.Vector3(2.1, 0, 0), color: COLORS.R },
-            { text: 'L', pos: new THREE.Vector3(-2.1, 0, 0), color: COLORS.L },
-            { text: 'F', pos: new THREE.Vector3(0, 0, 2.1), color: COLORS.F },
-            { text: 'B', pos: new THREE.Vector3(0, 0, -2.1), color: COLORS.B }
-        ];
-
-        labelData.forEach(item => {
-            const physical = getPhysicalFace(item.text);
-            const sprite = createLabelSprite(physical, item.color);
-            sprite.position.copy(item.pos);
-            faceLabelsGroup.add(sprite);
-        });
-
+    if (!showLabels) {
         scene.add(faceLabelsGroup);
+        return;
     }
+
+    if (!cubeQuaternion) return;
+
+    const q = cubeQuaternion.clone();
+    const axes = {
+        'R': new THREE.Vector3(1, 0, 0).applyQuaternion(q),
+        'L': new THREE.Vector3(-1, 0, 0).applyQuaternion(q),
+        'U': new THREE.Vector3(0, 1, 0).applyQuaternion(q),
+        'D': new THREE.Vector3(0, -1, 0).applyQuaternion(q),
+        'F': new THREE.Vector3(0, 0, 1).applyQuaternion(q),
+        'B': new THREE.Vector3(0, 0, -1).applyQuaternion(q)
+    };
+
+    // Напрямки відносно камери
+    const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+    const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+    const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
+
+    function getBestAxis(target) {
+        let maxDot = -Infinity, best = 'R';
+        for (const [key, vec] of Object.entries(axes)) {
+            const dot = vec.dot(target);
+            if (dot > maxDot) { maxDot = dot; best = key; }
+        }
+        return best;
+    }
+
+    const labelMap = {};
+    labelMap[getBestAxis(viewDir)] = 'F';
+    labelMap[getBestAxis(viewDir.clone().negate())] = 'B';
+    labelMap[getBestAxis(rightDir)] = 'R';
+    labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
+    labelMap[getBestAxis(upDir)] = 'U';
+    labelMap[getBestAxis(upDir.clone().negate())] = 'D';
+
+    const colorMap = {
+        'R': '#00ff66', 'L': '#0066ff', 'U': '#fffb00',
+        'D': '#ffffff', 'F': '#ff0055', 'B': '#ff7700'
+    };
+
+    for (const [phys, vec] of Object.entries(axes)) {
+        const letter = labelMap[phys] || phys;
+        const color = colorMap[phys] || '#ffffff';
+        const sprite = createLabelSprite(letter, color);
+        const pos = vec.clone().multiplyScalar(2.1);
+        sprite.position.copy(pos);
+        faceLabelsGroup.add(sprite);
+    }
+
+    scene.add(faceLabelsGroup);
+}
 
     // ========== ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ ВКЛЮЧЕННЯ ПІДКАЗОК ==========
     function toggleFaceLabels() {
