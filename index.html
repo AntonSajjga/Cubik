@@ -865,12 +865,12 @@
 
     <!-- ===== ПОЧАТОК СКРИПТУ (ЧАСТИНА 2) ===== -->
     <script>
-        // ... (весь JavaScript подано в Частині 2)
+        // ... (весь JavaScript подано в Частині 2 та 3)
     </script>
 </body>
 </html>
 <script>
-    // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ) – БЕЗ ЗМІН ==========
+    // ========== ПОВНИЙ СЛОВНИК ПЕРЕКЛАДІВ (10 МОВ) – ДОДАНО НОВІ КЛЮЧІ ==========
     const TRANSLATIONS = {
         'uk': {
             moves: 'Ходів:',
@@ -960,7 +960,11 @@
             building_cube: 'Побудова кубика...',
             checking_pro: 'Перевірка PRO статусу...',
             starting_animation: 'Запуск анімації...',
-            done: 'Готово!'
+            done: 'Готово!',
+            // НОВІ КЛЮЧІ ДЛЯ АЛГОРИТМІВ
+            cross_oll: 'Жовтий хрест',
+            edge_insert_right: 'Вставка ребра вправо',
+            edge_insert_left: 'Вставка ребра вліво'
         },
         'en': {
             moves: 'Moves:',
@@ -1050,7 +1054,10 @@
             building_cube: 'Building cube...',
             checking_pro: 'Checking PRO status...',
             starting_animation: 'Starting animation...',
-            done: 'Done!'
+            done: 'Done!',
+            cross_oll: 'Yellow Cross',
+            edge_insert_right: 'Insert edge right',
+            edge_insert_left: 'Insert edge left'
         },
         'de': {
             moves: 'Züge:',
@@ -1140,7 +1147,10 @@
             building_cube: 'Würfel wird gebaut...',
             checking_pro: 'PRO-Status wird geprüft...',
             starting_animation: 'Animation wird gestartet...',
-            done: 'Fertig!'
+            done: 'Fertig!',
+            cross_oll: 'Gelbes Kreuz',
+            edge_insert_right: 'Kante rechts einsetzen',
+            edge_insert_left: 'Kante links einsetzen'
         },
         'fr': {
             moves: 'Mouvements:',
@@ -1230,7 +1240,10 @@
             building_cube: 'Construction du cube...',
             checking_pro: 'Vérification du statut PRO...',
             starting_animation: 'Démarrage de l\'animation...',
-            done: 'Terminé !'
+            done: 'Terminé !',
+            cross_oll: 'Croix jaune',
+            edge_insert_right: 'Insérer l\'arête droite',
+            edge_insert_left: 'Insérer l\'arête gauche'
         },
         'es': {
             moves: 'Movimientos:',
@@ -1320,7 +1333,10 @@
             building_cube: 'Construyendo el cubo...',
             checking_pro: 'Comprobando estado PRO...',
             starting_animation: 'Iniciando animación...',
-            done: '¡Listo!'
+            done: '¡Listo!',
+            cross_oll: 'Cruz amarilla',
+            edge_insert_right: 'Insertar arista derecha',
+            edge_insert_left: 'Insertar arista izquierda'
         },
         'it': {
             moves: 'Mosse:',
@@ -1410,7 +1426,10 @@
             building_cube: 'Costruzione del cubo...',
             checking_pro: 'Controllo stato PRO...',
             starting_animation: 'Avvio animazione...',
-            done: 'Fatto!'
+            done: 'Fatto!',
+            cross_oll: 'Croce gialla',
+            edge_insert_right: 'Inserire spigolo destro',
+            edge_insert_left: 'Inserire spigolo sinistro'
         },
         'pl': {
             moves: 'Ruchy:',
@@ -1500,7 +1519,10 @@
             building_cube: 'Budowanie kostki...',
             checking_pro: 'Sprawdzanie statusu PRO...',
             starting_animation: 'Uruchamianie animacji...',
-            done: 'Gotowe!'
+            done: 'Gotowe!',
+            cross_oll: 'Żółty krzyż',
+            edge_insert_right: 'Wstaw krawędź prawą',
+            edge_insert_left: 'Wstaw krawędź lewą'
         },
         'pt': {
             moves: 'Movimentos:',
@@ -1590,7 +1612,10 @@
             building_cube: 'Construindo o cubo...',
             checking_pro: 'Verificando status PRO...',
             starting_animation: 'Iniciando animação...',
-            done: 'Concluído!'
+            done: 'Concluído!',
+            cross_oll: 'Cruz amarela',
+            edge_insert_right: 'Inserir aresta direita',
+            edge_insert_left: 'Inserir aresta esquerda'
         },
         'ja': {
             moves: '手数:',
@@ -1680,7 +1705,10 @@
             building_cube: 'キューブを構築中...',
             checking_pro: 'PROステータスを確認中...',
             starting_animation: 'アニメーションを開始中...',
-            done: '完了！'
+            done: '完了！',
+            cross_oll: '黄色いクロス',
+            edge_insert_right: '右エッジを挿入',
+            edge_insert_left: '左エッジを挿入'
         },
         'ko': {
             moves: '이동:',
@@ -1770,7 +1798,10 @@
             building_cube: '큐브 구성 중...',
             checking_pro: 'PRO 상태 확인 중...',
             starting_animation: '애니메이션 시작 중...',
-            done: '완료!'
+            done: '완료!',
+            cross_oll: '노란색 십자가',
+            edge_insert_right: '오른쪽 모서리 삽입',
+            edge_insert_left: '왼쪽 모서리 삽입'
         }
     };
 
@@ -1805,7 +1836,6 @@
         L: '#0066ff', F: '#ff0055', B: '#ff7700'
     };
     
-    // ========== НОВЕ: ФІКСОВАНІ СВІТОВІ НОРМАЛІ ==========
     const FACE_NORMALS = {
         R: new THREE.Vector3(1, 0, 0),
         L: new THREE.Vector3(-1, 0, 0),
@@ -1975,120 +2005,112 @@
         return sprite;
     }
 
-    // ========== НОВА ФУНКЦІЯ: ВИЗНАЧЕННЯ ФІЗИЧНОЇ ГРАНІ ==========
+    // ========== ФУНКЦІЯ ВИЗНАЧЕННЯ ФІЗИЧНОЇ ГРАНІ ==========
     function getPhysicalFace(virtualLabel) {
-    if (!camera) return virtualLabel;
+        if (!camera) return virtualLabel;
 
-    // Напрямки відносно камери
-    const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
-    const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
-    const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
+        const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+        const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+        const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
 
-    // Фіксовані світові осі (без трансформації)
-    const axes = {
-        'R': new THREE.Vector3(1, 0, 0),
-        'L': new THREE.Vector3(-1, 0, 0),
-        'U': new THREE.Vector3(0, 1, 0),
-        'D': new THREE.Vector3(0, -1, 0),
-        'F': new THREE.Vector3(0, 0, 1),
-        'B': new THREE.Vector3(0, 0, -1)
-    };
+        const axes = {
+            'R': new THREE.Vector3(1, 0, 0),
+            'L': new THREE.Vector3(-1, 0, 0),
+            'U': new THREE.Vector3(0, 1, 0),
+            'D': new THREE.Vector3(0, -1, 0),
+            'F': new THREE.Vector3(0, 0, 1),
+            'B': new THREE.Vector3(0, 0, -1)
+        };
 
-    const targets = {
-    // Грань, яка дивиться на камеру, має нормаль ≈ -viewDir
-    F: viewDir.clone().negate(),
-    B: viewDir,
-    R: rightDir,
-    L: rightDir.clone().negate(),
-    U: upDir,
-    D: upDir.clone().negate()
-};
+        const targets = {
+            F: viewDir.clone().negate(),
+            B: viewDir,
+            R: rightDir,
+            L: rightDir.clone().negate(),
+            U: upDir,
+            D: upDir.clone().negate()
+        };
 
-    const target = targets[virtualLabel];
-    if (!target) return virtualLabel;
+        const target = targets[virtualLabel];
+        if (!target) return virtualLabel;
 
-    let bestFace = 'F';
-    let bestDot = -Infinity;
-    for (const [face, vec] of Object.entries(axes)) {
-        const dot = vec.dot(target);
-        if (dot > bestDot) {
-            bestDot = dot;
-            bestFace = face;
-        }
-    }
-    return bestFace;
-}
-
-    // ========== НОВА ФУНКЦІЯ: ОНОВЛЕННЯ ПІДКАЗОК ==========
-    function updateFaceLabels() {
-    scene.remove(faceLabelsGroup);
-    faceLabelsGroup = new THREE.Group();
-
-    if (!showLabels) {
-        scene.add(faceLabelsGroup);
-        return;
-    }
-
-    // Напрямки відносно камери
-    const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
-    const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
-    const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
-
-    // Фіксовані світові осі
-    const axes = {
-        'R': new THREE.Vector3(1, 0, 0),
-        'L': new THREE.Vector3(-1, 0, 0),
-        'U': new THREE.Vector3(0, 1, 0),
-        'D': new THREE.Vector3(0, -1, 0),
-        'F': new THREE.Vector3(0, 0, 1),
-        'B': new THREE.Vector3(0, 0, -1)
-    };
-
-    function getBestAxis(target) {
-        let maxDot = -Infinity, best = 'R';
-        for (const [key, vec] of Object.entries(axes)) {
+        let bestFace = 'F';
+        let bestDot = -Infinity;
+        for (const [face, vec] of Object.entries(axes)) {
             const dot = vec.dot(target);
-            if (dot > maxDot) { maxDot = dot; best = key; }
+            if (dot > bestDot) {
+                bestDot = dot;
+                bestFace = face;
+            }
         }
-        return best;
+        return bestFace;
     }
 
-    const labelMap = {};
-// Грань, яка дивиться на камеру (нормаль ≈ -viewDir) = F
-labelMap[getBestAxis(viewDir.clone().negate())] = 'F';
-labelMap[getBestAxis(viewDir)] = 'B';
-labelMap[getBestAxis(rightDir)] = 'R';
-labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
-labelMap[getBestAxis(upDir)] = 'U';
-labelMap[getBestAxis(upDir.clone().negate())] = 'D';
+    // ========== ФУНКЦІЯ ОНОВЛЕННЯ ПІДКАЗОК ==========
+    function updateFaceLabels() {
+        scene.remove(faceLabelsGroup);
+        faceLabelsGroup = new THREE.Group();
 
-    const colorMap = {
-        'R': '#00ff66', 'L': '#0066ff', 'U': '#fffb00',
-        'D': '#ffffff', 'F': '#ff0055', 'B': '#ff7700'
-    };
+        if (!showLabels) {
+            scene.add(faceLabelsGroup);
+            return;
+        }
 
-    // Позиції спрайтів – фіксовані (як у вашому оригіналі)
-    const positions = {
-        'R': new THREE.Vector3(2.1, 0, 0),
-        'L': new THREE.Vector3(-2.1, 0, 0),
-        'U': new THREE.Vector3(0, 2.1, 0),
-        'D': new THREE.Vector3(0, -2.1, 0),
-        'F': new THREE.Vector3(0, 0, 2.1),
-        'B': new THREE.Vector3(0, 0, -2.1)
-    };
+        const viewDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+        const rightDir = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+        const upDir = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
 
-    for (const [phys, pos] of Object.entries(positions)) {
-        const letter = labelMap[phys] || phys;
-        const color = colorMap[phys] || '#ffffff';
-        const sprite = createLabelSprite(letter, color);
-        sprite.position.copy(pos);
-        faceLabelsGroup.add(sprite);
+        const axes = {
+            'R': new THREE.Vector3(1, 0, 0),
+            'L': new THREE.Vector3(-1, 0, 0),
+            'U': new THREE.Vector3(0, 1, 0),
+            'D': new THREE.Vector3(0, -1, 0),
+            'F': new THREE.Vector3(0, 0, 1),
+            'B': new THREE.Vector3(0, 0, -1)
+        };
+
+        function getBestAxis(target) {
+            let maxDot = -Infinity, best = 'R';
+            for (const [key, vec] of Object.entries(axes)) {
+                const dot = vec.dot(target);
+                if (dot > maxDot) { maxDot = dot; best = key; }
+            }
+            return best;
+        }
+
+        const labelMap = {};
+        labelMap[getBestAxis(viewDir.clone().negate())] = 'F';
+        labelMap[getBestAxis(viewDir)] = 'B';
+        labelMap[getBestAxis(rightDir)] = 'R';
+        labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
+        labelMap[getBestAxis(upDir)] = 'U';
+        labelMap[getBestAxis(upDir.clone().negate())] = 'D';
+
+        const colorMap = {
+            'R': '#00ff66', 'L': '#0066ff', 'U': '#fffb00',
+            'D': '#ffffff', 'F': '#ff0055', 'B': '#ff7700'
+        };
+
+        const positions = {
+            'R': new THREE.Vector3(2.1, 0, 0),
+            'L': new THREE.Vector3(-2.1, 0, 0),
+            'U': new THREE.Vector3(0, 2.1, 0),
+            'D': new THREE.Vector3(0, -2.1, 0),
+            'F': new THREE.Vector3(0, 0, 2.1),
+            'B': new THREE.Vector3(0, 0, -2.1)
+        };
+
+        for (const [phys, pos] of Object.entries(positions)) {
+            const letter = labelMap[phys] || phys;
+            const color = colorMap[phys] || '#ffffff';
+            const sprite = createLabelSprite(letter, color);
+            sprite.position.copy(pos);
+            faceLabelsGroup.add(sprite);
+        }
+
+        scene.add(faceLabelsGroup);
     }
 
-    scene.add(faceLabelsGroup);
-}
-
-    // ========== ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ ВКЛЮЧЕННЯ ПІДКАЗОК ==========
     function toggleFaceLabels() {
         showLabels = !showLabels;
         if (showLabels) {
@@ -2144,7 +2166,8 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         }
         updateFaceLabels();
     }
-
+</script>
+<script>
     // ========== ІНІЦІАЛІЗАЦІЯ 3D ==========
     let isFirstRender = true;
 
@@ -2205,7 +2228,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         controls.maxDistance = 25;
         controls.zoomSpeed = -1.2;
 
-        // Оновлюємо підказки при зміні камери
         controls.addEventListener('change', function() {
             if (showLabels) updateFaceLabels();
         });
@@ -2323,7 +2345,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         });
     }
 
-    // ========== ВИКОНАННЯ МИТТЄВОГО РУХУ ==========
     function executeInstantMove(moveStr) {
         const isPrime = moveStr.includes("'");
         const isDouble = moveStr.includes("2");
@@ -2360,7 +2381,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         updateFaceLabels();
     }
 
-    // ========== ВИКОНАННЯ РУХУ З АНІМАЦІЄЮ ==========
     function executeMove(moveStr) {
         isAnimating = true;
         updateResetButtonState();
@@ -2419,7 +2439,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         animFrameId = requestAnimationFrame(animateRotation);
     }
 
-    // ========== ОНОВЛЕННЯ ВІДОБРАЖЕННЯ АЛГОРИТМУ ==========
     function updateAlgoDisplay() {
         const container = document.getElementById('algo-display');
         const lang = localStorage.getItem('rubik_language') || 'uk';
@@ -2447,7 +2466,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         container.innerHTML = html;
     }
 
-    // ========== ПЕРЕВИЗНАЧЕНА ФУНКЦІЯ ОБРОБКИ РУХУ ==========
     function handleMove(move) {
         const base = move[0];
         const suffix = move.substring(1);
@@ -2457,20 +2475,18 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         updateResetButtonState();
     }
 
-    // ========== ПЕРЕВИЗНАЧЕНИЙ РЕЖИМ ==========
     function setMode(mode) {
         if (mode === 'auto' && storedAlgoStr && activeAlgoSteps.length > 0) {
-    moveQueue = [];
-    // Показуємо оригінальні літери, а крутимо відносно поточної орієнтації
-    activeAlgoSteps = storedAlgoStr.split(' ');
-    currentStepIndex = -1;
-    activeAlgoSteps.forEach(step => {
-        const base = step[0];
-        const suffix = step.slice(1);
-        moveQueue.push(getPhysicalFace(base) + suffix);
-    });
-    updateAlgoDisplay();
-}
+            moveQueue = [];
+            activeAlgoSteps = storedAlgoStr.split(' ');
+            currentStepIndex = -1;
+            activeAlgoSteps.forEach(step => {
+                const base = step[0];
+                const suffix = step.slice(1);
+                moveQueue.push(getPhysicalFace(base) + suffix);
+            });
+            updateAlgoDisplay();
+        }
         
         currentMode = mode;
         document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
@@ -2486,7 +2502,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         saveState();
     }
 
-    // ========== ПЕРЕВИЗНАЧЕНИЙ SCRAMBLE ==========
     function triggerScramble() {
         isScrambling = true;
         updateResetButtonState();
@@ -2499,7 +2514,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         }
     }
 
-    // ========== ПЕРЕВИЗНАЧЕНИЙ RESET ==========
     function triggerReset() {
         if (animFrameId) {
             cancelAnimationFrame(animFrameId);
@@ -2534,7 +2548,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         updateFaceLabels();
     }
 
-    // ========== ЗБЕРЕЖЕННЯ СТАНУ ==========
     function saveState() {
         localStorage.setItem('rubik_cube_save_data', JSON.stringify({
             historyMoves: historyMoves,
@@ -2544,7 +2557,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         }));
     }
 
-    // ========== ВІДНОВЛЕННЯ СТАНУ ==========
     function loadSavedStateSync() {
         const savedRaw = localStorage.getItem('rubik_cube_save_data');
         if (!savedRaw) return;
@@ -2592,7 +2604,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         }
     }
     
-    // ========== ПЕРЕМИКАННЯ ТЕМ ==========
     function switchTheme(themeKey, element) {
         document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
         element.classList.add('active');
@@ -2620,7 +2631,7 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         renderer.setSize(w, h);
     }
 
-    // ========== ОРИГІНАЛЬНІ ФУНКЦІЇ ДЛЯ АЛГОРИТМІВ (БЕЗ ЗМІН) ==========
+    // ========== ОНОВЛЕНА ФУНКЦІЯ updateAlgorithmList (з новими алгоритмами) ==========
     function updateAlgorithmList() {
         const lang = localStorage.getItem('rubik_language') || 'uk';
         const t = TRANSLATIONS[lang] || TRANSLATIONS['uk'];
@@ -2645,6 +2656,12 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
             { value: "R2 U R U R' U' R' U' R' U R'", text: isProUser ? t.ub_perm : '🔒 ' + t.ub_perm, locked: !isProUser },
             { value: "R' U R' U' R D' R' D R' U2 R D' R' D R2", text: isProUser ? t.e_perm : '🔒 ' + t.e_perm, locked: !isProUser },
             { value: "R U R' U' R' F R2 U' R' U' R U R' F'", text: isProUser ? t.t_perm : '🔒 ' + t.t_perm, locked: !isProUser },
+            
+            // ===== НОВІ АЛГОРИТМИ ДЛЯ ПОВНОГО ЗБИРАННЯ =====
+            { value: "F R U R' U' F'", text: isProUser ? t.cross_oll : '🔒 ' + t.cross_oll, locked: !isProUser },
+            { value: "U R U' R' U' F' U F", text: isProUser ? t.edge_insert_right : '🔒 ' + t.edge_insert_right, locked: !isProUser },
+            { value: "U' L' U L U F U' F'", text: isProUser ? t.edge_insert_left : '🔒 ' + t.edge_insert_left, locked: !isProUser },
+            
             { optgroup: isProUser ? t.pro_patterns : '🔒 ' + t.pro_patterns },
             { value: "F R U R' U' F' R U R' U' R' F R F'", text: isProUser ? t.cube_in_cube : '🔒 ' + t.cube_in_cube, locked: !isProUser },
             { value: "U F B' R2 B2 L2 U' D' R2 F R' L B2 U' F2 B R2 D' F2 U2", text: isProUser ? t.dot_pattern : '🔒 ' + t.dot_pattern, locked: !isProUser },
@@ -2777,7 +2794,11 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
                 { value: "R L U2 R' L' U2", text: t.snake_pattern },
                 { value: "F2 R2 F2 R2 F2 R2", text: t.stripes_pattern },
                 { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: t.double_cross },
-                { value: "R U2 L' D2 R' U2 L D2", text: t.nested_cube }
+                { value: "R U2 L' D2 R' U2 L D2", text: t.nested_cube },
+                // Нові алгоритми для вибору з кнопки
+                { value: "F R U R' U' F'", text: t.cross_oll },
+                { value: "U R U' R' U' F' U F", text: t.edge_insert_right },
+                { value: "U' L' U L U F U' F'", text: t.edge_insert_left }
             ];
             const found = optionsData.find(o => o.value === algoStr);
             btn.textContent = found ? found.text : t.choose_algo;
@@ -3001,7 +3022,10 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
                     { value: "R L U2 R' L' U2", text: t.snake_pattern },
                     { value: "F2 R2 F2 R2 F2 R2", text: t.stripes_pattern },
                     { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: t.double_cross },
-                    { value: "R U2 L' D2 R' U2 L D2", text: t.nested_cube }
+                    { value: "R U2 L' D2 R' U2 L D2", text: t.nested_cube },
+                    { value: "F R U R' U' F'", text: t.cross_oll },
+                    { value: "U R U' R' U' F' U F", text: t.edge_insert_right },
+                    { value: "U' L' U L U F U' F'", text: t.edge_insert_left }
                 ];
                 const found = optionsData.find(o => o.value === storedAlgoStr);
                 btn.textContent = found ? found.text : t.choose_algo;
@@ -3325,7 +3349,6 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
         });
     }
 
-    // Перевизначаємо функції для PRO-модалки
     const origOpen = openActivationModal;
     openActivationModal = function() {
         document.getElementById('pro-modal').style.display = 'flex';
