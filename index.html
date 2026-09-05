@@ -1995,13 +1995,14 @@
     };
 
     const targets = {
-        F: viewDir.clone().negate(),  // грань до камери
-        B: viewDir
-        R: rightDir,
-        L: rightDir.clone().negate(),
-        U: upDir,
-        D: upDir.clone().negate()
-    };
+    // Грань, яка дивиться на камеру, має нормаль ≈ -viewDir
+    F: viewDir.clone().negate(),
+    B: viewDir,
+    R: rightDir,
+    L: rightDir.clone().negate(),
+    U: upDir,
+    D: upDir.clone().negate()
+};
 
     const target = targets[virtualLabel];
     if (!target) return virtualLabel;
@@ -2053,12 +2054,13 @@
     }
 
     const labelMap = {};
-    labelMap[getBestAxis(viewDir.clone().negate())] = 'F';
-    labelMap[getBestAxis(viewDir)] = 'B';
-    labelMap[getBestAxis(rightDir)] = 'R';
-    labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
-    labelMap[getBestAxis(upDir)] = 'U';
-    labelMap[getBestAxis(upDir.clone().negate())] = 'D';
+// Грань, яка дивиться на камеру (нормаль ≈ -viewDir) = F
+labelMap[getBestAxis(viewDir.clone().negate())] = 'F';
+labelMap[getBestAxis(viewDir)] = 'B';
+labelMap[getBestAxis(rightDir)] = 'R';
+labelMap[getBestAxis(rightDir.clone().negate())] = 'L';
+labelMap[getBestAxis(upDir)] = 'U';
+labelMap[getBestAxis(upDir.clone().negate())] = 'D';
 
     const colorMap = {
         'R': '#00ff66', 'L': '#0066ff', 'U': '#fffb00',
