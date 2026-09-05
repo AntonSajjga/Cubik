@@ -2460,17 +2460,13 @@ labelMap[getBestAxis(upDir.clone().negate())] = 'D';
     // ========== ПЕРЕВИЗНАЧЕНИЙ РЕЖИМ ==========
     function setMode(mode) {
         if (mode === 'auto' && storedAlgoStr && activeAlgoSteps.length > 0) {
-            moveQueue = [];
-            // Перетворюємо кроки алгоритму на фізичні грані
-            activeAlgoSteps = storedAlgoStr.split(' ').map(step => {
-                const base = step[0];
-                const suffix = step.slice(1);
-                return getPhysicalFace(base) + suffix;
-            });
-            currentStepIndex = -1;
-            activeAlgoSteps.forEach(step => moveQueue.push(step));
-            updateAlgoDisplay();
-        }
+    moveQueue = [];
+    // Виконуємо алгоритм строго за оригінальними літерами (без перетворення)
+    activeAlgoSteps = storedAlgoStr.split(' ');
+    currentStepIndex = -1;
+    activeAlgoSteps.forEach(step => moveQueue.push(step));
+    updateAlgoDisplay();
+}
         
         currentMode = mode;
         document.querySelectorAll('.mode-toggle').forEach(el => el.classList.remove('active'));
