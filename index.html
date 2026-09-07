@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Кубик Рубіка 3D PRO</title>
     
     <link rel="manifest" href="manifest.json">
@@ -85,6 +85,10 @@
             border: 1px solid var(--border-color); backdrop-filter: blur(15px); 
             display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             touch-action: none;
+            max-width: 95vw;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
         .stat-badge span { color: #00d2ff; font-size: 13px; }
@@ -120,12 +124,14 @@
         .theme-dot.active { border-color: #fff; transform: scale(1.1); }
 
         #controls-panel { 
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 10; 
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
             width: 100%; max-width: 100%; background: var(--bg-panel); 
             border-top: 1px solid var(--border-color); padding: 12px 10px 15px 10px; backdrop-filter: blur(20px); 
             box-shadow: 0 -5px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 8px; 
             border-radius: 20px 20px 0 0;
             touch-action: none;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .algo-header-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
@@ -150,7 +156,7 @@
         .algo-step.current { background: #c0392b; color: #ffffff; transform: scale(1.15); box-shadow: 0 0 5px #c0392b; }
         .algo-step.done { color: #555566; }
         
-        .button-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+        .button-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; max-width: 100%; }
         
         button.move-btn { 
             background: var(--btn-bg); border: none; color: #fff; 
@@ -666,6 +672,12 @@
         .algo-item.locked {
             opacity: 0.55;
         }
+
+        /* Додатково для доступності */
+        button:focus-visible {
+            outline: 2px solid #00d2ff;
+            outline-offset: 2px;
+        }
     </style>
 
     <script src="js/three.min.js"></script>
@@ -696,8 +708,8 @@
     
     <div id="top-bar">
         <div class="stat-badge">Ходів: <span id="counter">0</span></div>
-        <button id="settings-btn" class="settings-btn" onclick="openSettings()" title="Налаштування">⚙️</button>
-        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Звук">🔊</button>
+        <button id="settings-btn" class="settings-btn" onclick="openSettings()" title="Налаштування" aria-label="Налаштування">⚙️</button>
+        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Звук" aria-label="Звук">🔊</button>
         <div class="theme-dots">
             <div class="theme-dot" style="background: #09090e;" onclick="switchTheme('dark', this)"></div>
             <div class="theme-dot active" style="background: #529b89;" onclick="switchTheme('mint', this)"></div>
@@ -707,7 +719,7 @@
 
     <div id="controls-panel">
         <div class="algo-header-wrapper">
-            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати мітки">?</button>
+            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати мітки" aria-label="Показати мітки">?</button>
             <div id="algo-display">Виберіть комбінацію...</div>
         </div>
 
@@ -855,7 +867,7 @@
                     <div class="plan-badge">Save 50%</div>
                 </div>
             </div>
-            <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
+            <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX" aria-label="Введіть ліцензійний ключ">
             <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
             <a id="buy-btn-link" onclick="openSelectedCheckout()" class="buy-link">🛒 Subscribe for $4.99 / mo</a>
             <br>
@@ -2036,25 +2048,31 @@
         }
 
         function updateProUI() {
-    const btn = document.getElementById('pro-status-btn');
-    const t = translations;
-    
-    if (isYearlyPro) {
-        btn.innerText = '🎉 PRO';
-        btn.style.background = '#9b59b6';
-        btn.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.6)';
-    } else if (isProUser) {
-        btn.innerText = '🚀 PRO';
-        btn.style.background = '#2ecc71';
-        btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
-    } else {
-        btn.innerText = t.pro;   // "🛟 PRO"
-        btn.style.background = '#f39c12';
-        btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
-    }
-    
-    updateAlgorithmList();
-}
+            const btn = document.getElementById('pro-status-btn');
+            const t = translations;
+            
+            if (isYearlyPro) {
+                btn.innerText = '🎉 PRO';
+                btn.style.background = '#9b59b6';
+                btn.style.color = '#ffffff';
+                btn.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.6)';
+            } else if (isProUser) {
+                btn.innerText = '🚀 PRO';
+                btn.style.background = '#2ecc71';
+                btn.style.color = '#1a1a1a';
+                btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
+            } else {
+                btn.innerText = t.pro;   // "🛟 PRO"
+                btn.style.background = '#f39c12';
+                btn.style.color = '#1a1a1a';
+                btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
+            }
+            btn.style.fontWeight = '700';
+            btn.style.textShadow = '0 1px 2px rgba(255,255,255,0.3)';
+            
+            // Оновлюємо список алгоритмів (залежить від isYearlyPro)
+            updateAlgorithmList();
+        }
 
         // ================================================================
         // 8. ФУНКЦІЇ МОДАЛЬНИХ ВІКОН
@@ -2065,6 +2083,7 @@
 
         function closeActivationModal() {
             document.getElementById('pro-modal').style.display = 'none';
+            setTimeout(resetZoom, 300);
         }
 
         function selectPlan(planType) {
@@ -2108,6 +2127,7 @@
                 isYearlyPro = true;
                 updateProUI();
                 closeActivationModal();
+                setTimeout(resetZoom, 300);
                 return;
             }
 
@@ -2136,6 +2156,7 @@
                     isYearlyPro = isYearly;
                     updateProUI();
                     closeActivationModal();
+                    setTimeout(resetZoom, 300);
                 } else {
                     alert(t.invalid_key);
                 }
@@ -2277,10 +2298,13 @@
             window.scrollTo(0, 0);
             document.body.style.zoom = 1;
             if (window.visualViewport) {
-                try { window.visualViewport.scale = 1; } catch(e) {}
+                try {
+                    document.documentElement.style.transform = 'scale(1)';
+                    document.documentElement.style.transformOrigin = '0 0';
+                } catch (e) {}
             }
-            document.body.style.transform = 'scale(1)';
-            document.body.style.transform = 'none';
+            const container = document.getElementById('canvas-container');
+            if (container) container.style.transform = 'none';
         }
 
         document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
@@ -2304,6 +2328,12 @@
         document.addEventListener('click', function(e) {
             if (document.getElementById('pro-modal').style.display !== 'flex') {
                 setTimeout(resetZoom, 50);
+            }
+        });
+
+        document.addEventListener('gestureend', function(e) {
+            if (window.visualViewport && window.visualViewport.scale > 1.5) {
+                setTimeout(resetZoom, 200);
             }
         });
 
