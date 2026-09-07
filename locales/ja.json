@@ -90,6 +90,6 @@
   "cross_oll": "黄色いクロス",
   "edge_insert_right": "右エッジを挿入",
   "edge_insert_left": "左エッジを挿入",
-  "yearly_algo": "Corner Algorithm (R' D' R D)",
+  "yearly_algo": "ミラーコーナー",
   "yearly_only": "🔒 このアルゴリズムは年間PROサブスクリプションでのみ利用可能です！"
 }
