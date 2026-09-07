@@ -90,6 +90,6 @@
   "cross_oll": "Croix jaune",
   "edge_insert_right": "Insérer l'arête droite",
   "edge_insert_left": "Insérer l'arête gauche",
-  "yearly_algo": "Corner Algorithm (R' D' R D)",
+  "yearly_algo": "Coin miroir",
   "yearly_only": "🔒 Cet algorithme est disponible uniquement avec l'abonnement PRO annuel !"
 }
