@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#529b89">
 
     <style>
-        /* ===== ВЕСЬ ОРИГІНАЛЬНИЙ CSS (без додаткових обмежень) ===== */
+        /* ===== ВЕСЬ ОРИГІНАЛЬНИЙ CSS (повністю) ===== */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -85,6 +85,10 @@
             border: 1px solid var(--border-color); backdrop-filter: blur(15px); 
             display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             touch-action: none;
+            max-width: 95vw;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
         .stat-badge span { color: #00d2ff; font-size: 13px; }
@@ -120,12 +124,14 @@
         .theme-dot.active { border-color: #fff; transform: scale(1.1); }
 
         #controls-panel { 
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 10; 
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
             width: 100%; max-width: 100%; background: var(--bg-panel); 
             border-top: 1px solid var(--border-color); padding: 12px 10px 15px 10px; backdrop-filter: blur(20px); 
             box-shadow: 0 -5px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 8px; 
             border-radius: 20px 20px 0 0;
             touch-action: none;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .algo-header-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
@@ -150,7 +156,7 @@
         .algo-step.current { background: #c0392b; color: #ffffff; transform: scale(1.15); box-shadow: 0 0 5px #c0392b; }
         .algo-step.done { color: #555566; }
         
-        .button-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+        .button-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; max-width: 100%; }
         
         button.move-btn { 
             background: var(--btn-bg); border: none; color: #fff; 
@@ -666,6 +672,12 @@
         .algo-item.locked {
             opacity: 0.55;
         }
+
+        /* Додатково для доступності */
+        button:focus-visible {
+            outline: 2px solid #00d2ff;
+            outline-offset: 2px;
+        }
     </style>
 
     <script src="js/three.min.js"></script>
@@ -696,8 +708,8 @@
     
     <div id="top-bar">
         <div class="stat-badge">Ходів: <span id="counter">0</span></div>
-        <button id="settings-btn" class="settings-btn" onclick="openSettings()" title="Налаштування">⚙️</button>
-        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Звук">🔊</button>
+        <button id="settings-btn" class="settings-btn" onclick="openSettings()" title="Налаштування" aria-label="Налаштування">⚙️</button>
+        <button id="sound-btn" class="sound-btn" onclick="toggleSound()" title="Звук" aria-label="Звук">🔊</button>
         <div class="theme-dots">
             <div class="theme-dot" style="background: #09090e;" onclick="switchTheme('dark', this)"></div>
             <div class="theme-dot active" style="background: #529b89;" onclick="switchTheme('mint', this)"></div>
@@ -707,7 +719,7 @@
 
     <div id="controls-panel">
         <div class="algo-header-wrapper">
-            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати мітки">?</button>
+            <button id="help-btn" class="help-btn" onclick="toggleFaceLabels()" title="Показати мітки" aria-label="Показати мітки">?</button>
             <div id="algo-display">Виберіть комбінацію...</div>
         </div>
 
@@ -855,7 +867,7 @@
                     <div class="plan-badge">Save 50%</div>
                 </div>
             </div>
-            <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
+            <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX" aria-label="Введіть ліцензійний ключ">
             <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
             <a id="buy-btn-link" onclick="openSelectedCheckout()" class="buy-link">🛒 Subscribe for $4.99 / mo</a>
             <br>
@@ -863,9 +875,10 @@
         </div>
     </div>
 
+    <!-- ===== ПОЧАТОК СКРИПТУ ===== -->
     <script>
         // ================================================================
-        // НОВА СИСТЕМА ПЕРЕКЛАДІВ
+        // 1. НОВА СИСТЕМА ПЕРЕКЛАДІВ (замість TRANSLATIONS)
         // ================================================================
         let translations = {};
         let currentLang = localStorage.getItem('rubik_language') || 'en';
@@ -879,6 +892,7 @@
                     return translations;
                 } catch (e) {}
             }
+
             try {
                 const response = await fetch(`locales/${lang}.json`);
                 if (!response.ok) throw new Error('Мова не знайдена');
@@ -965,8 +979,10 @@
 
             document.querySelector('.action-btn').innerHTML = t.scramble;
             document.getElementById('reset-btn').innerHTML = t.reset;
+            // Кнопку PRO оновлюємо через updateProUI(), щоб зберегти статус
             updateProUI();
 
+            // Налаштування
             const settingsItems = document.querySelectorAll('.settings-item');
             const settingsLabels = [
                 { icon: '📦', text: t.version },
@@ -985,6 +1001,7 @@
                 }
             });
 
+            // Соціальні мережі
             const socialLinks = document.querySelectorAll('.social-link');
             const socialData = [
                 { icon: 'icons/facebook.svg', name: t.facebook || 'Facebook' },
@@ -1003,6 +1020,7 @@
             document.querySelector('.settings-close-btn').innerText = t.close;
             document.querySelector('#settings-modal h2').innerHTML = t.settings_title;
 
+            // Мовні опції
             const langOptions = document.querySelectorAll('.lang-option');
             const langNames = {
                 'uk': t.lang_uk, 'en': t.lang_en, 'de': t.lang_de,
@@ -1017,6 +1035,7 @@
                 }
             });
 
+            // PRO-модальне вікно
             document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
             document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
             document.getElementById('plan-monthly').querySelector('.plan-title').innerText = t.monthly;
@@ -1059,7 +1078,7 @@
         }
 
         // ================================================================
-        // ОСНОВНІ ЗМІННІ
+        // 2. ОСНОВНІ ГЛОБАЛЬНІ ЗМІННІ
         // ================================================================
         let scene, camera, renderer, controls, cubies = [];
         let moveQueue = [];
@@ -1085,7 +1104,7 @@
         let currentSelectedPlan = 'monthly';
 
         // ================================================================
-        // АДМІН-КЛЮЧ
+        // 3. ЗАХИЩЕНИЙ АДМІН-КЛЮЧ
         // ================================================================
         const ENCODED_ADMIN_KEY = [
             79, 82, 74, 76, 91, 48, 68, 71, 80, 76, 81, 48, 53, 51, 53, 57, 48, 86, 72, 70, 85, 72, 87
@@ -1131,7 +1150,7 @@
         };
 
         // ================================================================
-        // ФУНКЦІЇ ТЕКСТУР, МІТОК, ПОБУДОВИ КУБА
+        // 4. ФУНКЦІЇ ТЕКСТУР, МІТОК, ПОБУДОВИ КУБА
         // ================================================================
         function drawRoundedRect(ctx, x, y, w, h, r) {
             ctx.beginPath();
@@ -1373,7 +1392,7 @@
         }
 
         // ================================================================
-        // ІНІЦІАЛІЗАЦІЯ 3D
+        // 5. ІНІЦІАЛІЗАЦІЯ 3D
         // ================================================================
         let isFirstRender = true;
 
@@ -1799,7 +1818,7 @@
         }
 
         // ================================================================
-        // АЛГОРИТМИ
+        // 6. АЛГОРИТМИ (з Mirror Corner – тільки для річної підписки)
         // ================================================================
         function updateAlgorithmList() {
             const t = translations;
@@ -1835,10 +1854,11 @@
                 { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube : '🔒 ' + t.nested_cube, locked: !isProUser }
             ];
 
+            // ===== ДОДАЄМО MIRROR CORNER ТІЛЬКИ ДЛЯ РІЧНОЇ ПІДПИСКИ =====
             if (isYearlyPro) {
                 optionsData.push({
                     value: "R' D' R D",
-                    text: t.yearly_algo,
+                    text: t.yearly_algo,   // "Mirror Corner" або переклад
                     locked: false,
                     yearly: true
                 });
@@ -1984,7 +2004,7 @@
         }
 
         // ================================================================
-        // PRO СТАТУС
+        // 7. PRO СТАТУС
         // ================================================================
         async function checkProStatus() {
             const saved = localStorage.getItem('rubik_license_data');
@@ -2030,6 +2050,7 @@
         function updateProUI() {
             const btn = document.getElementById('pro-status-btn');
             const t = translations;
+            
             if (isYearlyPro) {
                 btn.innerText = '🎉 PRO';
                 btn.style.background = '#9b59b6';
@@ -2041,18 +2062,20 @@
                 btn.style.color = '#1a1a1a';
                 btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
             } else {
-                btn.innerText = t.pro;
+                btn.innerText = t.pro;   // "🛟 PRO"
                 btn.style.background = '#f39c12';
                 btn.style.color = '#1a1a1a';
                 btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
             }
             btn.style.fontWeight = '700';
             btn.style.textShadow = '0 1px 2px rgba(255,255,255,0.3)';
+            
+            // Оновлюємо список алгоритмів (залежить від isYearlyPro)
             updateAlgorithmList();
         }
 
         // ================================================================
-        // МОДАЛЬНІ ВІКНА
+        // 8. ФУНКЦІЇ МОДАЛЬНИХ ВІКОН
         // ================================================================
         function openActivationModal() {
             document.getElementById('pro-modal').style.display = 'flex';
@@ -2060,8 +2083,7 @@
 
         function closeActivationModal() {
             document.getElementById('pro-modal').style.display = 'none';
-            // скидаємо масштаб після закриття
-            resetZoom();
+            setTimeout(resetZoom, 300);
         }
 
         function selectPlan(planType) {
@@ -2105,7 +2127,7 @@
                 isYearlyPro = true;
                 updateProUI();
                 closeActivationModal();
-                resetZoom();
+                setTimeout(resetZoom, 300);
                 return;
             }
 
@@ -2134,7 +2156,7 @@
                     isYearlyPro = isYearly;
                     updateProUI();
                     closeActivationModal();
-                    resetZoom();
+                    setTimeout(resetZoom, 300);
                 } else {
                     alert(t.invalid_key);
                 }
@@ -2144,7 +2166,7 @@
         }
 
         // ================================================================
-        // НАЛАШТУВАННЯ, ЗВУК, СОЦІАЛЬНІ
+        // 9. НАЛАШТУВАННЯ, ЗВУК, СОЦІАЛЬНІ ФУНКЦІЇ
         // ================================================================
         function openSettings() {
             document.getElementById('settings-modal').style.display = 'flex';
@@ -2230,7 +2252,7 @@
         }
 
         // ================================================================
-        // ЗАВАНТАЖЕННЯ
+        // 10. ФУНКЦІЇ ЗАВАНТАЖЕННЯ
         // ================================================================
         function updateProgress(value, text) {
             currentProgress = Math.min(value, 100);
@@ -2270,27 +2292,53 @@
         }
 
         // ================================================================
-        // СКИДАННЯ МАСШТАБУ (спрощена версія)
+        // 11. ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
         // ================================================================
         function resetZoom() {
             window.scrollTo(0, 0);
             document.body.style.zoom = 1;
-            // не робимо додаткових трансформацій, щоб не навантажувати
+            if (window.visualViewport) {
+                try {
+                    document.documentElement.style.transform = 'scale(1)';
+                    document.documentElement.style.transformOrigin = '0 0';
+                } catch (e) {}
+            }
+            const container = document.getElementById('canvas-container');
+            if (container) container.style.transform = 'none';
         }
 
-        // Обробники для поля введення
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        document.addEventListener('dblclick', function(e) { e.preventDefault(); });
+
         const licenseInput = document.getElementById('license-key-input');
         if (licenseInput) {
-            licenseInput.addEventListener('blur', function() {
-                setTimeout(resetZoom, 300);
-            });
-            licenseInput.addEventListener('focus', function() {
-                setTimeout(resetZoom, 50);
+            licenseInput.addEventListener('focus', function() { setTimeout(resetZoom, 50); });
+            licenseInput.addEventListener('blur', function() { setTimeout(resetZoom, 300); });
+            licenseInput.addEventListener('input', function() {
+                if (window.visualViewport && window.visualViewport.scale > 1) resetZoom();
             });
         }
 
+        window.addEventListener('orientationchange', function() { setTimeout(resetZoom, 300); });
+        window.addEventListener('resize', function() {
+            if (window.visualViewport && window.visualViewport.scale > 1) resetZoom();
+            setTimeout(resetZoom, 100);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (document.getElementById('pro-modal').style.display !== 'flex') {
+                setTimeout(resetZoom, 50);
+            }
+        });
+
+        document.addEventListener('gestureend', function(e) {
+            if (window.visualViewport && window.visualViewport.scale > 1.5) {
+                setTimeout(resetZoom, 200);
+            }
+        });
+
         // ================================================================
-        // ЗАПУСК
+        // 12. ЗАПУСК
         // ================================================================
         window.addEventListener('load', function() {
             const canvas = document.getElementById('canvas-container');
@@ -2300,6 +2348,7 @@
             }
 
             loadLanguage();
+
             init3D();
 
             if ('serviceWorker' in navigator) {
@@ -2315,6 +2364,9 @@
             }, 50);
         });
 
+        // ================================================================
+        // 13. ДОДАТКОВА ІНІЦІАЛІЗАЦІЯ ДЛЯ КНОПКИ АЛГОРИТМУ
+        // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
             const btn = document.getElementById('alg-select-btn');
             if (btn) {
@@ -2322,6 +2374,9 @@
             }
         });
 
+        // ================================================================
+        // 14. ОБРОБКА ПОМИЛОК ЗАВАНТАЖЕННЯ
+        // ================================================================
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT') {
                 console.warn('⚠️ Помилка завантаження скрипта:', e.target.src);
@@ -2333,6 +2388,10 @@
                 hideLoadingScreen();
             }
         }, true);
+
+        // ================================================================
+        // КІНЕЦЬ КОДУ
+        // ================================================================
     </script>
 </body>
 </html>
