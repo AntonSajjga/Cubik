@@ -90,6 +90,6 @@
   "cross_oll": "Yellow Cross",
   "edge_insert_right": "Insert edge right",
   "edge_insert_left": "Insert edge left",
-  "yearly_algo": "Corner Algorithm (R' D' R D)",
+  "yearly_algo": "Mirror Corner",
   "yearly_only": "🔒 This algorithm is available only with yearly PRO subscription!"
 }
