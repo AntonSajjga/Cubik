@@ -195,8 +195,8 @@
         .fx-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
         .action-btn { background: #1a5276; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
         .action-btn:hover { background: #1f618d; }
-        .pro-btn { background: #d68910; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; }
-        .pro-btn:hover { background: #e67e22; }
+        .pro-btn { background: #d68910; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation; transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; }
+        .pro-btn:hover { transform: scale(1.05); }
         .danger-btn { background: #922b21; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
         .danger-btn:hover { background: #a93226; }
 
@@ -940,7 +940,7 @@
                     setup_controls: 'Setting up controls...', building_cube: 'Building cube...',
                     checking_pro: 'Checking PRO status...', starting_animation: 'Starting animation...',
                     done: 'Done!', cross_oll: 'Yellow Cross', edge_insert_right: 'Insert edge right',
-                    edge_insert_left: 'Insert edge left', yearly_algo: "Corner Algorithm (R' D' R D)",
+                    edge_insert_left: 'Insert edge left', yearly_algo: 'Mirror Corner',
                     yearly_only: '🔒 This algorithm is available only with yearly PRO subscription!'
                 };
                 return translations;
@@ -967,7 +967,8 @@
 
             document.querySelector('.action-btn').innerHTML = t.scramble;
             document.getElementById('reset-btn').innerHTML = t.reset;
-            document.getElementById('pro-status-btn').innerHTML = isProUser ? (isYearlyPro ? '🚀 PRO Yearly' : '🚀 PRO') : t.pro;
+            // Кнопку PRO оновлюємо через updateProUI(), щоб зберегти статус
+            updateProUI();
 
             // Налаштування
             const settingsItems = document.querySelectorAll('.settings-item');
@@ -1065,7 +1066,7 @@
         }
 
         // ================================================================
-        // 2. ОСНОВНІ ГЛОБАЛЬНІ ЗМІННІ (додано isYearlyPro)
+        // 2. ОСНОВНІ ГЛОБАЛЬНІ ЗМІННІ
         // ================================================================
         let scene, camera, renderer, controls, cubies = [];
         let moveQueue = [];
@@ -1379,7 +1380,7 @@
         }
 
         // ================================================================
-        // 5. ІНІЦІАЛІЗАЦІЯ 3D (з викликом initLanguage)
+        // 5. ІНІЦІАЛІЗАЦІЯ 3D
         // ================================================================
         let isFirstRender = true;
 
@@ -1805,7 +1806,7 @@
         }
 
         // ================================================================
-        // 6. АЛГОРИТМИ (оновлений список з R' D' R D)
+        // 6. АЛГОРИТМИ (з Mirror Corner – тільки для річної підписки)
         // ================================================================
         function updateAlgorithmList() {
             const t = translations;
@@ -1838,14 +1839,18 @@
                 { value: "R L U2 R' L' U2", text: isProUser ? t.snake_pattern : '🔒 ' + t.snake_pattern, locked: !isProUser },
                 { value: "F2 R2 F2 R2 F2 R2", text: isProUser ? t.stripes_pattern : '🔒 ' + t.stripes_pattern, locked: !isProUser },
                 { value: "U2 R2 U2 L2 U2 F2 U2 B2", text: isProUser ? t.double_cross : '🔒 ' + t.double_cross, locked: !isProUser },
-                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube : '🔒 ' + t.nested_cube, locked: !isProUser },
-                {
-                    value: "R' D' R D",
-                    text: isYearlyPro ? t.yearly_algo : '🔒 ' + t.yearly_algo,
-                    locked: !isYearlyPro,
-                    yearly: true
-                }
+                { value: "R U2 L' D2 R' U2 L D2", text: isProUser ? t.nested_cube : '🔒 ' + t.nested_cube, locked: !isProUser }
             ];
+
+            // ===== ДОДАЄМО MIRROR CORNER ТІЛЬКИ ДЛЯ РІЧНОЇ ПІДПИСКИ =====
+            if (isYearlyPro) {
+                optionsData.push({
+                    value: "R' D' R D",
+                    text: t.yearly_algo,   // "Mirror Corner" або переклад
+                    locked: false,
+                    yearly: true
+                });
+            }
 
             let html = '';
             optionsData.forEach(item => {
@@ -1987,7 +1992,7 @@
         }
 
         // ================================================================
-        // 7. PRO СТАТУС (з isYearlyPro)
+        // 7. PRO СТАТУС
         // ================================================================
         async function checkProStatus() {
             const saved = localStorage.getItem('rubik_license_data');
@@ -2033,17 +2038,22 @@
         function updateProUI() {
             const btn = document.getElementById('pro-status-btn');
             const t = translations;
-
-            if (isProUser && isYearlyPro) {
-                btn.innerText = '🚀 PRO Yearly';
-                btn.style.background = '#27ae60';
+            
+            if (isYearlyPro) {
+                btn.innerText = '🎉 PRO Yearly';
+                btn.style.background = '#9b59b6';
+                btn.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.6)';
             } else if (isProUser) {
                 btn.innerText = '🚀 PRO';
-                btn.style.background = '#f39c12';
+                btn.style.background = '#2ecc71';
+                btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
             } else {
-                btn.innerText = t.pro;
+                btn.innerText = t.pro;   // "🛟 PRO" або переклад
                 btn.style.background = '#f39c12';
+                btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
             }
+            
+            // Оновлюємо список алгоритмів (залежить від isYearlyPro)
             updateAlgorithmList();
         }
 
@@ -2256,7 +2266,6 @@
                     el.classList.remove('active');
                 }
             });
-            // Застосовуємо мову через нашу нову систему
             loadTranslations(savedLang).then(() => {
                 applyLanguage(savedLang);
             });
@@ -2309,14 +2318,10 @@
                 canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
             }
 
-            // Ініціалізуємо переклади (вони завантажаться всередині init3D)
-            // Але щоб показати щось на екрані одразу, викликаємо loadLanguage
             loadLanguage();
 
-            // Запускаємо 3D
             init3D();
 
-            // Реєстрація Service Worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
                     .then(() => console.log('✅ Service Worker зареєстровано'))
