@@ -627,57 +627,160 @@
             font-weight: 600;
         }
 
-        .algo-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 13px 16px;
-            cursor: pointer;
-            color: #e0e0e5;
-            font-size: 14px;
-            transition: background 0.15s;
-        }
+/* ===== КАСТОМНИЙ СПИСОК АЛГОРИТМІВ ===== */
+.algo-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+    /* анімація появи */
+    animation: algoModalFadeIn 0.25s ease-out;
+}
 
-        .algo-item:active {
-            background: rgba(255,255,255,0.07);
-        }
+.algo-modal.active {
+    display: flex;
+}
 
-        .algo-item .radio-circle {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #555;
-            border-radius: 50%;
-            flex-shrink: 0;
-            position: relative;
-            transition: all 0.2s;
-        }
+@keyframes algoModalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        .algo-item.selected .radio-circle {
-            border-color: #2ecc71;
-            background: #2ecc71;
-        }
+.algo-modal-content {
+    background: #1e1e2a;
+    width: 100%;
+    max-height: 85vh;
+    min-height: 40vh;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+}
 
-        .algo-item.selected .radio-circle::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }
+.algo-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #252532;
+    font-weight: 600;
+    font-size: 15px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-        .algo-item.locked {
-            opacity: 0.55;
-        }
+.algo-modal-header span {
+    color: #f0f0f5;
+}
 
-        /* Додатково для доступності */
-        button:focus-visible {
-            outline: 2px solid #00d2ff;
-            outline-offset: 2px;
-        }
+.algo-modal-close {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s ease;
+}
+
+.algo-modal-close:hover {
+    color: #fff;
+}
+
+.algo-list {
+    overflow-y: auto;
+    padding: 8px 0;
+    flex: 1;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.algo-group-title {
+    padding: 10px 16px 4px;
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.algo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    cursor: pointer;
+    color: #e0e0e5;
+    font-size: 14px;
+    transition: background 0.15s ease;
+}
+
+.algo-item:active {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.algo-item .radio-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #555;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.algo-item.selected .radio-circle {
+    border-color: #2ecc71;
+    background: #2ecc71;
+}
+
+.algo-item.selected .radio-circle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.algo-item.locked {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.algo-item.locked .radio-circle {
+    border-color: #666;
+    background: transparent;
+}
+
+.algo-item.locked .radio-circle::after {
+    content: '🔒';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 12px;
+    transform: translate(-50%, -50%);
+    background: none;
+    width: auto;
+    height: auto;
+}
     </style>
 
     <script src="js/three.min.js"></script>
