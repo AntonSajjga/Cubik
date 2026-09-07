@@ -2295,17 +2295,12 @@
         // 11. ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
         // ================================================================
         function resetZoom() {
-            window.scrollTo(0, 0);
-            document.body.style.zoom = 1;
-            if (window.visualViewport) {
-                try {
-                    document.documentElement.style.transform = 'scale(1)';
-                    document.documentElement.style.transformOrigin = '0 0';
-                } catch (e) {}
-            }
-            const container = document.getElementById('canvas-container');
-            if (container) container.style.transform = 'none';
-        }
+    window.scrollTo(0, 0);
+    document.body.style.zoom = 1;
+    // ВИДАЛЯЄМО трансформацію на html
+    const container = document.getElementById('canvas-container');
+    if (container) container.style.transform = 'none';
+}
 
         document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
         document.addEventListener('dblclick', function(e) { e.preventDefault(); });
