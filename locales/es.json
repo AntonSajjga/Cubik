@@ -90,6 +90,6 @@
   "cross_oll": "Cruz amarilla",
   "edge_insert_right": "Insertar arista derecha",
   "edge_insert_left": "Insertar arista izquierda",
-  "yearly_algo": "Corner Algorithm (R' D' R D)",
+  "yearly_algo": "Espejo de esquina",
   "yearly_only": "🔒 ¡Este algoritmo está disponible solo con la suscripción PRO anual!"
 }
