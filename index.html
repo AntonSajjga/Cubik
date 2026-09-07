@@ -2036,26 +2036,25 @@
         }
 
         function updateProUI() {
-            const btn = document.getElementById('pro-status-btn');
-            const t = translations;
-            
-            if (isYearlyPro) {
-                btn.innerText = '🎉 PRO Yearly';
-                btn.style.background = '#9b59b6';
-                btn.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.6)';
-            } else if (isProUser) {
-                btn.innerText = '🚀 PRO';
-                btn.style.background = '#2ecc71';
-                btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
-            } else {
-                btn.innerText = t.pro;   // "🛟 PRO" або переклад
-                btn.style.background = '#f39c12';
-                btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
-            }
-            
-            // Оновлюємо список алгоритмів (залежить від isYearlyPro)
-            updateAlgorithmList();
-        }
+    const btn = document.getElementById('pro-status-btn');
+    const t = translations;
+    
+    if (isYearlyPro) {
+        btn.innerText = '🎉 PRO';
+        btn.style.background = '#9b59b6';
+        btn.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.6)';
+    } else if (isProUser) {
+        btn.innerText = '🚀 PRO';
+        btn.style.background = '#2ecc71';
+        btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
+    } else {
+        btn.innerText = t.pro;   // "🛟 PRO"
+        btn.style.background = '#f39c12';
+        btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
+    }
+    
+    updateAlgorithmList();
+}
 
         // ================================================================
         // 8. ФУНКЦІЇ МОДАЛЬНИХ ВІКОН
