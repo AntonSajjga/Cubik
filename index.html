@@ -2042,17 +2042,24 @@
     if (isYearlyPro) {
         btn.innerText = '🎉 PRO';
         btn.style.background = '#9b59b6';
+        btn.style.color = '#ffffff';
         btn.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.6)';
     } else if (isProUser) {
         btn.innerText = '🚀 PRO';
         btn.style.background = '#2ecc71';
+        btn.style.color = '#1a1a1a';
         btn.style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
     } else {
-        btn.innerText = t.pro;   // "🛟 PRO"
+        btn.innerText = t.pro;   // "🛟 PRO" (або переклад)
         btn.style.background = '#f39c12';
+        btn.style.color = '#1a1a1a';
         btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
     }
     
+    btn.style.fontWeight = '700';
+    btn.style.textShadow = '0 1px 2px rgba(255,255,255,0.3)';
+    
+    // Оновлюємо список алгоритмів (залежить від isYearlyPro)
     updateAlgorithmList();
 }
 
