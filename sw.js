@@ -1,5 +1,5 @@
 // sw.js — LogixCube 3D PRO
-const CACHE_NAME = 'logixcube-v2.1.0';
+const CACHE_NAME = 'logixcube-v2.1.1';
 
 // Усі критичні файли, які мають працювати офлайн
 const ASSETS = [
