@@ -2343,21 +2343,35 @@ const MAX_ATTEMPTS = 5;
             setTimeout(resetZoom, 100);
         });
 
-        // ===== Захист від чорних текстур при поверненні з bfcache / фону =====
-        window.addEventListener('pageshow', function(event) {
-            if (!event.persisted) return;
-            if (renderer && renderer.getContext && renderer.getContext().isContextLost()) {
+                        // ===== Захист від чорних текстур при поверненні з bfcache / фону =====
+        // ВАЖЛИВО: не покладаємось лише на isContextLost() — на Android WebView / PWA
+        // подія webglcontextlost часто НЕ спрацьовує при поверненні з фону,
+        // хоча текстури на GPU вже стерто. Тому пересоздаём куб БЕЗУМОВНО.
+        function forceCubeResync() {
+            if (!renderer || !scene || !camera) return;
+            // Якщо контекст дійсно втрачено остаточно — тільки reload врятує
+            if (renderer.getContext && renderer.getContext().isContextLost()) {
                 location.reload();
-            } else if (renderer) {
-                restoreCubeAfterContextLoss();
+                return;
             }
+            // Невеликий делей дає GPU "прокинутись" перед новими викликами WebGL
+            setTimeout(() => {
+                restoreCubeAfterContextLoss();
+            }, 50);
+        }
+
+        window.addEventListener('pageshow', function() {
+            forceCubeResync();
         });
 
         document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState !== 'visible') return;
-            if (renderer && renderer.getContext && renderer.getContext().isContextLost()) {
-                location.reload();
+            if (document.visibilityState === 'visible') {
+                forceCubeResync();
             }
+        });
+
+        window.addEventListener('focus', function() {
+            forceCubeResync();
         });
 
         document.addEventListener('click', function(e) {
