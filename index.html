@@ -979,7 +979,7 @@
 
         function restoreCubeAfterContextLoss() {
             if (!renderer || !scene || !camera) return;
-            buildCube();
+            buildCube(true);
             if (historyMoves.length > 0) {
                 isRestoring = true;
                 historyMoves.forEach(move => executeInstantMove(move));
