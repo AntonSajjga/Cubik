@@ -1492,24 +1492,34 @@ const MAX_ATTEMPTS = 5;
             });
         }
                 
-         function handleContextLost(event) {
+        function handleContextLost(event) {
             event.preventDefault();
             console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
             setTimeout(() => { location.reload(); }, 1000);
         }
 
+        function restoreCubeAfterContextLoss() {
+            if (!renderer || !scene || !camera) return;
+            // GPU-ресурси (текстури/буфери) знищуються при втраті контексту — пересоздаём їх
+            buildCube();
+            if (historyMoves.length > 0) {
+                isRestoring = true;
+                historyMoves.forEach(move => executeInstantMove(move));
+                isRestoring = false;
+            }
+            const currentTheme = document.querySelector('.theme-dot.active');
+            if (currentTheme) {
+                const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
+                switchTheme(themeKey, currentTheme);
+            } else {
+                renderer.setClearColor(0x529b89, 1);
+            }
+            renderer.render(scene, camera);
+        }
+
         function handleContextRestored() {
             console.log('✅ WebGL контекст відновлено');
-            if (renderer) {
-                const currentTheme = document.querySelector('.theme-dot.active');
-                if (currentTheme) {
-                    const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
-                    switchTheme(themeKey, currentTheme);
-                } else {
-                    renderer.setClearColor(0x529b89, 1);
-                }
-                renderer.render(scene, camera);
-            }
+            restoreCubeAfterContextLoss();
         }
 
         function animateLoop() {
@@ -2327,10 +2337,27 @@ const MAX_ATTEMPTS = 5;
             });
         }
 
-        window.addEventListener('orientationchange', function() { setTimeout(resetZoom, 300); });
+                window.addEventListener('orientationchange', function() { setTimeout(resetZoom, 300); });
         window.addEventListener('resize', function() {
             if (window.visualViewport && window.visualViewport.scale > 1) resetZoom();
             setTimeout(resetZoom, 100);
+        });
+
+        // ===== Захист від чорних текстур при поверненні з bfcache / фону =====
+        window.addEventListener('pageshow', function(event) {
+            if (!event.persisted) return;
+            if (renderer && renderer.getContext && renderer.getContext().isContextLost()) {
+                location.reload();
+            } else if (renderer) {
+                restoreCubeAfterContextLoss();
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState !== 'visible') return;
+            if (renderer && renderer.getContext && renderer.getContext().isContextLost()) {
+                location.reload();
+            }
         });
 
         document.addEventListener('click', function(e) {
