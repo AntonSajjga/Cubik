@@ -1389,7 +1389,7 @@ const MAX_ATTEMPTS = 5;
         // 5. ІНІЦІАЛІЗАЦІЯ 3D
         // ================================================================
   
-         let isFirstRender = true;
+        let isFirstRender = true;
 
         function init3D() {
             initLanguage().then(() => {
@@ -1491,8 +1491,8 @@ const MAX_ATTEMPTS = 5;
                 }, 300);
             });
         }
-
-        function handleContextLost(event) {
+                
+         function handleContextLost(event) {
             event.preventDefault();
             console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
             setTimeout(() => { location.reload(); }, 1000);
