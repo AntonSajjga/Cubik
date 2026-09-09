@@ -1440,6 +1440,58 @@ const MAX_ATTEMPTS = 5;
                 controls.zoomSpeed = -1.2;
 
                 controls.addEventListener('change', function() {
+        let isFirstRender = true;
+
+        function init3D() {
+            initLanguage().then(() => {
+                const container = document.getElementById('canvas-container');
+
+                if (typeof THREE === 'undefined') {
+                    console.error('❌ Three.js не завантажено!');
+                    document.getElementById('canvas-container').innerHTML = `
+                        <div style="display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:10px; color:#fff; text-align:center; padding:20px;">
+                            <h2>⚠️ Помилка завантаження</h2>
+                            <p>Не вдалося завантажити 3D-рушій.<br>Перевірте з'єднання з інтернетом.</p>
+                            <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Оновити</button>
+                        </div>
+                    `;
+                    document.getElementById('canvas-container').classList.add('loaded');
+                    hideLoadingScreen();
+                    return;
+                }
+
+                const t = translations;
+                updateProgress(10, t.init_3d);
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+                camera.position.set(6.5, 5.0, 9.5);
+
+                updateProgress(40, t.setup_renderer);
+                renderer = new THREE.WebGLRenderer({
+                    antialias: true,
+                    alpha: false,
+                    precision: 'highp',
+                    powerPreference: 'high-performance'
+                });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                renderer.setClearColor(0x529b89, 1);
+                container.appendChild(renderer.domElement);
+                container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
+
+                updateProgress(55, t.setup_controls);
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.08;
+                controls.target.set(0, -1.2, 0);
+                controls.minPolarAngle = 0;
+                controls.maxPolarAngle = Math.PI;
+                controls.minDistance = 2.5;
+                controls.maxDistance = 25;
+                controls.zoomSpeed = -1.2;
+
+                controls.addEventListener('change', function() {
                     if (showLabels) updateFaceLabels();
                 });
 
