@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#529b89">
 
     <style>
-        /* ===== ОРИГІНАЛЬНИЙ CSS (повністю збережено, додано лише мінімальну адаптивність) ===== */
+        /* ===== ОРИГІНАЛЬНИЙ CSS (повністю) ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
         .settings-item, .lang-option, .social-link, .lang-selector {
             -webkit-tap-highlight-color: transparent;
@@ -71,7 +71,7 @@
         .danger-btn { background: #922b21; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.2s ease; touch-action: manipulation; }
         .danger-btn:hover { background: #a93226; }
 
-        /* Модальні вікна (повністю оригінальні) */
+        /* Модальні вікна */
         #settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(5px); touch-action: none; }
         .settings-modal-content { background: #1e1e2a; padding: 24px 20px; border-radius: 16px; max-width: 380px; width: 92%; color: #fff; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
         .settings-modal-content h2 { color: #f1c40f; font-size: 20px; margin-bottom: 16px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -152,7 +152,7 @@
         .algo-item.selected .radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); }
         .algo-item.locked { opacity: 0.55; }
 
-        /* ===== ДОДАТКОВА АДАПТИВНІСТЬ (без зміни оригінальних розмірів) ===== */
+        /* ===== АДАПТИВНІСТЬ ===== */
         @media (max-width: 480px) {
             #controls-panel { padding: 8px 6px 12px; }
             .button-group { gap: 3px; }
@@ -314,7 +314,7 @@
         </div>
     </div>
 
-    <!-- ===================== МОДУЛЬНИЙ JAVASCRIPT (виправлений) ===================== -->
+    <!-- ===================== МОДУЛЬНИЙ JAVASCRIPT ===================== -->
     <script type="importmap">
         {
             "imports": {
@@ -329,7 +329,7 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         // =============================================================
-        // 1. КЛАС КУБИКА (вся логіка обертання, анімація, стан)
+        // 1. КЛАС КУБИКА
         // =============================================================
         class RubiksCube {
             constructor(scene) {
@@ -355,9 +355,15 @@
 
                 this.CUBIE_SIZE = 0.98;
                 this.PLASTIC_COLOR = '#2b2b32';
+
+                // ===== ОРИГІНАЛЬНІ НАСИЧЕНІ КОЛЬОРИ (як на першому скріншоті) =====
                 this.COLORS = {
-                    U: '#fffb00', D: '#ffffff', R: '#00ff66',
-                    L: '#0066ff', F: '#ff0055', B: '#ff7700'
+                    U: '#fffb00',   // яскраво-жовтий
+                    D: '#ffffff',   // білий
+                    R: '#00ff66',   // яскраво-зелений (неоновий)
+                    L: '#0066ff',   // яскраво-синій
+                    F: '#ff0055',   // яскраво-червоний (малиновий)
+                    B: '#ff7700'    // яскраво-оранжевий
                 };
 
                 this.buildCube();
@@ -528,7 +534,6 @@
                 });
             }
 
-            // ---- ВИПРАВЛЕНА АНІМАЦІЯ (з правильною прив'язкою this) ----
             executeMove(moveStr, callback) {
                 this.isAnimating = true;
                 const isPrime = moveStr.includes("'");
@@ -555,7 +560,6 @@
                 const scene = this.scene;
                 const self = this;
 
-                // Використовуємо стрілкову функцію, щоб зберегти контекст
                 function animateRotation() {
                     progress++;
                     if (face === 'R' || face === 'L') pivot.rotation.x += step;
@@ -702,7 +706,7 @@
         }
 
         // =============================================================
-        // 3. КЛАС ПЕРЕКЛАДІВ (скорочено для економії місця, але повністю функціональний)
+        // 3. КЛАС ПЕРЕКЛАДІВ (скорочений)
         // =============================================================
         class Translator {
             constructor() {
@@ -852,6 +856,36 @@
                 }
             }
 
+            playClickSound() {
+                if (this.isMuted || (this.cube && this.cube.isRestoring)) return;
+                try {
+                    if (!this.audioCtx) {
+                        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (this.audioCtx.state === 'suspended') {
+                        this.audioCtx.resume();
+                    }
+                    const now = this.audioCtx.currentTime;
+                    const buffer = this.audioCtx.createBuffer(1, Math.floor(this.audioCtx.sampleRate * 0.08), this.audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+                    const noise = this.audioCtx.createBufferSource();
+                    noise.buffer = buffer;
+                    const filter = this.audioCtx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.setValueAtTime(2100, now);
+                    filter.Q.setValueAtTime(1.8, now);
+                    const gain = this.audioCtx.createGain();
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    noise.start(now);
+                } catch (e) {}
+            }
+
+            // ---- 3D ----
             init3D() {
                 const t = this.translator;
                 this.updateProgress(10, t.t('init_3d'));
@@ -932,7 +966,6 @@
                 requestAnimationFrame(() => this.animate());
                 if (!this.renderer) return;
 
-                // Якщо не анімуємо і є черга – беремо наступний хід
                 if (!this.cube.isAnimating && this.cube.moveQueue.length > 0 && !this.cube.isRestoring) {
                     if (this.activeAlgoSteps.length > 0 && this.currentMode === 'auto') {
                         this.currentStepIndex++;
@@ -945,7 +978,7 @@
                         document.getElementById('counter').innerText = this.cube.moveCount;
                     }
                     this.saveState();
-                    // Викликаємо executeMove; після завершення анімації він скине isAnimating
+                    this.playClickSound();
                     this.cube.executeMove(nextMove);
                 }
 
@@ -992,7 +1025,6 @@
 
             // ---- UI ----
             initUI() {
-                // Кнопки ходів
                 document.querySelectorAll('.move-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const move = btn.dataset.move;
@@ -1004,7 +1036,6 @@
                     });
                 });
 
-                // Режими
                 document.querySelectorAll('.mode-toggle').forEach(el => {
                     el.addEventListener('click', () => {
                         const mode = el.dataset.mode;
