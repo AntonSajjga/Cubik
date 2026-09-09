@@ -1345,22 +1345,44 @@ const MAX_ATTEMPTS = 5;
             document.getElementById('help-btn').classList.toggle('active', showLabels);
         }
 
+        // ===== ОПТИМІЗАЦІЯ: кешування геометрії/матеріалів/текстур =====
+        // Текстури створюються через canvas і THREE.CanvasTexture — це відносно
+        // дорога операція. Раніше buildCube() створював їх заново щоразу, коли
+        // викликався (init, reset, відновлення після втрати WebGL-контексту).
+        // Тепер геометрія та матеріали створюються ОДИН РАЗ і перевикористовуються
+        // при кожній пересборці куба — це значно знижує Total Blocking Time.
+        let cachedCubeGeom = null;
+        let cachedInternalMat = null;
+        let cachedCubeMaterials = null;
+
+        function getCubeAssets() {
+            if (!cachedCubeGeom) {
+                cachedCubeGeom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
+            }
+            if (!cachedInternalMat) {
+                cachedInternalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+            }
+            if (!cachedCubeMaterials) {
+                cachedCubeMaterials = [
+                    new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                    new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                    new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                    new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                    new THREE.MeshBasicMaterial({ map: createXeroxLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                    new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
+                    new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+                ];
+            }
+            return { geom: cachedCubeGeom, internalMat: cachedInternalMat, materials: cachedCubeMaterials };
+        }
+
         function buildCube() {
+            // Прибираємо старі меші зі сцени. Геометрія/матеріали кешовані
+            // і НЕ знищуються — вони будуть перевикористані нижче.
             cubies.forEach(c => scene.remove(c));
             cubies = [];
 
-            const geom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
-            const internalMat = new THREE.MeshLambertMaterial({ color: PLASTIC_COLOR, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-
-            const materials = [
-                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.R), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.L), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.U), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                new THREE.MeshBasicMaterial({ map: createXeroxLogoTexture(COLORS.D), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.F), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
-                new THREE.MeshBasicMaterial({ map: createFaceTexture(COLORS.B), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
-            ];
+            const { geom, internalMat, materials } = getCubeAssets();
 
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
@@ -1465,8 +1487,10 @@ const MAX_ATTEMPTS = 5;
                 updateProgress(85, t.checking_pro);
                 checkProStatus();
 
+                // ОПТИМІЗАЦІЯ: initLanguage() вже завантажив і застосував переклад
+                // на початку цієї функції — повторний виклик loadLanguage() тут
+                // прибрано, щоб не робити зайвий цикл fetch/localStorage + applyLanguage().
                 loadSavedStateSync();
-                loadLanguage();
 
                 // Прогреваем шейдеры/материалы на GPU ДО первого показа канваса
                 if (renderer && scene && camera) {
@@ -1488,6 +1512,11 @@ const MAX_ATTEMPTS = 5;
                 updateProgress(100, t.done);
                 setTimeout(() => {
                     hideLoadingScreen();
+                    // Дозволяємо реагувати на повернення з фону лише ПІСЛЯ того,
+                    // як початкове завантаження повністю завершилось — інакше
+                    // 'focus'/'visibilitychange', що спрацьовують під час старту
+                    // сторінки, викликали б зайву пересборку куба.
+                    appInitialLoadComplete = true;
                 }, 300);
             });
         }
@@ -1500,7 +1529,10 @@ const MAX_ATTEMPTS = 5;
 
         function restoreCubeAfterContextLoss() {
             if (!renderer || !scene || !camera) return;
-            // GPU-ресурси (текстури/буфери) знищуються при втраті контексту — пересоздаём їх
+            // GPU-ресурси (текстури/буфери) знищуються при втраті контексту —
+            // buildCube() перевикористовує кешовані матеріали/геометрію,
+            // тож ця пересборка дешева і не тягне за собою повторне
+            // створення canvas-текстур.
             buildCube();
             if (historyMoves.length > 0) {
                 isRestoring = true;
@@ -2337,17 +2369,26 @@ const MAX_ATTEMPTS = 5;
             });
         }
 
-                window.addEventListener('orientationchange', function() { setTimeout(resetZoom, 300); });
+        window.addEventListener('orientationchange', function() { setTimeout(resetZoom, 300); });
         window.addEventListener('resize', function() {
             if (window.visualViewport && window.visualViewport.scale > 1) resetZoom();
             setTimeout(resetZoom, 100);
         });
 
-                        // ===== Захист від чорних текстур при поверненні з bfcache / фону =====
+        // ===== Захист від чорних текстур при поверненні з bfcache / фону =====
         // ВАЖЛИВО: не покладаємось лише на isContextLost() — на Android WebView / PWA
         // подія webglcontextlost часто НЕ спрацьовує при поверненні з фону,
-        // хоча текстури на GPU вже стерто. Тому пересоздаём куб БЕЗУМОВНО.
+        // хоча текстури на GPU вже стерто. Тому пересоздаём куб (дешево завдяки
+        // кешованим матеріалам/геометрії з getCubeAssets()).
+        //
+        // appInitialLoadComplete гарантує, що ми не запускаємо зайву пересборку
+        // куба ще ДО того, як стартова ініціалізація (init3D) закінчилась —
+        // деякі браузери викликають 'focus' одразу при відкритті вкладки.
+        let appInitialLoadComplete = false;
+        let appWasHidden = false;
+
         function forceCubeResync() {
+            if (!appInitialLoadComplete) return;
             if (!renderer || !scene || !camera) return;
             // Якщо контекст дійсно втрачено остаточно — тільки reload врятує
             if (renderer.getContext && renderer.getContext().isContextLost()) {
@@ -2360,18 +2401,26 @@ const MAX_ATTEMPTS = 5;
             }, 50);
         }
 
-        window.addEventListener('pageshow', function() {
-            forceCubeResync();
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                forceCubeResync();
+            }
         });
 
         document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') {
+            if (document.visibilityState === 'hidden') {
+                appWasHidden = true;
+            } else if (document.visibilityState === 'visible' && appWasHidden) {
+                appWasHidden = false;
                 forceCubeResync();
             }
         });
 
         window.addEventListener('focus', function() {
-            forceCubeResync();
+            if (appWasHidden) {
+                appWasHidden = false;
+                forceCubeResync();
+            }
         });
 
         document.addEventListener('click', function(e) {
@@ -2390,8 +2439,12 @@ const MAX_ATTEMPTS = 5;
                 canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
             }
 
-            loadLanguage();
-
+            // ОПТИМІЗАЦІЯ: раніше тут викликався loadLanguage(), а одразу після
+            // нього — init3D(), який всередині ЗНОВУ завантажував і застосовував
+            // переклад через initLanguage(). Це призводило до подвійного
+            // (а разом із рядком усередині init3D — потрійного) виконання
+            // fetch/localStorage + applyLanguage() на кожному старті сторінки.
+            // Тепер мову ініціалізує лише init3D() -> initLanguage().
             init3D();
 
             if ('serviceWorker' in navigator) {
