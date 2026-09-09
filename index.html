@@ -153,6 +153,9 @@
         .algo-item.selected .radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); }
         .algo-item.locked { opacity: 0.55; }
     </style>
+
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -331,6 +334,7 @@
         </div>
     </div>
 
+    <!-- ===== ПОЧАТОК СКРИПТУ ===== -->
     <script>
         // ================================================================
         // 1. НОВА СИСТЕМА ПЕРЕКЛАДІВ
@@ -571,14 +575,14 @@
             "R U R' U'", "L' U' L U", "R' F R F'", "R U R' U R U2 R'", "U R U' L' U R' U' L"
         ];
 
-        // ===== ОРИГІНАЛЬНІ НАСИЧЕНІ КОЛЬОРИ =====
+        // ===== ОРИГІНАЛЬНІ НАСИЧЕНІ КОЛЬОРИ (як на першому скріншоті) =====
         const COLORS = {
-            U: '#fffb00',
-            D: '#ffffff',
-            R: '#00ff66',
-            L: '#0066ff',
-            F: '#ff0055',
-            B: '#ff7700'
+            U: '#fffb00',   // яскраво-жовтий
+            D: '#ffffff',   // білий
+            R: '#00ff66',   // яскраво-зелений (неоновий)
+            L: '#0066ff',   // яскраво-синій
+            F: '#ff0055',   // яскраво-червоний (малиновий)
+            B: '#ff7700'    // яскраво-оранжевий
         };
         const FACE_NORMALS = {
             R: new THREE.Vector3(1, 0, 0),
@@ -628,13 +632,12 @@
 
         function createFaceTexture(hexColor) {
             const canvas = document.createElement('canvas');
-            canvas.width = 128;
-            canvas.height = 128;
+            canvas.width = 256; canvas.height = 256;
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = PLASTIC_COLOR;
-            ctx.fillRect(0, 0, 128, 128);
+            ctx.fillRect(0, 0, 256, 256);
             ctx.fillStyle = hexColor;
-            drawRoundedRect(ctx, 6, 6, 116, 116, 14);
+            drawRoundedRect(ctx, 12, 12, 232, 232, 28);
             ctx.fill();
             const texture = new THREE.CanvasTexture(canvas);
             texture.needsUpdate = true;
@@ -735,7 +738,6 @@
         }
 
         function updateFaceLabels() {
-            if (!scene) return;
             scene.remove(faceLabelsGroup);
             faceLabelsGroup = new THREE.Group();
 
@@ -817,7 +819,6 @@
         let cachedCubeMaterials = null;
 
         function getCubeAssets() {
-            // Завжди створюємо свіжі ресурси, якщо кеш скинутий (після context loss)
             if (!cachedCubeGeom) {
                 cachedCubeGeom = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
             }
@@ -839,10 +840,7 @@
         }
 
         function buildCube() {
-            // Очищаємо старі кубики
-            cubies.forEach(c => {
-                if (scene) scene.remove(c);
-            });
+            cubies.forEach(c => scene.remove(c));
             cubies = [];
 
             const { geom, internalMat, materials } = getCubeAssets();
@@ -871,71 +869,9 @@
         }
 
         // ================================================================
-        // 5. ЖОРСТКЕ ВІДНОВЛЕННЯ КУБА (захист від чорного куба)
-        // ================================================================
-        function restoreCubeAfterContextLoss() {
-            if (!renderer || !scene || !camera) return;
-
-            console.log('🔄 Повне відновлення куба...');
-
-            // 1. Скидаємо кеш ресурсів — це головне проти чорного куба
-            cachedCubeGeom = null;
-            cachedInternalMat = null;
-            cachedCubeMaterials = null;
-
-            // 2. Очищаємо старі меші
-            cubies.forEach(c => {
-                if (scene) scene.remove(c);
-            });
-            cubies = [];
-
-            // 3. Перезбираємо все з нуля (нові текстури)
-            buildCube();
-
-            // 4. Відновлюємо стан ходів
-            if (historyMoves.length > 0) {
-                isRestoring = true;
-                historyMoves.forEach(move => executeInstantMove(move));
-                isRestoring = false;
-            }
-
-            // 5. Відновлюємо тему
-            const currentTheme = document.querySelector('.theme-dot.active');
-            if (currentTheme) {
-                const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
-                switchTheme(themeKey, currentTheme);
-            } else if (renderer) {
-                renderer.setClearColor(0x529b89, 1);
-            }
-
-            if (renderer) renderer.render(scene, camera);
-            updateFaceLabels();
-        }
-
-        function forceCubeResync() {
-            if (!appInitialLoadComplete) return;
-            if (!renderer || !scene || !camera) return;
-
-            try {
-                const gl = renderer.getContext();
-                if (gl && gl.isContextLost && gl.isContextLost()) {
-                    console.warn('Контекст втрачено — перезавантаження');
-                    location.reload();
-                    return;
-                }
-            } catch (e) {}
-
-            setTimeout(() => {
-                restoreCubeAfterContextLoss();
-            }, 40);
-        }
-
-        // ================================================================
-        // 6. ІНІЦІАЛІЗАЦІЯ 3D
+        // 5. ІНІЦІАЛІЗАЦІЯ 3D
         // ================================================================
         let isFirstRender = true;
-        let appInitialLoadComplete = false;
-        let appWasHidden = false;
 
         function init3D() {
             initLanguage().then(() => {
@@ -943,26 +879,26 @@
 
                 if (typeof THREE === 'undefined') {
                     console.error('❌ Three.js не завантажено!');
-                    container.innerHTML = `
-                        <div style="display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:12px; color:#fff; text-align:center; padding:20px;">
-                            <h2>⚠️ Немає інтернету</h2>
-                            <p>3D-движок не завантажився.<br>Підключіться один раз, щоб закешувати файли.</p>
-                            <button onclick="location.reload()" style="padding:12px 28px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Спробувати знову</button>
+                    document.getElementById('canvas-container').innerHTML = `
+                        <div style="display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:10px; color:#fff; text-align:center; padding:20px;">
+                            <h2>⚠️ Помилка завантаження</h2>
+                            <p>Не вдалося завантажити 3D-рушій.<br>Перевірте з'єднання з інтернетом.</p>
+                            <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Оновити</button>
                         </div>
                     `;
-                    container.classList.add('loaded');
+                    document.getElementById('canvas-container').classList.add('loaded');
                     hideLoadingScreen();
                     return;
                 }
 
                 const t = translations;
-                updateProgress(10, t.init_3d || 'Initializing 3D...');
+                updateProgress(10, t.init_3d);
 
                 scene = new THREE.Scene();
                 camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
                 camera.position.set(6.5, 5.0, 9.5);
 
-                updateProgress(40, t.setup_renderer || 'Setting up renderer...');
+                updateProgress(40, t.setup_renderer);
                 renderer = new THREE.WebGLRenderer({
                     antialias: true,
                     alpha: false,
@@ -975,11 +911,7 @@
                 container.appendChild(renderer.domElement);
                 container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
 
-                // Обробники втрати/відновлення контексту
-                renderer.domElement.addEventListener('webglcontextlost', handleContextLost, false);
-                renderer.domElement.addEventListener('webglcontextrestored', handleContextRestored, false);
-
-                updateProgress(55, t.setup_controls || 'Setting up controls...');
+                updateProgress(55, t.setup_controls);
                 controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.08;
@@ -1000,10 +932,18 @@
                 scene.add(dirLight);
                 scene.add(pivot);
 
-                updateProgress(70, t.building_cube || 'Building cube...');
+                updateProgress(70, t.building_cube);
                 buildCube();
+                cubies.forEach(cubie => {
+                    if (Array.isArray(cubie.material)) {
+                        cubie.material.forEach(mat => {
+                            if (mat.map) mat.map.needsUpdate = true;
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
 
-                updateProgress(85, t.checking_pro || 'Checking PRO status...');
+                updateProgress(85, t.checking_pro);
                 checkProStatus();
 
                 loadSavedStateSync();
@@ -1020,24 +960,43 @@
 
                 window.addEventListener('resize', onWindowResize);
 
-                updateProgress(95, t.starting_animation || 'Starting animation...');
+                updateProgress(95, t.starting_animation);
                 animateLoop();
 
-                updateProgress(100, t.done || 'Done!');
+                updateProgress(100, t.done);
                 setTimeout(() => {
                     hideLoadingScreen();
                     appInitialLoadComplete = true;
                 }, 300);
             });
         }
-
+                
         function handleContextLost(event) {
             event.preventDefault();
-            console.warn('⚠️ WebGL context lost');
+            console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
+            setTimeout(() => { location.reload(); }, 1000);
+        }
+
+        function restoreCubeAfterContextLoss() {
+            if (!renderer || !scene || !camera) return;
+            buildCube();
+            if (historyMoves.length > 0) {
+                isRestoring = true;
+                historyMoves.forEach(move => executeInstantMove(move));
+                isRestoring = false;
+            }
+            const currentTheme = document.querySelector('.theme-dot.active');
+            if (currentTheme) {
+                const themeKey = currentTheme.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'mint';
+                switchTheme(themeKey, currentTheme);
+            } else {
+                renderer.setClearColor(0x529b89, 1);
+            }
+            renderer.render(scene, camera);
         }
 
         function handleContextRestored() {
-            console.log('✅ WebGL context restored → rebuild');
+            console.log('✅ WebGL контекст відновлено');
             restoreCubeAfterContextLoss();
         }
 
@@ -1190,7 +1149,7 @@
                 let cls = 'algo-step';
                 if (idx === currentStepIndex) cls += ' current';
                 if (idx < currentStepIndex) cls += ' done';
-                html += `<span class="\( {cls}"> \){step}</span>`;
+                html += `<span class="${cls}">${step}</span>`;
             });
             container.innerHTML = html;
         }
@@ -1334,7 +1293,7 @@
 
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
-            if (!container || !camera || !renderer) return;
+            if (!container) return;
             const w = container.clientWidth;
             const h = container.clientHeight;
             camera.aspect = w / h;
@@ -1343,7 +1302,7 @@
         }
 
         // ================================================================
-        // 7. АЛГОРИТМИ (без змін логіки)
+        // 6. АЛГОРИТМИ
         // ================================================================
         function updateAlgorithmList() {
             const t = translations;
@@ -1397,7 +1356,7 @@
                     const selectedClass = (storedAlgoStr === item.value) ? 'selected' : '';
                     const escapedValue = item.value.replace(/'/g, "\\'");
                     html += `
-                        <div class="algo-item ${lockedClass} \( {selectedClass}" onclick="selectAlgorithmFromModal(' \){escapedValue}', ${!!item.locked}, this)">
+                        <div class="algo-item ${lockedClass} ${selectedClass}" onclick="selectAlgorithmFromModal('${escapedValue}', ${!!item.locked}, this)">
                             <div class="radio-circle"></div>
                             <span>${item.text}</span>
                         </div>
@@ -1528,7 +1487,7 @@
         }
 
         // ================================================================
-        // 8. PRO СТАТУС
+        // 7. PRO СТАТУС
         // ================================================================
         async function checkProStatus() {
             const saved = localStorage.getItem('rubik_license_data');
@@ -1599,7 +1558,7 @@
         }
 
         // ================================================================
-        // 9. МОДАЛЬНІ ВІКНА
+        // 8. ФУНКЦІЇ МОДАЛЬНИХ ВІКОН
         // ================================================================
         function openActivationModal() {
             document.getElementById('pro-modal').style.display = 'flex';
@@ -1702,7 +1661,7 @@
         }
 
         // ================================================================
-        // 10. НАЛАШТУВАННЯ, ЗВУК, СОЦІАЛЬНІ ФУНКЦІЇ
+        // 9. НАЛАШТУВАННЯ, ЗВУК, СОЦІАЛЬНІ ФУНКЦІЇ
         // ================================================================
         function openSettings() {
             document.getElementById('settings-modal').style.display = 'flex';
@@ -1788,7 +1747,7 @@
         }
 
         // ================================================================
-        // 11. ФУНКЦІЇ ЗАВАНТАЖЕННЯ
+        // 10. ФУНКЦІЇ ЗАВАНТАЖЕННЯ
         // ================================================================
         function updateProgress(value, text) {
             currentProgress = Math.min(value, 100);
@@ -1811,8 +1770,24 @@
             }
         }
 
+        function loadLanguage() {
+            const savedLang = localStorage.getItem('rubik_language') || 'en';
+            const options = document.querySelectorAll('.lang-option');
+            options.forEach(el => {
+                const langKey = el.getAttribute('data-lang');
+                if (langKey === savedLang) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            loadTranslations(savedLang).then(() => {
+                applyLanguage(savedLang);
+            });
+        }
+
         // ================================================================
-        // 12. ЗАХИСТ ВІД ZOOM + ВІДНОВЛЕННЯ
+        // 11. ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
         // ================================================================
         function resetZoom() {
             window.scrollTo(0, 0);
@@ -1842,10 +1817,23 @@
             setTimeout(resetZoom, 100);
         });
 
-        // Відновлення з bfcache (саме тут часто був чорний куб)
+        let appInitialLoadComplete = false;
+        let appWasHidden = false;
+
+        function forceCubeResync() {
+            if (!appInitialLoadComplete) return;
+            if (!renderer || !scene || !camera) return;
+            if (renderer.getContext && renderer.getContext().isContextLost()) {
+                location.reload();
+                return;
+            }
+            setTimeout(() => {
+                restoreCubeAfterContextLoss();
+            }, 50);
+        }
+
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                console.log('Page from bfcache → force rebuild');
                 forceCubeResync();
             }
         });
@@ -1873,51 +1861,28 @@
         });
 
         // ================================================================
-        // 13. НАДІЙНЕ ЗАВАНТАЖЕННЯ THREE.JS + ЗАПУСК
+        // 12. ЗАПУСК
         // ================================================================
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                const s = document.createElement('script');
-                s.src = src;
-                s.onload = resolve;
-                s.onerror = () => reject(new Error('Failed to load ' + src));
-                document.head.appendChild(s);
-            });
-        }
-
-        async function startApp() {
-            try {
-                updateProgress(5, 'Loading 3D engine...');
-                await Promise.all([
-                    loadScript('js/three.min.js'),
-                    loadScript('js/OrbitControls.js')
-                ]);
-                init3D();
-            } catch (err) {
-                console.error('Не вдалося завантажити 3D-движок', err);
-                const container = document.getElementById('canvas-container');
-                container.innerHTML = `
-                    <div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:16px;color:#fff;text-align:center;padding:20px;">
-                        <h2>⚠️ Немає інтернету</h2>
-                        <p>3D-движок не завантажився.<br>Підключіться один раз, щоб закешувати файли.</p>
-                        <button onclick="location.reload()" style="padding:12px 28px;background:#27ae60;border:none;color:#fff;border-radius:8px;font-size:16px;cursor:pointer;">
-                            Спробувати знову
-                        </button>
-                    </div>
-                `;
-                container.classList.add('loaded');
-                hideLoadingScreen();
-            }
-        }
-
         window.addEventListener('load', function() {
-            startApp();
+            const canvas = document.getElementById('canvas-container');
+            if (canvas) {
+                canvas.addEventListener('webglcontextlost', handleContextLost, false);
+                canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+            }
+
+            init3D();
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
                     .then(() => console.log('✅ Service Worker зареєстровано'))
                     .catch(err => console.error('❌ Помилка реєстрації SW:', err));
             }
+
+            setTimeout(() => {
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }, 50);
         });
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1928,10 +1893,15 @@
         });
 
         window.addEventListener('error', function(e) {
-            if (e.target && e.target.tagName === 'SCRIPT') {
+            if (e.target.tagName === 'SCRIPT') {
                 console.warn('⚠️ Помилка завантаження скрипта:', e.target.src);
+                document.body.innerHTML += `
+                    <div style="position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#c0392b; color:#fff; padding:10px 20px; border-radius:8px; z-index:999; font-size:14px; text-align:center; max-width:90%;">
+                        ⚠️ Помилка завантаження 3D-движка. Перевірте підключення до інтернету.
+                    </div>
+                `;
+                hideLoadingScreen();
             }
         }, true);
     </script>
 </body>
-</html>
