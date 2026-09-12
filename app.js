@@ -226,6 +226,7 @@ const CUBIE_SIZE = 0.98;
 const PLASTIC_COLOR = '#2b2b32';
 let currentProgress = 0;
 let currentSelectedPlan = 'monthly';
+let lastSolvedState = true;
 
 // ================================================================
 // 3. БЕЗПЕЧНА ПЕРЕВІРКА АДМІН-КЛЮЧА
@@ -515,6 +516,7 @@ function buildCube() {
                 ];
                 const mesh = new THREE.Mesh(geom, mats);
                 mesh.position.set(x, y, z);
+                mesh.userData.solvedPos = { x: x, y: y, z: z };
                 scene.add(mesh);
                 cubies.push(mesh);
             }
@@ -781,6 +783,7 @@ function executeMove(moveStr) {
             if (isScrambling && moveQueue.length === 0) isScrambling = false;
             updateResetButtonState();
             updateFaceLabels();
+            checkSolved();
         }
     }
     animFrameId = requestAnimationFrame(animateRotation);
@@ -874,6 +877,7 @@ function triggerReset() {
     if (btn) btn.textContent = t.choose_algo;
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
+    lastSolvedState = true;
     if (controls) controls.target.set(0, -1.2, 0);
     updateResetButtonState();
     updateFaceLabels();
@@ -927,6 +931,7 @@ function loadSavedStateSync() {
             document.getElementById('counter').innerText = moveCount;
             isRestoring = false;
         }
+        lastSolvedState = isCubeSolved();
     } catch (err) {
         isRestoring = false;
     }
@@ -1558,6 +1563,155 @@ window.addEventListener('error', function(e) {
         hideLoadingScreen();
     }
 }, true);
+// ================================================================
+// САЛЮТ ПРИ СКЛАДАННІ КУБИКА
+// ================================================================
+
+const confetti = (function() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return { spawn: () => {} };
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let running = false;
+    
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    
+    function spawn(count = 250) {
+        resize();
+        canvas.style.display = 'block';
+        const colors = ['#ffcc00', '#ff0055', '#00ff66', '#0066ff', '#ff7700', '#ffffff', '#9b59b6'];
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: -20 - Math.random() * 300,
+                vx: (Math.random() - 0.5) * 4,
+                vy: 2 + Math.random() * 4,
+                size: 6 + Math.random() * 10,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.3,
+                life: 1
+            });
+        }
+        if (!running) {
+            running = true;
+            animate();
+        }
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const p of particles) {
+            if (p.life <= 0) continue;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.15;
+            p.vx *= 0.99;
+            p.rotation += p.rotationSpeed;
+            if (p.y > canvas.height * 0.75) p.life -= 0.02;
+            
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+            ctx.restore();
+        }
+        particles = particles.filter(p => p.life > 0 && p.y < canvas.height + 50);
+        if (particles.length > 0) {
+            requestAnimationFrame(animate);
+        } else {
+            running = false;
+            canvas.style.display = 'none';
+        }
+    }
+    
+    return { spawn };
+})();
+
+let celebrationCooldown = 0;
+
+function celebrate() {
+    const now = Date.now();
+    if (now - celebrationCooldown < 3000) return;
+    celebrationCooldown = now;
+    
+    playVictorySound();
+    showSolvedMessage();
+    confetti.spawn(250);
+}
+
+function showSolvedMessage() {
+    const old = document.querySelector('.solved-message');
+    if (old) old.remove();
+    
+    const el = document.createElement('div');
+    el.className = 'solved-message';
+    el.innerHTML = `🎉 Кубик зібрано! 🎉<span class="sub">за ${moveCount} ходів · ${currentMode === 'auto' ? 'Auto' : 'Manual'}</span>`;
+    document.body.appendChild(el);
+    
+    requestAnimationFrame(() => el.classList.add('show'));
+    
+    setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.remove(), 600);
+    }, 4000);
+}
+
+function playVictorySound() {
+    if (isMuted) return;
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const now = audioCtx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+        
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.1);
+            gain.gain.setValueAtTime(0, now + i * 0.1);
+            gain.gain.linearRampToValueAtTime(0.12, now + i * 0.1 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.7);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.1);
+            osc.stop(now + i * 0.1 + 0.8);
+        });
+    } catch (e) {}
+}
+
+function isCubeSolved() {
+    if (!cubies || cubies.length !== 26) return false;
+    const identity = new THREE.Quaternion();
+    for (const c of cubies) {
+        const sp = c.userData.solvedPos;
+        if (!sp) return false;
+        if (Math.abs(c.position.x - sp.x) > 0.1) return false;
+        if (Math.abs(c.position.y - sp.y) > 0.1) return false;
+        if (Math.abs(c.position.z - sp.z) > 0.1) return false;
+        const dot = Math.abs(c.quaternion.dot(identity));
+        if (dot < 0.999) return false;
+    }
+    return true;
+}
+
+function checkSolved() {
+    if (isScrambling || isRestoring) return;
+    if (!cubies || cubies.length !== 26) return;
+    
+    const nowSolved = isCubeSolved();
+    if (nowSolved && !lastSolvedState) {
+        celebrate();
+    }
+    lastSolvedState = nowSolved;
+}
 
 // ================================================================
 // КІНЕЦЬ
