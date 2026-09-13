@@ -1690,6 +1690,7 @@ function playVictorySound() {
 function isCubeSolved() {
     if (!cubies || cubies.length !== 26) return false;
     if (!cachedCubeMaterials) return false;
+    
     for (const c of cubies) {
         const sp = c.userData.solvedPos;
         if (!sp) return false;
@@ -1697,6 +1698,7 @@ function isCubeSolved() {
         if (Math.abs(c.position.y - sp.y) > 0.1) return false;
         if (Math.abs(c.position.z - sp.z) > 0.1) return false;
     }
+    
     const localNormals = [
         new THREE.Vector3(1, 0, 0),
         new THREE.Vector3(-1, 0, 0),
@@ -1705,15 +1707,25 @@ function isCubeSolved() {
         new THREE.Vector3(0, 0, 1),
         new THREE.Vector3(0, 0, -1)
     ];
-    const expectedMaterials = [
-        cachedCubeMaterials[0], cachedCubeMaterials[1], cachedCubeMaterials[2],
-        cachedCubeMaterials[3], cachedCubeMaterials[5], cachedCubeMaterials[6]
+    
+    const expected = [
+        cachedCubeMaterials[0],
+        cachedCubeMaterials[1],
+        cachedCubeMaterials[2],
+        cachedCubeMaterials[3],
+        cachedCubeMaterials[5],
+        cachedCubeMaterials[6]
     ];
+    
     const worldDirections = [
-        new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
-        new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0),
-        new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, -1, 0),
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1)
     ];
+    
     for (const c of cubies) {
         const activeFaces = [];
         if (c.position.x > 0.5) activeFaces.push(0);
@@ -1722,8 +1734,10 @@ function isCubeSolved() {
         if (c.position.y < -0.5) activeFaces.push(3);
         if (c.position.z > 0.5) activeFaces.push(4);
         if (c.position.z < -0.5) activeFaces.push(5);
+        
         for (const faceIdx of activeFaces) {
             const worldDir = worldDirections[faceIdx];
+            
             let visibleLocalIdx = -1;
             let maxDot = -Infinity;
             for (let i = 0; i < 6; i++) {
@@ -1732,9 +1746,19 @@ function isCubeSolved() {
                 if (dot > maxDot) { maxDot = dot; visibleLocalIdx = i; }
             }
             if (visibleLocalIdx === -1) return false;
-            if (c.material[visibleLocalIdx] !== expectedMaterials[faceIdx]) return false;
+            
+            const mat = c.material[visibleLocalIdx];
+            const exp = expected[faceIdx];
+            
+            // ⭐ ЛОГОТИП = БІЛИЙ: прирівнюємо materials[3] і materials[4]
+            const isWhiteD = (mat === cachedCubeMaterials[3] || mat === cachedCubeMaterials[4]);
+            const expectedIsWhiteD = (exp === cachedCubeMaterials[3] || exp === cachedCubeMaterials[4]);
+            
+            if (isWhiteD && expectedIsWhiteD) continue;
+            if (mat !== exp) return false;
         }
     }
+    
     return true;
 }
 
