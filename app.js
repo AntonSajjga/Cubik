@@ -1,4 +1,3 @@
-
 // ================================================================
 // RUBIK'S CUBE 3D PRO - MAIN APPLICATION
 // ================================================================
@@ -227,6 +226,13 @@ const PLASTIC_COLOR = '#2b2b32';
 let currentProgress = 0;
 let currentSelectedPlan = 'monthly';
 let lastSolvedState = true;
+
+// --- Локальний рейтинг ---
+let raycaster = new THREE.Raycaster();
+let mouseVec = new THREE.Vector2();
+let solveStartTime = null;
+const RATING_KEY = 'rubik_local_rating';
+const MAX_RATING_ENTRIES = 10;
 
 // ================================================================
 // 3. БЕЗПЕЧНА ПЕРЕВІРКА АДМІН-КЛЮЧА
@@ -517,6 +523,7 @@ function buildCube() {
                 const mesh = new THREE.Mesh(geom, mats);
                 mesh.position.set(x, y, z);
                 mesh.userData.solvedPos = { x: x, y: y, z: z };
+                mesh.userData.isLogoCubie = isWhiteCenter;
                 scene.add(mesh);
                 cubies.push(mesh);
             }
@@ -566,6 +573,7 @@ function init3D() {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setClearColor(0x529b89, 1);
         container.appendChild(renderer.domElement);
+        renderer.domElement.addEventListener('click', onCubeClick);
         container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
 
         updateProgress(55, t.setup_controls);
@@ -676,6 +684,7 @@ function animateLoop() {
         if (!isScrambling) {
             moveCount++;
             document.getElementById('counter').innerText = moveCount;
+            if (moveCount === 1) solveStartTime = Date.now();
         }
         saveState();
         executeMove(nextMove);
@@ -869,6 +878,7 @@ function triggerReset() {
     pivot.position.set(0, 0, 0);
     moveQueue = []; historyMoves = []; activeAlgoSteps = [];
     currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
+    solveStartTime = null;
     localStorage.removeItem('rubik_cube_save_data');
     document.getElementById('counter').innerText = '0';
     const t = translations;
@@ -1639,19 +1649,27 @@ function celebrate() {
     const now = Date.now();
     if (now - celebrationCooldown < 3000) return;
     celebrationCooldown = now;
-    
+
+    const elapsed = solveStartTime ? Date.now() - solveStartTime : 0;
+    const rankInfo = saveRatingEntry(moveCount, elapsed);
+    solveStartTime = null;
+
     playVictorySound();
-    showSolvedMessage();
+    showSolvedMessage(rankInfo);
     confetti.spawn(250);
 }
 
-function showSolvedMessage() {
+function showSolvedMessage(rankInfo) {
     const old = document.querySelector('.solved-message');
     if (old) old.remove();
-    
+
     const el = document.createElement('div');
     el.className = 'solved-message';
-    el.innerHTML = `🎉 Кубик зібрано! 🎉<span class="sub">за ${moveCount} ходів · ${currentMode === 'auto' ? 'Auto' : 'Manual'}</span>`;
+    let rankText = '';
+    if (rankInfo && rankInfo.place) {
+        rankText = ` · місце #${rankInfo.place} у рейтингу`;
+    }
+    el.innerHTML = `🎉 Кубик зібрано! 🎉<span class="sub">за ${moveCount} ходів · ${currentMode === 'auto' ? 'Auto' : 'Manual'}${rankText}</span>`;
     document.body.appendChild(el);
     
     requestAnimationFrame(() => el.classList.add('show'));
@@ -1771,6 +1789,108 @@ function checkSolved() {
         }
     }
     lastSolvedState = nowSolved;
+}
+
+// ================================================================
+// 13. ЛОКАЛЬНИЙ РЕЙТИНГ (клік на логотип білої грані)
+// ================================================================
+
+function onCubeClick(event) {
+    if (!renderer || !camera || isAnimating || isScrambling) return;
+
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouseVec, camera);
+    const hits = raycaster.intersectObjects(cubies, false);
+    if (hits.length === 0) return;
+
+    const hit = hits[0];
+    // materialIndex === 3 відповідає грані D (низ), де сидить текстура логотипу
+    if (hit.object.userData.isLogoCubie && hit.face && hit.face.materialIndex === 3) {
+        openRatingModal();
+    }
+}
+
+function getRatingList() {
+    try {
+        const raw = localStorage.getItem(RATING_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function formatTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    const cs = Math.floor((ms % 1000) / 10);
+    return `${m}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+}
+
+function saveRatingEntry(moves, timeMs) {
+    if (!moves || moves === 0) return null;
+    const list = getRatingList();
+    const entry = { moves, time: timeMs, date: Date.now() };
+    list.push(entry);
+    list.sort((a, b) => a.time - b.time);
+    const trimmed = list.slice(0, MAX_RATING_ENTRIES);
+    localStorage.setItem(RATING_KEY, JSON.stringify(trimmed));
+    const place = trimmed.findIndex(e => e.date === entry.date) + 1;
+    return { place: place > 0 ? place : null, entry, total: trimmed.length };
+}
+
+function clearRating() {
+    localStorage.removeItem(RATING_KEY);
+    renderRatingList();
+}
+
+function openRatingModal() {
+    let modal = document.getElementById('rating-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'rating-modal';
+        modal.className = 'rating-modal-overlay';
+        modal.innerHTML = `
+            <div class="rating-modal-box">
+                <h2>🏆 Локальний рейтинг</h2>
+                <div id="rating-list-container"></div>
+                <div class="rating-modal-actions">
+                    <button id="rating-clear-btn">Очистити</button>
+                    <button id="rating-close-btn">✕ Закрити</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('rating-close-btn').addEventListener('click', closeRatingModal);
+        document.getElementById('rating-clear-btn').addEventListener('click', clearRating);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeRatingModal(); });
+    }
+    renderRatingList();
+    modal.style.display = 'flex';
+}
+
+function closeRatingModal() {
+    const modal = document.getElementById('rating-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function renderRatingList() {
+    const container = document.getElementById('rating-list-container');
+    if (!container) return;
+    const list = getRatingList();
+    if (list.length === 0) {
+        container.innerHTML = '<p class="rating-empty">Ще немає результатів. Зберіть кубик, щоб потрапити в рейтинг!</p>';
+        return;
+    }
+    let html = '<table class="rating-table"><thead><tr><th>#</th><th>Час</th><th>Ходи</th></tr></thead><tbody>';
+    list.forEach((entry, idx) => {
+        html += `<tr><td>${idx + 1}</td><td>${formatTime(entry.time)}</td><td>${entry.moves}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 // ================================================================
