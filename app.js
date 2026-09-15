@@ -3,7 +3,7 @@
 // ================================================================
 
 // ================================================================
-// 1. СИСТЕМА ПЕРЕКЛАДІВ
+// 1. TRANSLATIONS SYSTEM
 // ================================================================
 let translations = {};
 let currentLang = localStorage.getItem('rubik_language') || 'en';
@@ -20,13 +20,13 @@ async function loadTranslations(lang) {
 
     try {
         const response = await fetch(`locales/${lang}.json`);
-        if (!response.ok) throw new Error('Мова не знайдена');
+        if (!response.ok) throw new Error('Language not found');
         translations = await response.json();
         localStorage.setItem(cacheKey, JSON.stringify(translations));
         localStorage.setItem('rubik_language', lang);
         return translations;
     } catch (error) {
-        console.warn('⚠️ Не вдалося завантажити мову:', lang, error);
+        console.warn('⚠️ Failed to load language:', lang, error);
         if (lang !== 'en') {
             try {
                 const fallback = await fetch('locales/en.json');
@@ -51,7 +51,7 @@ async function loadTranslations(lang) {
             nested_cube: 'Nested Cube Pattern', scramble: '🔀 Scramble',
             pro: '🛟 PRO', reset: '⟳ Reset', settings_title: '⚙️ Settings',
             version: 'Version', language: 'Language', social: 'Social Networks',
-            rating: 'Rating', share: 'Share with Friends', feedback: 'Feedback',
+            rating: 'Rate App', share: 'Share with Friends', feedback: 'Feedback',
             close: '✕ Close', facebook: 'Facebook', instagram: 'Instagram',
             youtube: 'YouTube', telegram: 'Telegram', tiktok: 'TikTok', x: 'X',
             gmail: 'Gmail', pro_title: '🏆 LogixCube PRO',
@@ -87,14 +87,13 @@ function applyLanguage(lang) {
     const t = translations;
     if (!t || Object.keys(t).length === 0) return;
 
-    // Оновлення тексту завантаження
     const loaderEl = document.getElementById('loader-text');
     if (loaderEl) loaderEl.textContent = t.loading || 'Loading...';
 
     document.querySelector('.stat-badge').innerHTML = t.moves + ' <span id="counter">' + document.getElementById('counter').innerText + '</span>';
     document.getElementById('settings-btn').title = t.settings;
     document.getElementById('sound-btn').title = t.sound;
-    document.getElementById('help-btn').title = 'Показати мітки';
+    document.getElementById('help-btn').title = 'Show labels';
 
     if (!storedAlgoStr) {
         document.getElementById('algo-display').innerText = t.choose;
@@ -111,6 +110,7 @@ function applyLanguage(lang) {
 
     const settingsItems = document.querySelectorAll('.settings-item');
     const settingsLabels = [
+        { icon: '🏆', text: 'My Scores' },
         { icon: '📦', text: t.version },
         { icon: '🌐', text: t.language },
         { icon: '📱', text: t.social },
@@ -201,7 +201,7 @@ async function initLanguage() {
 }
 
 // ================================================================
-// 2. ОСНОВНІ ГЛОБАЛЬНІ ЗМІННІ
+// 2. GLOBAL VARIABLES
 // ================================================================
 let scene, camera, renderer, controls, cubies = [];
 let moveQueue = [];
@@ -226,16 +226,13 @@ const PLASTIC_COLOR = '#2b2b32';
 let currentProgress = 0;
 let currentSelectedPlan = 'monthly';
 let lastSolvedState = true;
-
-// --- Локальний рейтинг ---
-let raycaster = new THREE.Raycaster();
-let mouseVec = new THREE.Vector2();
 let solveStartTime = null;
-const RATING_KEY = 'rubik_local_rating';
-const MAX_RATING_ENTRIES = 10;
+let logoClickTime = 0;
+let logoClickX = 0;
+let logoClickY = 0;
 
 // ================================================================
-// 3. БЕЗПЕЧНА ПЕРЕВІРКА АДМІН-КЛЮЧА
+// 3. ADMIN KEY VERIFICATION
 // ================================================================
 const ADMIN_KEY_HASH = "8381f59d38bb9ba78520e60ba87bf4a2e56dac64099e0f7064d7b2df5618e396";
 async function hashString(str) {
@@ -274,8 +271,12 @@ const STORE_URLS = {
     yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
 };
 
+// Local leaderboard
+const SCORES_KEY = 'rubik_scores';
+const MAX_SCORES = 100;
+
 // ================================================================
-// 4. ФУНКЦІЇ ТЕКСТУР, МІТОК, ПОБУДОВИ КУБА
+// 4. TEXTURES, LABELS, CUBE BUILD
 // ================================================================
 function drawRoundedRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
@@ -533,7 +534,7 @@ function buildCube() {
 }
 
 // ================================================================
-// 5. ІНІЦІАЛІЗАЦІЯ 3D
+// 5. 3D INITIALIZATION
 // ================================================================
 let isFirstRender = true;
 
@@ -542,12 +543,12 @@ function init3D() {
         const container = document.getElementById('canvas-container');
 
         if (typeof THREE === 'undefined') {
-            console.error('❌ Three.js не завантажено!');
+            console.error('❌ Three.js not loaded!');
             document.getElementById('canvas-container').innerHTML = `
                 <div style="display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:10px; color:#fff; text-align:center; padding:20px;">
-                    <h2>⚠️ Помилка завантаження</h2>
-                    <p>Не вдалося завантажити 3D-рушій.<br>Перевірте з'єднання з інтернетом.</p>
-                    <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Оновити</button>
+                    <h2>⚠️ Loading error</h2>
+                    <p>Failed to load 3D engine.<br>Check your internet connection.</p>
+                    <button onclick="location.reload()" style="padding:10px 30px; background:#27ae60; border:none; color:#fff; border-radius:8px; font-size:16px; cursor:pointer;">Reload</button>
                 </div>
             `;
             document.getElementById('canvas-container').classList.add('loaded');
@@ -573,7 +574,7 @@ function init3D() {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setClearColor(0x529b89, 1);
         container.appendChild(renderer.domElement);
-        renderer.domElement.addEventListener('click', onCubeClick);
+        initLogoClickHandler();
         container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
 
         updateProgress(55, t.setup_controls);
@@ -632,13 +633,14 @@ function init3D() {
         setTimeout(() => {
             hideLoadingScreen();
             appInitialLoadComplete = true;
+            updateBestScoreBadge();
         }, 300);
     });
 }
 
 function handleContextLost(event) {
     event.preventDefault();
-    console.warn('⚠️ WebGL контекст втрачено. Перезавантажуємо...');
+    console.warn('⚠️ WebGL context lost. Reloading...');
     setTimeout(() => { location.reload(); }, 1000);
 }
 
@@ -661,7 +663,7 @@ function restoreCubeAfterContextLoss() {
 }
 
 function handleContextRestored() {
-    console.log('✅ WebGL контекст відновлено');
+    console.log('✅ WebGL context restored');
     restoreCubeAfterContextLoss();
 }
 
@@ -972,7 +974,7 @@ function onWindowResize() {
 }
 
 // ================================================================
-// 6. АЛГОРИТМИ
+// 6. ALGORITHMS
 // ================================================================
 function updateAlgorithmList() {
     const t = translations;
@@ -1052,7 +1054,7 @@ function selectAlgorithmFromModal(value, isLocked, element) {
         const yearlyAlgoValue = "R' D' R D";
         if (value === yearlyAlgoValue) {
             const t = translations;
-            alert(t.yearly_only || 'Цей алгоритм доступний тільки в річній підписці PRO!');
+            alert(t.yearly_only || 'This algorithm is available only with yearly PRO subscription!');
         } else {
             openActivationModal();
         }
@@ -1157,7 +1159,7 @@ function updateResetButtonState() {
 }
 
 // ================================================================
-// 7. PRO СТАТУС
+// 7. PRO STATUS
 // ================================================================
 async function checkProStatus() {
     const saved = localStorage.getItem('rubik_license_data');
@@ -1228,7 +1230,7 @@ function updateProUI() {
 }
 
 // ================================================================
-// 8. ФУНКЦІЇ МОДАЛЬНИХ ВІКОН
+// 8. MODAL FUNCTIONS
 // ================================================================
 function openActivationModal() {
     document.getElementById('pro-modal').style.display = 'flex';
@@ -1269,12 +1271,12 @@ async function validateLicense() {
     const key = keyInput.value.trim();
 
     if (!key) {
-        alert('Введіть ключ ліцензії!');
+        alert('Enter license key!');
         return;
     }
 
     if (proAttempts >= MAX_ATTEMPTS) {
-        alert('🔒 Забагато спроб. Перезавантажте додаток.');
+        alert('🔒 Too many attempts. Reload the app.');
         keyInput.value = '';
         return;
     }
@@ -1292,7 +1294,7 @@ async function validateLicense() {
         closeActivationModal();
         keyInput.value = '';
         proAttempts = 0;
-        alert('🎉 PRO активовано на 2 години!');
+        alert('🎉 PRO activated for 2 hours!');
         return;
     }
 
@@ -1309,8 +1311,8 @@ async function validateLicense() {
         const data = await response.json();
         if (data.valid) {
             const variant = data.meta?.variant_name?.toLowerCase() || '';
-            const isYearly = variant.includes('yearly') || variant.includes('річний');
-            alert('🎉 PRO активовано!');
+            const isYearly = variant.includes('yearly');
+            alert('🎉 PRO activated!');
             localStorage.setItem('rubik_license_data', JSON.stringify({
                 type: 'license',
                 key: key,
@@ -1323,15 +1325,15 @@ async function validateLicense() {
             keyInput.value = '';
             proAttempts = 0;
         } else {
-            alert('❌ Невірний ключ!');
+            alert('❌ Invalid key!');
         }
     } catch (error) {
-        alert('❌ Помилка з\'єднання.');
+        alert('❌ Connection error.');
     }
 }
 
 // ================================================================
-// 9. НАЛАШТУВАННЯ, ЗВУК, СОЦІАЛЬНІ ФУНКЦІЇ
+// 9. SETTINGS, SOUND, SOCIAL
 // ================================================================
 function openSettings() {
     document.getElementById('settings-modal').style.display = 'flex';
@@ -1417,7 +1419,7 @@ function playClickSound() {
 }
 
 // ================================================================
-// 10. ФУНКЦІЇ ЗАВАНТАЖЕННЯ
+// 10. LOADING FUNCTIONS
 // ================================================================
 function updateProgress(value, text) {
     currentProgress = Math.min(value, 100);
@@ -1440,24 +1442,8 @@ function hideLoadingScreen() {
     }
 }
 
-function loadLanguage() {
-    const savedLang = localStorage.getItem('rubik_language') || 'en';
-    const options = document.querySelectorAll('.lang-option');
-    options.forEach(el => {
-        const langKey = el.getAttribute('data-lang');
-        if (langKey === savedLang) {
-            el.classList.add('active');
-        } else {
-            el.classList.remove('active');
-        }
-    });
-    loadTranslations(savedLang).then(() => {
-        applyLanguage(savedLang);
-    });
-}
-
 // ================================================================
-// 11. ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
+// 11. INIT ON LOAD
 // ================================================================
 function resetZoom() {
     window.scrollTo(0, 0);
@@ -1531,7 +1517,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ================================================================
-// 12. ЗАПУСК
+// 12. LAUNCH
 // ================================================================
 window.addEventListener('load', function() {
     const canvas = document.getElementById('canvas-container');
@@ -1544,8 +1530,8 @@ window.addEventListener('load', function() {
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
-            .then(() => console.log('✅ Service Worker зареєстровано'))
-            .catch(err => console.error('❌ Помилка реєстрації SW:', err));
+            .then(() => console.log('✅ Service Worker registered'))
+            .catch(err => console.error('❌ SW registration error:', err));
     }
 
     setTimeout(() => {
@@ -1560,21 +1546,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btn) {
         btn.addEventListener('click', openAlgorithmModal);
     }
+    updateBestScoreBadge();
 });
 
 window.addEventListener('error', function(e) {
     if (e.target.tagName === 'SCRIPT') {
-        console.warn('⚠️ Помилка завантаження скрипта:', e.target.src);
+        console.warn('⚠️ Script load error:', e.target.src);
         document.body.innerHTML += `
             <div style="position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#c0392b; color:#fff; padding:10px 20px; border-radius:8px; z-index:999; font-size:14px; text-align:center; max-width:90%;">
-                ⚠️ Помилка завантаження 3D-движка. Перевірте підключення до інтернету.
+                ⚠️ Failed to load 3D engine. Check your internet connection.
             </div>
         `;
         hideLoadingScreen();
     }
 }, true);
+
 // ================================================================
-// САЛЮТ ПРИ СКЛАДАННІ КУБИКА
+// 13. CONFETTI / CELEBRATION
 // ================================================================
 
 const confetti = (function() {
@@ -1583,12 +1571,12 @@ const confetti = (function() {
     const ctx = canvas.getContext('2d');
     let particles = [];
     let running = false;
-    
+
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
-    
+
     function spawn(count = 250) {
         resize();
         canvas.style.display = 'block';
@@ -1611,7 +1599,7 @@ const confetti = (function() {
             animate();
         }
     }
-    
+
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const p of particles) {
@@ -1622,7 +1610,7 @@ const confetti = (function() {
             p.vx *= 0.99;
             p.rotation += p.rotationSpeed;
             if (p.y > canvas.height * 0.75) p.life -= 0.02;
-            
+
             ctx.save();
             ctx.translate(p.x, p.y);
             ctx.rotate(p.rotation);
@@ -1639,7 +1627,7 @@ const confetti = (function() {
             canvas.style.display = 'none';
         }
     }
-    
+
     return { spawn };
 })();
 
@@ -1650,30 +1638,27 @@ function celebrate() {
     if (now - celebrationCooldown < 3000) return;
     celebrationCooldown = now;
 
-    const elapsed = solveStartTime ? Date.now() - solveStartTime : 0;
-    const rankInfo = saveRatingEntry(moveCount, elapsed);
-    solveStartTime = null;
+    const isNewRecord = saveScore();
 
     playVictorySound();
-    showSolvedMessage(rankInfo);
+    showSolvedMessage(isNewRecord);
     confetti.spawn(250);
 }
 
-function showSolvedMessage(rankInfo) {
+function showSolvedMessage(isNewRecord = false) {
     const old = document.querySelector('.solved-message');
     if (old) old.remove();
 
     const el = document.createElement('div');
     el.className = 'solved-message';
-    let rankText = '';
-    if (rankInfo && rankInfo.place) {
-        rankText = ` · місце #${rankInfo.place} у рейтингу`;
-    }
-    el.innerHTML = `🎉 Кубик зібрано! 🎉<span class="sub">за ${moveCount} ходів · ${currentMode === 'auto' ? 'Auto' : 'Manual'}${rankText}</span>`;
+
+    const recordLine = isNewRecord ? '<span class="sub" style="color:#ffcc00;">⭐ NEW RECORD!</span>' : '';
+
+    el.innerHTML = `🎉 Congrats! 🎉<span class="sub">in ${moveCount} moves · ${currentMode === 'auto' ? 'Auto' : 'Manual'}</span>${recordLine}`;
     document.body.appendChild(el);
-    
+
     requestAnimationFrame(() => el.classList.add('show'));
-    
+
     setTimeout(() => {
         el.classList.remove('show');
         setTimeout(() => el.remove(), 600);
@@ -1685,10 +1670,10 @@ function playVictorySound() {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        
+
         const now = audioCtx.currentTime;
-        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
-        
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+
         notes.forEach((freq, i) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -1708,7 +1693,7 @@ function playVictorySound() {
 function isCubeSolved() {
     if (!cubies || cubies.length !== 26) return false;
     if (!cachedCubeMaterials) return false;
-    
+
     for (const c of cubies) {
         const sp = c.userData.solvedPos;
         if (!sp) return false;
@@ -1716,7 +1701,7 @@ function isCubeSolved() {
         if (Math.abs(c.position.y - sp.y) > 0.1) return false;
         if (Math.abs(c.position.z - sp.z) > 0.1) return false;
     }
-    
+
     const localNormals = [
         new THREE.Vector3(1, 0, 0),
         new THREE.Vector3(-1, 0, 0),
@@ -1725,7 +1710,7 @@ function isCubeSolved() {
         new THREE.Vector3(0, 0, 1),
         new THREE.Vector3(0, 0, -1)
     ];
-    
+
     const expected = [
         cachedCubeMaterials[0],
         cachedCubeMaterials[1],
@@ -1734,7 +1719,7 @@ function isCubeSolved() {
         cachedCubeMaterials[5],
         cachedCubeMaterials[6]
     ];
-    
+
     const worldDirections = [
         new THREE.Vector3(1, 0, 0),
         new THREE.Vector3(-1, 0, 0),
@@ -1743,7 +1728,7 @@ function isCubeSolved() {
         new THREE.Vector3(0, 0, 1),
         new THREE.Vector3(0, 0, -1)
     ];
-    
+
     for (const c of cubies) {
         const activeFaces = [];
         if (c.position.x > 0.5) activeFaces.push(0);
@@ -1752,10 +1737,10 @@ function isCubeSolved() {
         if (c.position.y < -0.5) activeFaces.push(3);
         if (c.position.z > 0.5) activeFaces.push(4);
         if (c.position.z < -0.5) activeFaces.push(5);
-        
+
         for (const faceIdx of activeFaces) {
             const worldDir = worldDirections[faceIdx];
-            
+
             let visibleLocalIdx = -1;
             let maxDot = -Infinity;
             for (let i = 0; i < 6; i++) {
@@ -1764,19 +1749,18 @@ function isCubeSolved() {
                 if (dot > maxDot) { maxDot = dot; visibleLocalIdx = i; }
             }
             if (visibleLocalIdx === -1) return false;
-            
+
             const mat = c.material[visibleLocalIdx];
             const exp = expected[faceIdx];
-            
-            // ⭐ ЛОГОТИП = БІЛИЙ: прирівнюємо materials[3] і materials[4]
+
             const isWhiteD = (mat === cachedCubeMaterials[3] || mat === cachedCubeMaterials[4]);
             const expectedIsWhiteD = (exp === cachedCubeMaterials[3] || exp === cachedCubeMaterials[4]);
-            
+
             if (isWhiteD && expectedIsWhiteD) continue;
             if (mat !== exp) return false;
         }
     }
-    
+
     return true;
 }
 
@@ -1792,107 +1776,207 @@ function checkSolved() {
 }
 
 // ================================================================
-// 13. ЛОКАЛЬНИЙ РЕЙТИНГ (клік на логотип білої грані)
+// 14. LOCAL LEADERBOARD
 // ================================================================
 
-function onCubeClick(event) {
-    if (!renderer || !camera || isAnimating || isScrambling) return;
+function saveScore() {
+    try {
+        const scores = JSON.parse(localStorage.getItem(SCORES_KEY) || '[]');
 
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        const entry = {
+            moves: moveCount,
+            mode: currentMode,
+            date: Date.now(),
+            algorithm: storedAlgoStr || null
+        };
 
-    raycaster.setFromCamera(mouseVec, camera);
-    const hits = raycaster.intersectObjects(cubies, false);
-    if (hits.length === 0) return;
+        scores.push(entry);
+        scores.sort((a, b) => a.moves - b.moves);
 
-    const hit = hits[0];
-    // materialIndex === 3 відповідає грані D (низ), де сидить текстура логотипу
-    if (hit.object.userData.isLogoCubie && hit.face && hit.face.materialIndex === 3) {
-        openRatingModal();
+        if (scores.length > MAX_SCORES) {
+            scores.length = MAX_SCORES;
+        }
+
+        localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
+
+        updateBestScoreBadge();
+
+        return scores[0]?.moves === entry.moves && scores[0]?.date === entry.date;
+    } catch (e) {
+        console.warn('Error saving score:', e);
+        return false;
     }
 }
 
-function getRatingList() {
+function loadScores() {
     try {
-        const raw = localStorage.getItem(RATING_KEY);
-        return raw ? JSON.parse(raw) : [];
+        return JSON.parse(localStorage.getItem(SCORES_KEY) || '[]');
     } catch (e) {
         return [];
     }
 }
 
-function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const m = Math.floor(totalSec / 60);
-    const s = totalSec % 60;
-    const cs = Math.floor((ms % 1000) / 10);
-    return `${m}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
-}
+function openScoresModal() {
+    const modal = document.getElementById('scores-modal');
+    if (!modal) return;
 
-function saveRatingEntry(moves, timeMs) {
-    if (!moves || moves === 0) return null;
-    const list = getRatingList();
-    const entry = { moves, time: timeMs, date: Date.now() };
-    list.push(entry);
-    list.sort((a, b) => a.time - b.time);
-    const trimmed = list.slice(0, MAX_RATING_ENTRIES);
-    localStorage.setItem(RATING_KEY, JSON.stringify(trimmed));
-    const place = trimmed.findIndex(e => e.date === entry.date) + 1;
-    return { place: place > 0 ? place : null, entry, total: trimmed.length };
-}
-
-function clearRating() {
-    localStorage.removeItem(RATING_KEY);
-    renderRatingList();
-}
-
-function openRatingModal() {
-    let modal = document.getElementById('rating-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'rating-modal';
-        modal.className = 'rating-modal-overlay';
-        modal.innerHTML = `
-            <div class="rating-modal-box">
-                <h2>🏆 Локальний рейтинг</h2>
-                <div id="rating-list-container"></div>
-                <div class="rating-modal-actions">
-                    <button id="rating-clear-btn">Очистити</button>
-                    <button id="rating-close-btn">✕ Закрити</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('rating-close-btn').addEventListener('click', closeRatingModal);
-        document.getElementById('rating-clear-btn').addEventListener('click', clearRating);
-        modal.addEventListener('click', (e) => { if (e.target === modal) closeRatingModal(); });
-    }
-    renderRatingList();
+    renderScoresStats();
+    renderScoresList();
     modal.style.display = 'flex';
 }
 
-function closeRatingModal() {
-    const modal = document.getElementById('rating-modal');
+function closeScoresModal() {
+    const modal = document.getElementById('scores-modal');
     if (modal) modal.style.display = 'none';
 }
 
-function renderRatingList() {
-    const container = document.getElementById('rating-list-container');
+function renderScoresStats() {
+    const container = document.getElementById('scores-stats');
     if (!container) return;
-    const list = getRatingList();
-    if (list.length === 0) {
-        container.innerHTML = '<p class="rating-empty">Ще немає результатів. Зберіть кубик, щоб потрапити в рейтинг!</p>';
+
+    const scores = loadScores();
+
+    if (scores.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#666;">No results yet</div>';
         return;
     }
-    let html = '<table class="rating-table"><thead><tr><th>#</th><th>Час</th><th>Ходи</th></tr></thead><tbody>';
-    list.forEach((entry, idx) => {
-        html += `<tr><td>${idx + 1}</td><td>${formatTime(entry.time)}</td><td>${entry.moves}</td></tr>`;
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
+
+    const total = scores.length;
+    const best = scores[0].moves;
+    const worst = scores[scores.length - 1].moves;
+    const sum = scores.reduce((a, s) => a + s.moves, 0);
+    const avg = Math.round(sum / total);
+
+    const manualCount = scores.filter(s => s.mode === 'manual').length;
+    const autoCount = scores.filter(s => s.mode === 'auto').length;
+
+    container.innerHTML = `
+        <div class="stats-line"><span>Total attempts:</span><strong>${total}</strong></div>
+        <div class="stats-line"><span>Best result:</span><strong>${best} moves</strong></div>
+        <div class="stats-line"><span>Average:</span><strong>${avg} moves</strong></div>
+        <div class="stats-line"><span>Worst:</span><strong>${worst} moves</strong></div>
+        <div class="stats-line" style="margin-top:6px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05);">
+            <span>Manual / Auto:</span><strong>${manualCount} / ${autoCount}</strong>
+        </div>
+    `;
+}
+
+function renderScoresList() {
+    const container = document.getElementById('scores-list');
+    if (!container) return;
+
+    const scores = loadScores();
+
+    if (scores.length === 0) {
+        container.innerHTML = `
+            <div class="empty-scores">
+                🎲<br>
+                No results yet.<br>
+                Solve the cube to see your leaderboard!
+            </div>
+        `;
+        return;
+    }
+
+    const top10 = scores.slice(0, 10);
+
+    container.innerHTML = top10.map((s, i) => {
+        const rank = i + 1;
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank + '.';
+        const rankClass = rank <= 3 ? `rank-${rank}` : '';
+        const dateStr = new Date(s.date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' });
+        const modeText = s.mode === 'auto' ? 'Auto' : 'Manual';
+
+        return `
+            <div class="score-row ${rankClass}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="rank">${medal}</span>
+                    <span class="moves">${s.moves} moves</span>
+                </div>
+                <div style="text-align:right;">
+                    <div class="mode">${modeText}</div>
+                    <div class="date">${dateStr}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function clearScores() {
+    if (!confirm('Are you sure you want to delete all history?')) return;
+
+    localStorage.removeItem(SCORES_KEY);
+    closeScoresModal();
+
+    updateBestScoreBadge();
+    setTimeout(() => alert('🗑 History cleared'), 200);
+}
+
+function updateBestScoreBadge() {
+    const badge = document.getElementById('best-score-badge');
+    if (!badge) return;
+    const scores = loadScores();
+    if (scores.length > 0) {
+        badge.textContent = scores[0].moves + ' moves';
+    } else {
+        badge.textContent = '—';
+    }
 }
 
 // ================================================================
-// КІНЕЦЬ
+// 15. EASTER EGG: CLICK ON LOGO OPENS LEADERBOARD
+// ================================================================
+
+function initLogoClickHandler() {
+    if (!renderer || !renderer.domElement) return;
+    const canvas = renderer.domElement;
+
+    canvas.addEventListener('pointerdown', (e) => {
+        logoClickTime = Date.now();
+        logoClickX = e.clientX;
+        logoClickY = e.clientY;
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+        const timeDiff = Date.now() - logoClickTime;
+        const dx = Math.abs(e.clientX - logoClickX);
+        const dy = Math.abs(e.clientY - logoClickY);
+
+        if (timeDiff < 300 && dx < 8 && dy < 8) {
+            handleLogoClick(e.clientX, e.clientY);
+        }
+    });
+}
+
+function handleLogoClick(clientX, clientY) {
+    if (!camera || !renderer || !cubies || cubies.length === 0) return;
+    if (!cachedCubeMaterials) return;
+
+    const rect = renderer.domElement.getBoundingClientRect();
+    const mouse = new THREE.Vector2();
+    mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(cubies, false);
+
+    if (intersects.length === 0) return;
+
+    const hit = intersects[0];
+    if (!hit.object.userData.isLogoCubie) return;
+
+    const materialIndex = Math.floor(hit.faceIndex / 2);
+    const mat = hit.object.material[materialIndex];
+
+    if (mat === cachedCubeMaterials[4]) {
+        if (navigator.vibrate) navigator.vibrate(50);
+        playClickSound();
+        openScoresModal();
+    }
+}
+
+// ================================================================
+// END
 // ================================================================
