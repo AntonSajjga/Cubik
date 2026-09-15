@@ -1933,8 +1933,16 @@ function initLogoClickHandler() {
 }
 
 function handleLogoClick(clientX, clientY) {
-    if (!camera || !renderer || !cubies || cubies.length === 0) return;
-    if (!cachedCubeMaterials) return;
+    alert('1. Функція викликана!');  // ← ДІАГНОСТИКА
+    
+    if (!camera || !renderer || !cubies || cubies.length === 0) {
+        alert('2. Немає camera/renderer/cubies');
+        return;
+    }
+    if (!cachedCubeMaterials) {
+        alert('3. Немає cachedCubeMaterials');
+        return;
+    }
 
     const rect = renderer.domElement.getBoundingClientRect();
     const mouse = new THREE.Vector2();
@@ -1946,21 +1954,28 @@ function handleLogoClick(clientX, clientY) {
 
     const intersects = raycaster.intersectObjects(cubies, false);
 
+    alert('4. intersects.length = ' + intersects.length);
+
     if (intersects.length === 0) return;
 
     const hit = intersects[0];
-    if (!hit.object.userData.isLogoCubie) return;
-
+    alert('5. isLogoCubie = ' + hit.object.userData.isLogoCubie);
+    alert('6. faceIndex = ' + hit.faceIndex);
+    alert('7. materialIndex (Math.floor(faceIndex/2)) = ' + Math.floor(hit.faceIndex / 2));
+    
     const materialIndex = Math.floor(hit.faceIndex / 2);
     const mat = hit.object.material[materialIndex];
+    
+    alert('8. mat === cachedCubeMaterials[4] ? ' + (mat === cachedCubeMaterials[4]));
 
     if (mat === cachedCubeMaterials[4]) {
         if (navigator.vibrate) navigator.vibrate(50);
         playClickSound();
         openScoresModal();
+    } else {
+        alert('9. Матеріал не збігається. mat = ' + (mat ? mat.type : 'undefined'));
     }
 }
-
 // ================================================================
 // END
 // ================================================================
