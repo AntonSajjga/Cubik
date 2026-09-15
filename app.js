@@ -67,7 +67,7 @@ async function loadTranslations(lang) {
             share_title: "Rubik's Cube 3D",
             share_text: "Try Rubik's Cube 3D! Solve and learn algorithms! 🎲",
             share_copied: '📋 Link copied! Share with friends.', copy_link: 'Copy link:',
-            email_subject: "Feedback Rubik's Cube 3D",
+            email_subject: "LogixCube - Feedback",
             lang_uk: 'Ukrainian', lang_en: 'English', lang_de: 'German',
             lang_fr: 'French', lang_es: 'Spanish', lang_it: 'Italian',
             lang_pl: 'Polish', lang_pt: 'Portuguese', lang_ja: 'Japanese',
