@@ -1377,7 +1377,7 @@ function shareApp() {
 
 function feedbackApp() {
     const t = translations;
-    window.location.href = 'mailto:support@your-app.com?subject=' + encodeURIComponent(t.email_subject);
+    window.location.href = 'mailto:logixcube2026@gmail.com?subject=' + encodeURIComponent(t.email_subject);
 }
 
 function toggleSound() {
