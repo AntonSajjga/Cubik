@@ -1813,12 +1813,21 @@ function loadScores() {
 }
 
 function openScoresModal() {
+    alert('A. openScoresModal викликано!');
+    
     const modal = document.getElementById('scores-modal');
-    if (!modal) return;
+    alert('B. modal знайдено? ' + (modal !== null));
+    
+    if (!modal) {
+        alert('C. ПОМИЛКА: елемент #scores-modal не знайдено в HTML!');
+        return;
+    }
 
     renderScoresStats();
     renderScoresList();
     modal.style.display = 'flex';
+    
+    alert('D. modal.style.display = ' + modal.style.display);
 }
 
 function closeScoresModal() {
