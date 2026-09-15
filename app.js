@@ -1813,21 +1813,12 @@ function loadScores() {
 }
 
 function openScoresModal() {
-    alert('A. openScoresModal викликано!');
-    
     const modal = document.getElementById('scores-modal');
-    alert('B. modal знайдено? ' + (modal !== null));
-    
-    if (!modal) {
-        alert('C. ПОМИЛКА: елемент #scores-modal не знайдено в HTML!');
-        return;
-    }
+    if (!modal) return;
 
     renderScoresStats();
     renderScoresList();
     modal.style.display = 'flex';
-    
-    alert('D. modal.style.display = ' + modal.style.display);
 }
 
 function closeScoresModal() {
@@ -1942,16 +1933,8 @@ function initLogoClickHandler() {
 }
 
 function handleLogoClick(clientX, clientY) {
-    alert('1. Функція викликана!');  // ← ДІАГНОСТИКА
-    
-    if (!camera || !renderer || !cubies || cubies.length === 0) {
-        alert('2. Немає camera/renderer/cubies');
-        return;
-    }
-    if (!cachedCubeMaterials) {
-        alert('3. Немає cachedCubeMaterials');
-        return;
-    }
+    if (!camera || !renderer || !cubies || cubies.length === 0) return;
+    if (!cachedCubeMaterials) return;
 
     const rect = renderer.domElement.getBoundingClientRect();
     const mouse = new THREE.Vector2();
@@ -1963,26 +1946,18 @@ function handleLogoClick(clientX, clientY) {
 
     const intersects = raycaster.intersectObjects(cubies, false);
 
-    alert('4. intersects.length = ' + intersects.length);
-
     if (intersects.length === 0) return;
 
     const hit = intersects[0];
-    alert('5. isLogoCubie = ' + hit.object.userData.isLogoCubie);
-    alert('6. faceIndex = ' + hit.faceIndex);
-    alert('7. materialIndex (Math.floor(faceIndex/2)) = ' + Math.floor(hit.faceIndex / 2));
-    
+    if (!hit.object.userData.isLogoCubie) return;
+
     const materialIndex = Math.floor(hit.faceIndex / 2);
     const mat = hit.object.material[materialIndex];
-    
-    alert('8. mat === cachedCubeMaterials[4] ? ' + (mat === cachedCubeMaterials[4]));
 
     if (mat === cachedCubeMaterials[4]) {
         if (navigator.vibrate) navigator.vibrate(50);
         playClickSound();
         openScoresModal();
-    } else {
-        alert('9. Матеріал не збігається. mat = ' + (mat ? mat.type : 'undefined'));
     }
 }
 // ================================================================
