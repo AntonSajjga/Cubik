@@ -196,6 +196,55 @@
     margin-top: 10px;
     font-weight: 500;
 }
+        #scores-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 250;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #252532;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.score-row.rank-1 { background: linear-gradient(90deg, rgba(241,196,15,0.15), rgba(241,196,15,0.05)); border-left: 3px solid #f1c40f; }
+.score-row.rank-2 { background: linear-gradient(90deg, rgba(192,192,192,0.15), rgba(192,192,192,0.05)); border-left: 3px solid #c0c0c0; }
+.score-row.rank-3 { background: linear-gradient(90deg, rgba(205,127,50,0.15), rgba(205,127,50,0.05)); border-left: 3px solid #cd7f32; }
+
+.score-row .rank { font-weight: 700; color: #ffcc00; min-width: 32px; }
+.score-row .moves { font-weight: 700; color: #00ff66; }
+.score-row .mode { font-size: 11px; color: #a0a0ab; text-transform: uppercase; }
+.score-row .date { font-size: 11px; color: #666; }
+
+.empty-scores {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.stats-line {
+    display: flex;
+    justify-content: space-between;
+}
+.stats-line strong {
+    color: #00d2ff;
+}
     </style>
 
     <script defer src="js/three.min.js"></script>
@@ -378,4 +427,20 @@
             <button class="close-modal-btn" onclick="closeActivationModal()">Close</button>
         </div>
     </div>
+    <!-- ===== SCORES MODAL ===== -->
+<div id="scores-modal">
+    <div class="settings-modal-content">
+        <h2><span>🏆</span> My Scores</h2>
+        
+        <div id="scores-stats" style="background: #141420; padding: 14px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; line-height: 1.8;"></div>
+        
+        <div style="font-size: 13px; color: #a0a0ab; margin-bottom: 8px; font-weight: 600;">TOP-10 RESULTS:</div>
+        
+        <div id="scores-list" style="max-height: 40vh; overflow-y: auto;"></div>
+        
+        <button class="settings-close-btn" onclick="closeScoresModal()">✕ Close</button>
+        <button class="settings-close-btn" onclick="clearScores()" style="background: #922b21; margin-top: 8px;">🗑 Clear History</button>
+    </div>
+</div>
 </body>
+</html>
