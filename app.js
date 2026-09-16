@@ -230,6 +230,7 @@ let solveStartTime = null;
 let logoClickTime = 0;
 let logoClickX = 0;
 let logoClickY = 0;
+let hasScrambled = false;
 
 // ================================================================
 // 3. ADMIN KEY VERIFICATION
@@ -857,6 +858,7 @@ function setMode(mode) {
 
 function triggerScramble() {
     isScrambling = true;
+    hasScrambled = true;   // ← ДОДАНО: користувач перемішав кубик
     updateResetButtonState();
     const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
     for (let i = 0; i < 20; i++) {
@@ -880,6 +882,7 @@ function triggerReset() {
     moveQueue = []; historyMoves = []; activeAlgoSteps = [];
     currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
     solveStartTime = null;
+    hasScrambled = false;   // ← ДОДАНО: після Reset рейтинг не зараховується
     localStorage.removeItem('rubik_cube_save_data');
     document.getElementById('counter').innerText = '0';
     const t = translations;
@@ -942,11 +945,12 @@ function loadSavedStateSync() {
             document.getElementById('counter').innerText = moveCount;
             isRestoring = false;
         }
-        lastSolvedState = isCubeSolved();
-    } catch (err) {
-        isRestoring = false;
+            lastSolvedState = isCubeSolved();
+            hasScrambled = false;   // ← ДОДАНО: після перезавантаження рейтинг не зараховується
+        } catch (err) {
+            isRestoring = false;
+        }
     }
-}
 
 function switchTheme(themeKey, element) {
     document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
@@ -1779,6 +1783,11 @@ function checkSolved() {
 
 function saveScore() {
     try {
+        // ⭐ Не зберігаємо, якщо користувач не перемішував кубик
+        if (!hasScrambled) {
+            return false;
+        }
+
         const scores = JSON.parse(localStorage.getItem(SCORES_KEY) || '[]');
 
         const entry = {
@@ -1796,6 +1805,9 @@ function saveScore() {
         }
 
         localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
+
+        // Скидаємо прапорець — наступне збирання потребує нового Scramble
+        hasScrambled = false;
 
         return scores[0]?.moves === entry.moves && scores[0]?.date === entry.date;
     } catch (e) {
