@@ -1770,7 +1770,7 @@ function checkSolved() {
     if (!cubies || cubies.length !== 26) return;
     const nowSolved = isCubeSolved();
     if (!isScrambling && !isRestoring) {
-        if (nowSolved && !lastSolvedState) {
+        if (nowSolved && !lastSolvedState && hasScrambled) {   // ← ДОДАНО hasScrambled
             celebrate();
         }
     }
