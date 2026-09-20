@@ -8,6 +8,7 @@ const CACHE_NAME = 'rubik-3d-v6.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './app.js',
   './manifest.json',
   './icon.png',
   './js/three.min.js',
