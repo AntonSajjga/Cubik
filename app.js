@@ -1529,19 +1529,32 @@ window.addEventListener('load', function() {
         canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
 
-    init3D();
+    // ===== ВІДКЛАДЕНА ІНІЦІАЛІЗАЦІЯ 3D =====
+    let is3DInitialized = false;
+    
+    function triggerInit3D() {
+        if (is3DInitialized) return;
+        is3DInitialized = true;
+        
+        // Видаляємо слухачів
+        document.removeEventListener('click', triggerInit3D);
+        document.removeEventListener('touchstart', triggerInit3D);
+        
+        init3D();
+    }
+    
+    // Варіант 1: Ініціалізувати через 800 мс
+    setTimeout(triggerInit3D, 800);
+    
+    // Варіант 2: Ініціалізувати при першому кліку (швидше)
+    document.addEventListener('click', triggerInit3D, { once: true });
+    document.addEventListener('touchstart', triggerInit3D, { once: true });
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(() => console.log('✅ Service Worker registered'))
             .catch(err => console.error('❌ SW registration error:', err));
     }
-
-    setTimeout(() => {
-        if (renderer && scene && camera) {
-            renderer.render(scene, camera);
-        }
-    }, 50);
 });
 
 document.addEventListener('DOMContentLoaded', function() {
