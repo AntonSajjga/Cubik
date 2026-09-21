@@ -616,11 +616,18 @@ function init3D() {
         loadSavedStateSync();
 
         if (renderer && scene && camera) {
+    // Прибираємо блокуючий compile
+    renderer.render(scene, camera);
+    
+    // Компіляція у фоні через requestIdleCallback
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
             if (typeof renderer.compile === 'function') {
                 renderer.compile(scene, camera);
             }
-            renderer.render(scene, camera);
-        }
+        }, { timeout: 2000 });
+    }
+}
 
         isFirstRender = true;
         container.classList.add('loaded');
