@@ -2,7 +2,7 @@
 // sw.js – повноцінний Service Worker для офлайн-роботи
 // ================================================================
 
-const CACHE_NAME = 'rubik-3d-v6.1';
+const CACHE_NAME = 'rubik-3d-v6.2';
 
 // Усі файли, які потрібно закешувати при першому відвідуванні
 const STATIC_ASSETS = [
@@ -29,7 +29,8 @@ const STATIC_ASSETS = [
   './icons/telegram.svg',
   './icons/tiktok.svg',
   './icons/x.svg',
-  './icons/gmail.svg'
+  './icons/gmail.svg',
+  './privacy.html'
 ];
 
 // ================================================================
