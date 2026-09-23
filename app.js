@@ -1216,7 +1216,7 @@ async function checkProStatus() {
 function updateProUI() {
     const btn = document.getElementById('pro-status-btn');
     const t = translations;
-
+    
     if (isYearlyPro) {
         btn.innerText = '🎉 PRO';
         btn.style.background = '#9b59b6';
@@ -1233,10 +1233,10 @@ function updateProUI() {
         btn.style.color = '#1a1a1a';
         btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
     }
-
+    
     btn.style.fontWeight = '700';
     btn.style.textShadow = '0 1px 2px rgba(255,255,255,0.3)';
-
+    
     updateAlgorithmList();
 }
 
