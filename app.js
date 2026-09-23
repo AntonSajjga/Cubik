@@ -116,6 +116,7 @@ function applyLanguage(lang) {
         { icon: '⭐', text: t.rating },
         { icon: '🫂', text: t.share },
         { icon: '💬', text: t.feedback },
+        { icon: '📖', text: 'Solving Guide' },
         { icon: '🔒', text: 'Privacy Policy' }
     ];
     const settingsItems = document.querySelectorAll('.settings-item');
@@ -160,7 +161,7 @@ function applyLanguage(lang) {
         }
     });
 
-    // PRO modal — без plan selector та buy button
+    // PRO modal
     document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
     document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
     document.querySelector('.modal-btn-confirm').innerText = t.activate;
@@ -603,10 +604,8 @@ function init3D() {
         loadSavedStateSync();
 
         if (renderer && scene && camera) {
-            // Прибираємо блокуючий compile
             renderer.render(scene, camera);
 
-            // Компіляція у фоні через requestIdleCallback
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(() => {
                     if (typeof renderer.compile === 'function') {
@@ -1323,6 +1322,14 @@ function feedbackApp() {
     window.location.href = 'mailto:logixcube2026@gmail.com?subject=' + encodeURIComponent(t.email_subject);
 }
 
+function openPrivacy() {
+    window.open('privacy.html', '_blank');
+}
+
+function openGuide() {
+    window.open('guide.html', '_blank');
+}
+
 function toggleSound() {
     isMuted = !isMuted;
     const btn = document.getElementById('sound-btn');
@@ -1917,14 +1924,6 @@ function handleLogoClick(clientX, clientY) {
         playClickSound();
         openScoresModal();
     }
-}
-
-// ================================================================
-// 16. PRIVACY POLICY
-// ================================================================
-
-function openPrivacy() {
-    window.open('privacy.html', '_blank');
 }
 
 // ================================================================
