@@ -1486,7 +1486,7 @@ window.addEventListener('load', function() {
     document.addEventListener('touchstart', triggerInit3D, { once: true });
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('./sw.js')
             .then(() => console.log('✅ Service Worker registered'))
             .catch(err => console.error('❌ SW registration error:', err));
     }
