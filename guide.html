@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Solving Guide - LogiXcube</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#529b89">
+    <meta name="description" content="LogiXcube Solving Guide - Algorithm recommendations">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(180deg, #529b89 0%, #3d796a 100%);
+            color: #f0f0f5;
+            min-height: 100vh;
+            padding: 20px 12px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            background: rgba(20, 20, 30, 0.95);
+            border-radius: 16px;
+            padding: 24px 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #00d2ff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(0, 210, 255, 0.2); transform: translateX(-3px); }
+        h1 {
+            color: #f1c40f;
+            font-size: 24px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #a0a0ab;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        /* ===== DISCLAIMER ===== */
+        .disclaimer {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.12), rgba(241, 196, 15, 0.03));
+            border: 2px solid rgba(241, 196, 15, 0.35);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            font-size: 13px;
+            line-height: 1.65;
+            color: #f0f0f5;
+        }
+        .disclaimer .title {
+            color: #f1c40f;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .disclaimer ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
+        }
+        .disclaimer li {
+            margin-bottom: 4px;
+        }
+        .disclaimer strong { color: #00d2ff; }
+
+        /* ===== LANGUAGE SELECTOR ===== */
+        .lang-selector {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .lang-btn {
+            padding: 5px 11px;
+            border-radius: 12px;
+            background: #2a2a3a;
+            color: #a0a0ab;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .lang-btn.active {
+            background: #1e8449;
+            color: #fff;
+            border-color: #2ecc71;
+        }
+        .lang-btn:hover { background: #3a3a52; }
+
+        /* ===== GUIDES ===== */
+        .guide { display: none; }
+        .guide.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .stage {
+            background: #141420;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border-left: 4px solid #00d2ff;
+        }
+        .stage h2 {
+            color: #f1c40f;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stage .method {
+            color: #a0a0ab;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .stage .method strong { color: #00d2ff; }
+        .algo {
+            background: #1e1e2a;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 6px 0;
+            font-family: monospace;
+            font-size: 14px;
+            color: #ffcc00;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .algo .name {
+            color: #a0a0ab;
+            font-size: 11px;
+            font-weight: 500;
+            font-style: italic;
+        }
+        .goal {
+            color: #00ff66;
+            font-size: 12px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .quick-ref {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(241, 196, 15, 0.02));
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .quick-ref h3 {
+            color: #f1c40f;
+            font-size: 15px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .quick-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .quick-table th, .quick-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .quick-table th {
+            color: #00d2ff;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .quick-table td:first-child {
+            color: #ffcc00;
+            font-weight: 600;
+        }
+        .quick-table td:last-child {
+            font-family: monospace;
+            color: #00ff66;
+            font-size: 12px;
+        }
+        .note {
+            background: rgba(0, 210, 255, 0.08);
+            border-left: 3px solid #00d2ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #d0d0d8;
+        }
+        .note strong { color: #00d2ff; }
+        @media (max-width: 480px) {
+            body { padding: 12px 8px; font-size: 14px; }
+            .container { padding: 18px 14px; border-radius: 12px; }
+            h1 { font-size: 20px; }
+            .stage { padding: 12px 14px; }
+            .algo { font-size: 12px; padding: 6px 10px; }
+            .quick-table { font-size: 12px; }
+            .disclaimer { padding: 12px 14px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to App</a>
+        <h1>📖 Solving Guide</h1>
+        <div class="subtitle">LogiXcube - 3D Rubik's Cube Trainer</div>
+
+        <!-- Language selector -->
+        <div class="lang-selector">
+            <span class="lang-btn active" data-lang="en">🇬🇧 English</span>
+            <span class="lang-btn" data-lang="uk">🇺🇦 Українська</span>
+            <span class="lang-btn" data-lang="de">🇩🇪 Deutsch</span>
+            <span class="lang-btn" data-lang="fr">🇫🇷 Français</span>
+            <span class="lang-btn" data-lang="es">🇪🇸 Español</span>
+            <span class="lang-btn" data-lang="it">🇮🇹 Italiano</span>
+            <span class="lang-btn" data-lang="pl">🇵🇱 Polski</span>
+            <span class="lang-btn" data-lang="pt">🇵🇹 Português</span>
+            <span class="lang-btn" data-lang="ja">🇯🇵 日本語</span>
+            <span class="lang-btn" data-lang="ko">🇰🇷 한국어</span>
+        </div>
+
+        <!-- ============ ENGLISH ============ -->
+        <div class="guide active" data-lang="en">
+            <div class="disclaimer">
+                <div class="title">⚠️ Important — Please Read First</div>
+                <ul>
+                    <li>These are <strong>recommendations only</strong>, not strict rules.</li>
+                    <li>You can use any algorithm in <strong>any order</strong>.</li>
+                    <li>Algorithms can be applied to <strong>any layer</strong>, not just the one shown.</li>
+                    <li>You can solve the cube <strong>manually</strong> at any step — no algorithm required.</li>
+                    <li>The best way to learn is to <strong>experiment and observe</strong> the results.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Level 1 — CROSS (Recommended)</h2>
+                <div class="method">Suggested method: <strong>Manual Mode</strong></div>
+                <div class="goal">Typical goal: Build the cross on the bottom (white) face</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Level 2 — F2L (First 2 Layers)</h2>
+                <div class="method">Suggested method: <strong>Manual or Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Right Sexy Move</span></div>
+                <div class="algo">L' U' L U <span class="name">Left Sexy Move</span></div>
+                <div class="algo">R' F R F' <span class="name">Sledgehammer</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Triple Right Sexy</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Level 3 — OLL (Orient Last Layer)</h2>
+                <div class="method">Suggested method: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Yellow Cross</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Four Corners Swap</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Level 4 — PLL (Permute Last Layer)</h2>
+                <div class="method">Suggested method: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Final Stage</h2>
+                <div class="goal">Goal: Cube solved! Enjoy the celebration 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference</h3>
+                <table class="quick-table">
+                    <tr><th>Stage</th><th>Common Algorithm</th></tr>
+                    <tr><td>Cross</td><td>Manual</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Note:</strong> There are many ways to solve the cube. Feel free to mix algorithms, try them on different layers, or solve everything manually. Learning comes from experimenting.
+            </div>
+        </div>
+
+        <!-- ============ UKRAINIAN ============ -->
+        <div class="guide" data-lang="uk">
+            <div class="disclaimer">
+                <div class="title">⚠️ Важливо — прочитайте спочатку</div>
+                <ul>
+                    <li>Це <strong>рекомендації</strong>, а не строгі правила.</li>
+                    <li>Алгоритми можна використовувати в <strong>будь-якому порядку</strong>.</li>
+                    <li>Алгоритми можна застосовувати до <strong>будь-якого шару</strong>, не лише до вказаного.</li>
+                    <li>Кубик можна збирати <strong>вручну</strong> на будь-якому етапі — без алгоритмів.</li>
+                    <li>Найкращий спосіб навчання — <strong>експериментувати й спостерігати</strong> за результатом.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Рівень 1 — ХРЕСТ (рекомендація)</h2>
+                <div class="method">Рекомендований спосіб: <strong>Manual Mode</strong></div>
+                <div class="goal">Типова мета: Зібрати хрест на нижній (білій) грані</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Рівень 2 — F2L (Перші 2 шари)</h2>
+                <div class="method">Рекомендований спосіб: <strong>Manual або Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Правий піф-паф</span></div>
+                <div class="algo">L' U' L U <span class="name">Лівий піф-паф</span></div>
+                <div class="algo">R' F R F' <span class="name">Кувалда</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Потрійний піф-паф</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Рівень 3 — OLL (Орієнтація верхнього шару)</h2>
+                <div class="method">Рекомендований спосіб: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Сюне</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Анти-Сюне</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Жовтий хрест</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Обмін чотирьох кутів</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Рівень 4 — PLL (Перестановка верхнього шару)</h2>
+                <div class="method">Рекомендований спосіб: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-перестановка</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-перестановка</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-перестановка</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-перестановка</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-перестановка</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-перестановка</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-перестановка</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Фінальний етап</h2>
+                <div class="goal">Мета: Кубик зібрано! Насолоджуйся святкуванням 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Швидка шпаргалка</h3>
+                <table class="quick-table">
+                    <tr><th>Рівень</th><th>Типовий алгоритм</th></tr>
+                    <tr><td>Хрест</td><td>Вручну</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-перестановка</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Примітка:</strong> Існує багато способів збирання кубика. Сміливо комбінуйте алгоритми, застосовуйте їх до різних шарів або збирайте вручну. Навчання приходить через експерименти.
+            </div>
+        </div>
+
+        <!-- ============ GERMAN ============ -->
+        <div class="guide" data-lang="de">
+            <div class="disclaimer">
+                <div class="title">⚠️ Wichtig — bitte zuerst lesen</div>
+                <ul>
+                    <li>Dies sind <strong>Empfehlungen</strong>, keine festen Regeln.</li>
+                    <li>Algorithmen können in <strong>beliebiger Reihenfolge</strong> verwendet werden.</li>
+                    <li>Algorithmen können auf <strong>jede Ebene</strong> angewendet werden, nicht nur auf die gezeigte.</li>
+                    <li>Der Würfel kann jederzeit <strong>manuell</strong> gelöst werden — ohne Algorithmen.</li>
+                    <li>Der beste Weg zu lernen ist <strong>experimentieren und beobachten</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Stufe 1 — KREUZ (Empfohlen)</h2>
+                <div class="method">Empfohlene Methode: <strong>Manual Mode</strong></div>
+                <div class="goal">Typisches Ziel: Das Kreuz auf der unteren (weißen) Seite bauen</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Stufe 2 — F2L (Erste 2 Schichten)</h2>
+                <div class="method">Empfohlene Methode: <strong>Manual oder Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Rechter Sexy Move</span></div>
+                <div class="algo">L' U' L U <span class="name">Linker Sexy Move</span></div>
+                <div class="algo">R' F R F' <span class="name">Vorschlaghammer</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Dreifacher Sexy Move</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Stufe 3 — OLL (Orientierung der letzten Schicht)</h2>
+                <div class="method">Empfohlene Methode: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Gelbes Kreuz</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Vier-Ecken-Tausch</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Stufe 4 — PLL (Permutation der letzten Schicht)</h2>
+                <div class="method">Empfohlene Methode: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Letzte Stufe</h2>
+                <div class="goal">Ziel: Würfel gelöst! Genieße die Feier 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Kurzreferenz</h3>
+                <table class="quick-table">
+                    <tr><th>Stufe</th><th>Üblicher Algorithmus</th></tr>
+                    <tr><td>Kreuz</td><td>Manuell</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Hinweis:</strong> Es gibt viele Wege, den Würfel zu lösen. Kombiniere Algorithmen, probiere sie auf verschiedenen Ebenen oder löse alles manuell. Lernen kommt durch Experimentieren.
+            </div>
+        </div>
+
+        <!-- ============ FRENCH ============ -->
+        <div class="guide" data-lang="fr">
+            <div class="disclaimer">
+                <div class="title">⚠️ Important — à lire en premier</div>
+                <ul>
+                    <li>Ce sont des <strong>recommandations</strong>, pas des règles strictes.</li>
+                    <li>Les algorithmes peuvent être utilisés dans <strong>n'importe quel ordre</strong>.</li>
+                    <li>Les algorithmes peuvent s'appliquer à <strong>n'importe quelle couche</strong>, pas seulement celle montrée.</li>
+                    <li>Le cube peut être résolu <strong>manuellement</strong> à tout moment — sans algorithme.</li>
+                    <li>La meilleure façon d'apprendre est d'<strong>expérimenter et observer</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Niveau 1 — CROIX (Recommandé)</h2>
+                <div class="method">Méthode suggérée : <strong>Manual Mode</strong></div>
+                <div class="goal">Objectif typique : Construire la croix sur la face inférieure (blanche)</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Niveau 2 — F2L (Deux premières couches)</h2>
+                <div class="method">Méthode suggérée : <strong>Manual ou Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Sexy Move droit</span></div>
+                <div class="algo">L' U' L U <span class="name">Sexy Move gauche</span></div>
+                <div class="algo">R' F R F' <span class="name">Marteau</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Triple Sexy Move</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Niveau 3 — OLL (Orientation dernière couche)</h2>
+                <div class="method">Méthode suggérée : <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Croix jaune</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Échange 4 coins</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Niveau 4 — PLL (Permutation dernière couche)</h2>
+                <div class="method">Méthode suggérée : <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Étape finale</h2>
+                <div class="goal">Objectif : Cube résolu ! Profitez de la célébration 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Référence rapide</h3>
+                <table class="quick-table">
+                    <tr><th>Niveau</th><th>Algorithme courant</th></tr>
+                    <tr><td>Croix</td><td>Manuel</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Note :</strong> Il existe de nombreuses façons de résoudre le cube. Mélangez les algorithmes, essayez-les sur différentes couches ou résolvez tout manuellement. On apprend en expérimentant.
+            </div>
+        </div>
+
+        <!-- ============ SPANISH ============ -->
+        <div class="guide" data-lang="es">
+            <div class="disclaimer">
+                <div class="title">⚠️ Importante — lee primero</div>
+                <ul>
+                    <li>Estas son <strong>recomendaciones</strong>, no reglas estrictas.</li>
+                    <li>Los algoritmos se pueden usar en <strong>cualquier orden</strong>.</li>
+                    <li>Los algoritmos se pueden aplicar a <strong>cualquier capa</strong>, no solo a la mostrada.</li>
+                    <li>El cubo se puede resolver <strong>manualmente</strong> en cualquier momento — sin algoritmos.</li>
+                    <li>La mejor forma de aprender es <strong>experimentar y observar</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Nivel 1 — CRUZ (Recomendado)</h2>
+                <div class="method">Método sugerido: <strong>Manual Mode</strong></div>
+                <div class="goal">Objetivo típico: Construir la cruz en la cara inferior (blanca)</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Nivel 2 — F2L (Primeras 2 capas)</h2>
+                <div class="method">Método sugerido: <strong>Manual o Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Sexy Move derecho</span></div>
+                <div class="algo">L' U' L U <span class="name">Sexy Move izquierdo</span></div>
+                <div class="algo">R' F R F' <span class="name">Mazo</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Triple Sexy Move</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Nivel 3 — OLL (Orientación última capa)</h2>
+                <div class="method">Método sugerido: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Cruz amarilla</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Intercambio 4 esquinas</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Nivel 4 — PLL (Permutación última capa)</h2>
+                <div class="method">Método sugerido: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Etapa final</h2>
+                <div class="goal">Objetivo: ¡Cubo resuelto! Disfruta la celebración 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Referencia rápida</h3>
+                <table class="quick-table">
+                    <tr><th>Nivel</th><th>Algoritmo común</th></tr>
+                    <tr><td>Cruz</td><td>Manual</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Nota:</strong> Hay muchas formas de resolver el cubo. Mezcla algoritmos, pruébalos en diferentes capas o resuelve todo manualmente. Se aprende experimentando.
+            </div>
+        </div>
+
+        <!-- ============ ITALIAN ============ -->
+        <div class="guide" data-lang="it">
+            <div class="disclaimer">
+                <div class="title">⚠️ Importante — leggi prima</div>
+                <ul>
+                    <li>Queste sono <strong>raccomandazioni</strong>, non regole rigide.</li>
+                    <li>Gli algoritmi possono essere usati in <strong>qualsiasi ordine</strong>.</li>
+                    <li>Gli algoritmi possono essere applicati a <strong>qualsiasi strato</strong>, non solo a quello mostrato.</li>
+                    <li>Il cubo può essere risolto <strong>manualmente</strong> in qualsiasi momento — senza algoritmi.</li>
+                    <li>Il modo migliore per imparare è <strong>sperimentare e osservare</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Livello 1 — CROCE (Consigliato)</h2>
+                <div class="method">Metodo suggerito: <strong>Manual Mode</strong></div>
+                <div class="goal">Obiettivo tipico: Costruire la croce sulla faccia inferiore (bianca)</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Livello 2 — F2L (Primi 2 strati)</h2>
+                <div class="method">Metodo suggerito: <strong>Manual o Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Sexy Move destro</span></div>
+                <div class="algo">L' U' L U <span class="name">Sexy Move sinistro</span></div>
+                <div class="algo">R' F R F' <span class="name">Martello</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Triplo Sexy Move</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Livello 3 — OLL (Orientamento ultimo strato)</h2>
+                <div class="method">Metodo suggerito: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Croce gialla</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Scambio 4 angoli</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Livello 4 — PLL (Permutazione ultimo strato)</h2>
+                <div class="method">Metodo suggerito: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Fase finale</h2>
+                <div class="goal">Obiettivo: Cubo risolto! Goditi la celebrazione 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Riferimento rapido</h3>
+                <table class="quick-table">
+                    <tr><th>Livello</th><th>Algoritmo comune</th></tr>
+                    <tr><td>Croce</td><td>Manuale</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Nota:</strong> Ci sono molti modi per risolvere il cubo. Mescola algoritmi, provali su strati diversi o risolvi tutto manualmente. Si impara sperimentando.
+            </div>
+        </div>
+
+        <!-- ============ POLISH ============ -->
+        <div class="guide" data-lang="pl">
+            <div class="disclaimer">
+                <div class="title">⚠️ Ważne — przeczytaj najpierw</div>
+                <ul>
+                    <li>To są <strong>zalecenia</strong>, a nie ścisłe zasady.</li>
+                    <li>Algorytmy można stosować w <strong>dowolnej kolejności</strong>.</li>
+                    <li>Algorytmy można stosować do <strong>dowolnej warstwy</strong>, nie tylko pokazanej.</li>
+                    <li>Kostkę można układać <strong>ręcznie</strong> na każdym etapie — bez algorytmów.</li>
+                    <li>Najlepszym sposobem nauki jest <strong>eksperymentowanie i obserwacja</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Poziom 1 — KRZYŻ (Zalecane)</h2>
+                <div class="method">Sugerowana metoda: <strong>Manual Mode</strong></div>
+                <div class="goal">Typowy cel: Zbudować krzyż na dolnej (białej) ścianie</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Poziom 2 — F2L (Pierwsze 2 warstwy)</h2>
+                <div class="method">Sugerowana metoda: <strong>Manual lub Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Prawy Sexy Move</span></div>
+                <div class="algo">L' U' L U <span class="name">Lewy Sexy Move</span></div>
+                <div class="algo">R' F R F' <span class="name">Młot</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Potrójny Sexy Move</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Poziom 3 — OLL (Orientacja ostatniej warstwy)</h2>
+                <div class="method">Sugerowana metoda: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Żółty krzyż</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Zamiana 4 narożników</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Poziom 4 — PLL (Permutacja ostatniej warstwy)</h2>
+                <div class="method">Sugerowana metoda: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Ostatni etap</h2>
+                <div class="goal">Cel: Kostka ułożona! Ciesz się celebracją 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Szybka ściągawka</h3>
+                <table class="quick-table">
+                    <tr><th>Poziom</th><th>Popularny algorytm</th></tr>
+                    <tr><td>Krzyż</td><td>Ręcznie</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Uwaga:</strong> Istnieje wiele sposobów układania kostki. Mieszaj algorytmy, stosuj je na różnych warstwach lub układaj wszystko ręcznie. Nauka przychodzi przez eksperymenty.
+            </div>
+        </div>
+
+        <!-- ============ PORTUGUESE ============ -->
+        <div class="guide" data-lang="pt">
+            <div class="disclaimer">
+                <div class="title">⚠️ Importante — leia primeiro</div>
+                <ul>
+                    <li>Estas são <strong>recomendações</strong>, não regras rígidas.</li>
+                    <li>Os algoritmos podem ser usados em <strong>qualquer ordem</strong>.</li>
+                    <li>Os algoritmos podem ser aplicados a <strong>qualquer camada</strong>, não apenas à mostrada.</li>
+                    <li>O cubo pode ser resolvido <strong>manualmente</strong> a qualquer momento — sem algoritmos.</li>
+                    <li>A melhor forma de aprender é <strong>experimentar e observar</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 Nível 1 — CRUZ (Recomendado)</h2>
+                <div class="method">Método sugerido: <strong>Manual Mode</strong></div>
+                <div class="goal">Objetivo típico: Construir a cruz na face inferior (branca)</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Nível 2 — F2L (Primeiras 2 camadas)</h2>
+                <div class="method">Método sugerido: <strong>Manual ou Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">Sexy Move direito</span></div>
+                <div class="algo">L' U' L U <span class="name">Sexy Move esquerdo</span></div>
+                <div class="algo">R' F R F' <span class="name">Martelo</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">Sexy Move triplo</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Nível 3 — OLL (Orientação última camada)</h2>
+                <div class="method">Método sugerido: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">Sune</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">Anti-Sune</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">Cruz amarela</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">Troca 4 cantos</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 Nível 4 — PLL (Permutação última camada)</h2>
+                <div class="method">Método sugerido: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 Etapa final</h2>
+                <div class="goal">Objetivo: Cubo resolvido! Aproveite a celebração 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ Referência rápida</h3>
+                <table class="quick-table">
+                    <tr><th>Nível</th><th>Algoritmo comum</th></tr>
+                    <tr><td>Cruz</td><td>Manual</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Nota:</strong> Existem muitas maneiras de resolver o cubo. Misture algoritmos, teste-os em diferentes camadas ou resolva tudo manualmente. Aprende-se experimentando.
+            </div>
+        </div>
+
+        <!-- ============ JAPANESE ============ -->
+        <div class="guide" data-lang="ja">
+            <div class="disclaimer">
+                <div class="title">⚠️ 重要 — 最初にお読みください</div>
+                <ul>
+                    <li>これらは<strong>推奨事項</strong>であり、厳密なルールではありません。</li>
+                    <li>アルゴリズムは<strong>任意の順序</strong>で使用できます。</li>
+                    <li>アルゴリズムは<strong>任意の層</strong>に適用できます。表示されている層に限りません。</li>
+                    <li>キューブはいつでも<strong>手動</strong>で解けます — アルゴリズムは不要です。</li>
+                    <li>学ぶ最良の方法は<strong>実験して観察する</strong>ことです。</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 レベル 1 — クロス（推奨）</h2>
+                <div class="method">推奨方法: <strong>Manual Mode</strong></div>
+                <div class="goal">一般的な目標: 下面（白面）にクロスを構築する</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 レベル 2 — F2L（最初の2層）</h2>
+                <div class="method">推奨方法: <strong>Manual または Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">右セクシームーブ</span></div>
+                <div class="algo">L' U' L U <span class="name">左セクシームーブ</span></div>
+                <div class="algo">R' F R F' <span class="name">スレッジハンマー</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">トリプルセクシームーブ</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 レベル 3 — OLL（最終層の向き）</h2>
+                <div class="method">推奨方法: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">スーン</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">アンチスーン</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">黄色いクロス</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">4隅交換</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 レベル 4 — PLL（最終層の並べ替え）</h2>
+                <div class="method">推奨方法: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 最終段階</h2>
+                <div class="goal">目標: キューブ完成！お祝いを楽しんで 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ クイックリファレンス</h3>
+                <table class="quick-table">
+                    <tr><th>レベル</th><th>一般的なアルゴリズム</th></tr>
+                    <tr><td>クロス</td><td>手動</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>注意:</strong> キューブを解く方法はたくさんあります。アルゴリズムを組み合わせたり、異なる層に適用したり、すべて手動で解いたりしてください。学びは実験から生まれます。
+            </div>
+        </div>
+
+        <!-- ============ KOREAN ============ -->
+        <div class="guide" data-lang="ko">
+            <div class="disclaimer">
+                <div class="title">⚠️ 중요 — 먼저 읽어주세요</div>
+                <ul>
+                    <li>이것은 <strong>권장 사항</strong>이며 엄격한 규칙이 아닙니다.</li>
+                    <li>알고리즘은 <strong>어떤 순서로든</strong> 사용할 수 있습니다.</li>
+                    <li>알고리즘은 표시된 층뿐 아니라 <strong>모든 층</strong>에 적용할 수 있습니다.</li>
+                    <li>큐브는 언제든지 <strong>수동으로</strong> 맞출 수 있습니다 — 알고리즘 없이도 가능합니다.</li>
+                    <li>가장 좋은 학습 방법은 <strong>실험하고 관찰하는 것</strong>입니다.</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <h2>🎯 레벨 1 — 크로스 (권장)</h2>
+                <div class="method">권장 방법: <strong>Manual Mode</strong></div>
+                <div class="goal">일반적인 목표: 아래쪽(흰색) 면에 크로스 만들기</div>
+            </div>
+            <div class="stage">
+                <h2>🎯 레벨 2 — F2L (처음 2개 층)</h2>
+                <div class="method">권장 방법: <strong>Manual 또는 Auto</strong></div>
+                <div class="algo">R U R' U' <span class="name">오른쪽 섹시 무브</span></div>
+                <div class="algo">L' U' L U <span class="name">왼쪽 섹시 무브</span></div>
+                <div class="algo">R' F R F' <span class="name">슬레지해머</span></div>
+                <div class="algo">R U R' U' × 3 <span class="name">트리플 섹시 무브</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 레벨 3 — OLL (마지막 층 방향)</h2>
+                <div class="method">권장 방법: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U R U2 R' <span class="name">순</span></div>
+                <div class="algo">R U2 R' U' R U' R' <span class="name">안티 순</span></div>
+                <div class="algo">F R U R' U' F' <span class="name">노란 크로스</span></div>
+                <div class="algo">U R U' L' U R' U' L <span class="name">4개 모서리 교환</span></div>
+            </div>
+            <div class="stage">
+                <h2>🎯 레벨 4 — PLL (마지막 층 순열)</h2>
+                <div class="method">권장 방법: <strong>Auto Mode</strong></div>
+                <div class="algo">R U R' U' R' F R2 U' R' U' R U R' F' <span class="name">T-Perm</span></div>
+                <div class="algo">R U R' F' R U R' U' R' F R2 U' R' <span class="name">J-Perm</span></div>
+                <div class="algo">F R U' R' U' R U R' F' R U R' U' R' F R F' <span class="name">Y-Perm</span></div>
+                <div class="algo">R' F R' B2 R F' R' B2 R2 <span class="name">A-Perm</span></div>
+                <div class="algo">R U' R U R U R U' R' U' R2 <span class="name">Ua-Perm</span></div>
+                <div class="algo">R2 U R U R' U' R' U' R' U R' <span class="name">Ub-Perm</span></div>
+                <div class="algo">R' U R' U' R D' R' D R' U2 R D' R' D R2 <span class="name">E-Perm</span></div>
+            </div>
+            <div class="stage">
+                <h2>🏆 최종 단계</h2>
+                <div class="goal">목표: 큐브 완성! 축하를 즐기세요 🎉</div>
+            </div>
+            <div class="quick-ref">
+                <h3>⚡ 빠른 참조</h3>
+                <table class="quick-table">
+                    <tr><th>레벨</th><th>일반적인 알고리즘</th></tr>
+                    <tr><td>크로스</td><td>수동</td></tr>
+                    <tr><td>F2L</td><td>R U R' U'</td></tr>
+                    <tr><td>OLL</td><td>R U R' U R U2 R'</td></tr>
+                    <tr><td>PLL</td><td>T-Perm</td></tr>
+                </table>
+            </div>
+            <div class="note">
+                <strong>참고:</strong> 큐브를 푸는 방법은 다양합니다. 알고리즘을 조합하거나, 다른 층에 적용하거나, 모두 수동으로 풀어보세요. 배움은 실험에서 옵니다.
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const guides = document.querySelectorAll('.guide');
+
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.getAttribute('data-lang');
+
+                langBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                guides.forEach(g => {
+                    if (g.getAttribute('data-lang') === lang) {
+                        g.classList.add('active');
+                    } else {
+                        g.classList.remove('active');
+                    }
+                });
+
+                const titles = {
+                    en: 'Solving Guide - LogiXcube',
+                    uk: 'Інструкція - LogiXcube',
+                    de: 'Lösungsanleitung - LogiXcube',
+                    fr: 'Guide de résolution - LogiXcube',
+                    es: 'Guía de resolución - LogiXcube',
+                    it: 'Guida alla soluzione - LogiXcube',
+                    pl: 'Przewodnik - LogiXcube',
+                    pt: 'Guia de resolução - LogiXcube',
+                    ja: '解法ガイド - LogiXcube',
+                    ko: '해법 가이드 - LogiXcube'
+                };
+                document.title = titles[lang] || titles.en;
+
+                localStorage.setItem('guide_language', lang);
+            });
+        });
+
+        const savedLang = localStorage.getItem('guide_language');
+        if (savedLang) {
+            const savedBtn = document.querySelector(`.lang-btn[data-lang="${savedLang}"]`);
+            if (savedBtn) savedBtn.click();
+        }
+    </script>
+</body>
+</html>
