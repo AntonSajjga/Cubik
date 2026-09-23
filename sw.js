@@ -2,7 +2,7 @@
 // SERVICE WORKER - LogiXcube
 // ================================================================
 
-const CACHE_NAME = 'rubik-3d-v6.2';
+const CACHE_NAME = 'rubik-3d-v6.3';
 
 // Усі файли, які кешуються при першому відвідуванні
 const STATIC_ASSETS = [
@@ -10,6 +10,7 @@ const STATIC_ASSETS = [
     './index.html',
     './app.js',
     './privacy.html',
+    './guide.html',
     './manifest.json',
     './icon.png',
     './js/three.min.js',
