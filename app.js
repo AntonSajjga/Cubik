@@ -54,8 +54,8 @@ async function loadTranslations(lang) {
             rating: 'Rate App', share: 'Share with Friends', feedback: 'Feedback',
             close: '✕ Close', facebook: 'Facebook', instagram: 'Instagram',
             youtube: 'YouTube', telegram: 'Telegram', tiktok: 'TikTok', x: 'X',
-            gmail: 'Gmail', pro_title: '🏆 LogixCube PRO',
-            pro_desc: 'Select subscription plan or enter your license key:',
+            gmail: 'Gmail', pro_title: '🏆 LogiXcube PRO',
+            pro_desc: 'Enter your license key to activate PRO:',
             monthly: 'Monthly', yearly: 'Yearly', month: '/ month', save_50: 'Save 50%',
             subscribe_month: '🛒 Subscribe for $4.99 / mo',
             subscribe_year: '🛒 Subscribe for $29.99 / yr',
@@ -67,7 +67,7 @@ async function loadTranslations(lang) {
             share_title: "Rubik's Cube 3D",
             share_text: "Try Rubik's Cube 3D! Solve and learn algorithms! 🎲",
             share_copied: '📋 Link copied! Share with friends.', copy_link: 'Copy link:',
-            email_subject: "LogixCube - Feedback",
+            email_subject: "LogiXcube - Feedback",
             lang_uk: 'Ukrainian', lang_en: 'English', lang_de: 'German',
             lang_fr: 'French', lang_es: 'Spanish', lang_it: 'Italian',
             lang_pl: 'Polish', lang_pt: 'Portuguese', lang_ja: 'Japanese',
@@ -108,16 +108,16 @@ function applyLanguage(lang) {
     document.getElementById('reset-btn').innerHTML = t.reset;
     updateProUI();
 
-    // Settings labels — БЕЗ "My Scores"
+    // Settings labels
     const settingsLabels = [
-    { icon: '📦', text: t.version },
-    { icon: '🌐', text: t.language },
-    { icon: '📱', text: t.social },
-    { icon: '⭐', text: t.rating },
-    { icon: '🫂', text: t.share },
-    { icon: '💬', text: t.feedback },
-    { icon: '🔒', text: 'Privacy Policy' }
-];
+        { icon: '📦', text: t.version },
+        { icon: '🌐', text: t.language },
+        { icon: '📱', text: t.social },
+        { icon: '⭐', text: t.rating },
+        { icon: '🫂', text: t.share },
+        { icon: '💬', text: t.feedback },
+        { icon: '🔒', text: 'Privacy Policy' }
+    ];
     const settingsItems = document.querySelectorAll('.settings-item');
     settingsItems.forEach((item, index) => {
         if (index < settingsLabels.length) {
@@ -160,18 +160,9 @@ function applyLanguage(lang) {
         }
     });
 
+    // PRO modal — без plan selector та buy button
     document.querySelector('#pro-modal h3').innerHTML = t.pro_title;
     document.querySelector('#pro-modal .modal-content p').innerHTML = t.pro_desc;
-    document.getElementById('plan-monthly').querySelector('.plan-title').innerText = t.monthly;
-    document.getElementById('plan-yearly').querySelector('.plan-title').innerText = t.yearly;
-    document.querySelector('#plan-monthly .plan-badge').innerText = t.month;
-    document.querySelector('#plan-yearly .plan-badge').innerText = t.save_50;
-    const buyBtn = document.getElementById('buy-btn-link');
-    if (currentSelectedPlan === 'monthly') {
-        buyBtn.innerText = t.subscribe_month;
-    } else {
-        buyBtn.innerText = t.subscribe_year;
-    }
     document.querySelector('.modal-btn-confirm').innerText = t.activate;
     document.querySelector('#pro-modal .close-modal-btn').innerText = t.close_pro;
     document.getElementById('license-key-input').placeholder = t.enter_key;
@@ -225,7 +216,6 @@ const pivot = new THREE.Group();
 const CUBIE_SIZE = 0.98;
 const PLASTIC_COLOR = '#2b2b32';
 let currentProgress = 0;
-let currentSelectedPlan = 'monthly';
 let lastSolvedState = true;
 let solveStartTime = null;
 let logoClickTime = 0;
@@ -267,10 +257,6 @@ const THEMES = {
     dark: { gradient: 'linear-gradient(135deg, #09090e 0%, #141420 100%)', clearColor: 0x09090e },
     mint: { gradient: 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)', clearColor: 0x529b89 },
     teal: { gradient: 'linear-gradient(135deg, #142824 0%, #0a1412 100%)', clearColor: 0x142824 }
-};
-const STORE_URLS = {
-    monthly: "https://logixcube.lemonsqueezy.com/checkout/buy/a9c73a40-c798-4914-8682-1c4ca210f04f",
-    yearly: "https://logixcube.lemonsqueezy.com/checkout/buy/e5280fde-1c68-4504-8c23-22d464aff311"
 };
 
 // Local leaderboard
@@ -617,18 +603,18 @@ function init3D() {
         loadSavedStateSync();
 
         if (renderer && scene && camera) {
-    // Прибираємо блокуючий compile
-    renderer.render(scene, camera);
-    
-    // Компіляція у фоні через requestIdleCallback
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-            if (typeof renderer.compile === 'function') {
-                renderer.compile(scene, camera);
+            // Прибираємо блокуючий compile
+            renderer.render(scene, camera);
+
+            // Компіляція у фоні через requestIdleCallback
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    if (typeof renderer.compile === 'function') {
+                        renderer.compile(scene, camera);
+                    }
+                }, { timeout: 2000 });
             }
-        }, { timeout: 2000 });
-    }
-}
+        }
 
         isFirstRender = true;
         container.classList.add('loaded');
@@ -866,7 +852,7 @@ function setMode(mode) {
 
 function triggerScramble() {
     isScrambling = true;
-    hasScrambled = true;   // ← ДОДАНО: користувач перемішав кубик
+    hasScrambled = true;
     updateResetButtonState();
     const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
     for (let i = 0; i < 20; i++) {
@@ -890,7 +876,7 @@ function triggerReset() {
     moveQueue = []; historyMoves = []; activeAlgoSteps = [];
     currentStepIndex = -1; isAnimating = false; isScrambling = false; moveCount = 0; storedAlgoStr = "";
     solveStartTime = null;
-    hasScrambled = false;   // ← ДОДАНО: після Reset рейтинг не зараховується
+    hasScrambled = false;
     localStorage.removeItem('rubik_cube_save_data');
     document.getElementById('counter').innerText = '0';
     const t = translations;
@@ -953,12 +939,12 @@ function loadSavedStateSync() {
             document.getElementById('counter').innerText = moveCount;
             isRestoring = false;
         }
-            lastSolvedState = isCubeSolved();
-            hasScrambled = false;   // ← ДОДАНО: після перезавантаження рейтинг не зараховується
-        } catch (err) {
-            isRestoring = false;
-        }
+        lastSolvedState = isCubeSolved();
+        hasScrambled = false;
+    } catch (err) {
+        isRestoring = false;
     }
+}
 
 function switchTheme(themeKey, element) {
     document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
@@ -1077,12 +1063,11 @@ function selectAlgorithmFromModal(value, isLocked, element) {
     if (element) element.classList.add('selected');
     const btn = document.getElementById('alg-select-btn');
     if (btn) {
-        const t = translations;
         const found = document.querySelector(`.algo-item.selected span`);
         if (found) {
             btn.textContent = found.textContent;
         } else {
-            btn.textContent = t.choose_algo;
+            btn.textContent = translations.choose_algo;
         }
     }
     updateAlgoDisplay();
@@ -1216,7 +1201,7 @@ async function checkProStatus() {
 function updateProUI() {
     const btn = document.getElementById('pro-status-btn');
     const t = translations;
-    
+
     if (isYearlyPro) {
         btn.innerText = '🎉 PRO';
         btn.style.background = '#9b59b6';
@@ -1233,10 +1218,10 @@ function updateProUI() {
         btn.style.color = '#1a1a1a';
         btn.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.4)';
     }
-    
+
     btn.style.fontWeight = '700';
     btn.style.textShadow = '0 1px 2px rgba(255,255,255,0.3)';
-    
+
     updateAlgorithmList();
 }
 
@@ -1249,21 +1234,6 @@ function openActivationModal() {
 
 function closeActivationModal() {
     document.getElementById('pro-modal').style.display = 'none';
-}
-
-function selectPlan(planType) {
-    currentSelectedPlan = planType;
-    const t = translations;
-    document.getElementById('plan-monthly').classList.remove('active');
-    document.getElementById('plan-yearly').classList.remove('active');
-    const buyLink = document.getElementById('buy-btn-link');
-    if (planType === 'monthly') {
-        document.getElementById('plan-monthly').classList.add('active');
-        buyLink.innerText = t.subscribe_month;
-    } else {
-        document.getElementById('plan-yearly').classList.add('active');
-        buyLink.innerText = t.subscribe_year;
-    }
 }
 
 async function validateLicense() {
@@ -1300,37 +1270,8 @@ async function validateLicense() {
     }
 
     proAttempts++;
-    try {
-        const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                license_key: key,
-                instance_id: window.location.hostname
-            })
-        });
-        const data = await response.json();
-        if (data.valid) {
-            const variant = data.meta?.variant_name?.toLowerCase() || '';
-            const isYearly = variant.includes('yearly');
-            alert('🎉 PRO activated!');
-            localStorage.setItem('rubik_license_data', JSON.stringify({
-                type: 'license',
-                key: key,
-                plan: isYearly ? 'yearly' : 'monthly'
-            }));
-            isProUser = true;
-            isYearlyPro = isYearly;
-            updateProUI();
-            closeActivationModal();
-            keyInput.value = '';
-            proAttempts = 0;
-        } else {
-            alert('❌ Invalid key!');
-        }
-    } catch (error) {
-        alert('❌ Connection error.');
-    }
+    alert('❌ Invalid key!');
+    // TODO: Google Play Billing буде додано після публікації в Google Play
 }
 
 // ================================================================
@@ -1527,24 +1468,20 @@ window.addEventListener('load', function() {
         canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
 
-    // ===== ВІДКЛАДЕНА ІНІЦІАЛІЗАЦІЯ 3D =====
+    // Відкладена ініціалізація 3D
     let is3DInitialized = false;
-    
+
     function triggerInit3D() {
         if (is3DInitialized) return;
         is3DInitialized = true;
-        
-        // Видаляємо слухачів
+
         document.removeEventListener('click', triggerInit3D);
         document.removeEventListener('touchstart', triggerInit3D);
-        
+
         init3D();
     }
-    
-    // Варіант 1: Ініціалізувати через 800 мс
+
     setTimeout(triggerInit3D, 800);
-    
-    // Варіант 2: Ініціалізувати при першому кліку (швидше)
     document.addEventListener('click', triggerInit3D, { once: true });
     document.addEventListener('touchstart', triggerInit3D, { once: true });
 
@@ -1781,7 +1718,7 @@ function checkSolved() {
     if (!cubies || cubies.length !== 26) return;
     const nowSolved = isCubeSolved();
     if (!isScrambling && !isRestoring) {
-        if (nowSolved && !lastSolvedState && hasScrambled) {   // ← ДОДАНО hasScrambled
+        if (nowSolved && !lastSolvedState && hasScrambled) {
             celebrate();
         }
     }
@@ -1794,7 +1731,6 @@ function checkSolved() {
 
 function saveScore() {
     try {
-        // ⭐ Не зберігаємо, якщо користувач не перемішував кубик
         if (!hasScrambled) {
             return false;
         }
@@ -1817,7 +1753,6 @@ function saveScore() {
 
         localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
 
-        // Скидаємо прапорець — наступне збирання потребує нового Scramble
         hasScrambled = false;
 
         return scores[0]?.moves === entry.moves && scores[0]?.date === entry.date;
@@ -1983,9 +1918,15 @@ function handleLogoClick(clientX, clientY) {
         openScoresModal();
     }
 }
+
+// ================================================================
+// 16. PRIVACY POLICY
+// ================================================================
+
 function openPrivacy() {
     window.open('privacy.html', '_blank');
 }
+
 // ================================================================
 // END
 // ================================================================
