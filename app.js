@@ -1266,16 +1266,6 @@ function selectPlan(planType) {
     }
 }
 
-function openSelectedCheckout() {
-    const t = translations;
-    const checkoutUrl = STORE_URLS[currentSelectedPlan];
-    if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-    } else {
-        alert(t.connection_error);
-    }
-}
-
 async function validateLicense() {
     const t = translations;
     const keyInput = document.getElementById('license-key-input');
