@@ -110,13 +110,14 @@ function applyLanguage(lang) {
 
     // Settings labels — БЕЗ "My Scores"
     const settingsLabels = [
-        { icon: '📦', text: t.version },
-        { icon: '🌐', text: t.language },
-        { icon: '📱', text: t.social },
-        { icon: '⭐', text: t.rating },
-        { icon: '🫂', text: t.share },
-        { icon: '💬', text: t.feedback }
-    ];
+    { icon: '📦', text: t.version },
+    { icon: '🌐', text: t.language },
+    { icon: '📱', text: t.social },
+    { icon: '⭐', text: t.rating },
+    { icon: '🫂', text: t.share },
+    { icon: '💬', text: t.feedback },
+    { icon: '🔒', text: 'Privacy Policy' }
+];
     const settingsItems = document.querySelectorAll('.settings-item');
     settingsItems.forEach((item, index) => {
         if (index < settingsLabels.length) {
@@ -1991,6 +1992,9 @@ function handleLogoClick(clientX, clientY) {
         playClickSound();
         openScoresModal();
     }
+}
+function openPrivacy() {
+    window.open('privacy.html', '_blank');
 }
 // ================================================================
 // END
