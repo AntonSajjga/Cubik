@@ -895,7 +895,8 @@ function saveState() {
         historyMoves: historyMoves,
         moveCount: moveCount,
         storedAlgoStr: storedAlgoStr,
-        currentMode: currentMode
+        currentMode: currentMode,
+        hasScrambled: hasScrambled
     }));
 }
 
@@ -939,7 +940,7 @@ function loadSavedStateSync() {
             isRestoring = false;
         }
         lastSolvedState = isCubeSolved();
-        hasScrambled = false;
+        hasScrambled = data.hasScrambled === true;
     } catch (err) {
         isRestoring = false;
     }
