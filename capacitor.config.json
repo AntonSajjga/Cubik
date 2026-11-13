@@ -1,6 +1,6 @@
 {
   "appId": "com.yermakov.webapp",
-  "appName": "My App",
+  "appName": "LogiXcube",
   "webDir": "www",
   "bundledWebRuntime": false
 }
