@@ -1,1 +1,7 @@
+{
+  "appId": "com.yermakov.webapp",
+  "appName": "My App",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
 
