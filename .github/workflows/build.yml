@@ -1,21 +1,18 @@
 name: Build Android AAB
 
-on: workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -23,25 +20,20 @@ jobs:
       - name: Prepare web files
         run: |
           mkdir -p www
-          cp -r index.html guide.html privacy.html app.js manifest.json sw.js icon.png icons js locales www/ 2>/dev/null || true
+          cp -r *.html *.js *.json *.png icons js locales www/ 2>/dev/null || true
 
-      - name: Install dependencies and build Android
+      - name: Build Android
         run: |
           npm install
           npx cap add android
           npx cap sync android
-
-      - name: Generate Keystore and Build Signed AAB
-        run: |
           cd android
           keytool -genkey -v -keystore release.keystore -alias mykey -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Ruslan Yermakov, OU=Dev, O=Independent, L=Samar, S=Dnipropetrovsk, C=UA"
           ./gradlew bundleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=123456 -Pandroid.injected.signing.key.alias=mykey -Pandroid.injected.signing.key.password=123456
 
-      - name: Upload AAB and Keystore
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: release-files
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             android/release.keystore
-
