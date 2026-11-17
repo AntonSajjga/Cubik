@@ -24,7 +24,7 @@ jobs:
 
       - name: Build Android
         run: |
-          npm install
+          npm install --legacy-peer-deps
           npx cap add android
           npx cap sync android
           sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
