@@ -424,11 +424,19 @@
         <div class="modal-content">
             <h3>🏆 LogiXcube PRO</h3>
             <p>Enter your license key to activate PRO:</p>
-
-            <p style="text-align: center; color: #ffcc00; font-size: 14px; margin-bottom: 14px; padding: 12px; background: rgba(255, 204, 0, 0.1); border-radius: 8px;">
-                🚧 Subscriptions will be available soon via Google Play!
-            </p>
-
+        <!-- Кнопки подписки Google Play -->
+        <div style="display: flex; flex-direction: column; gap: 10px; margin: 15px 0;">
+            <button id="btn-buy-monthly" onclick="purchaseProPlan('monthly')" style="padding: 12px; border-radius: 10px; background: #2ecc71; color: #1a1a1a; font-weight: bold; border: none; cursor: pointer;">
+                📅 Monthly PRO
+            </button>
+            <button id="btn-buy-yearly" onclick="purchaseProPlan('yearly')" style="padding: 12px; border-radius: 10px; background: #9b59b6; color: #ffffff; font-weight: bold; border: none; cursor: pointer;">
+                👑 Yearly PRO (Best Value)
+            </button>
+            <button onclick="restoreProPurchases()" style="padding: 8px; border-radius: 8px; background: transparent; color: #aaa; border: 1px solid #444; font-size: 13px; cursor: pointer;">
+                Restore Purchases
+            </button>
+        </div>
+            
             <input type="text" id="license-key-input" class="modal-input" placeholder="XXXXX-XXXXX-XXXXX">
             <button class="modal-btn-confirm" onclick="validateLicense()">Activate PRO</button>
             <br>
