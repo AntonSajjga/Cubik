@@ -29,7 +29,7 @@ jobs:
           npx cap sync android
           sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
           cd android
-          keytool -genkey -v -keystore release.keystore -alias mykey -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Ruslan Yermakov, OU=Dev, O=Independent, L=Samar, S=Dnipropetrovsk, C=UA"
+           cp ../release.keystore release.keystore
           ./gradlew bundleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=123456 -Pandroid.injected.signing.key.alias=mykey -Pandroid.injected.signing.key.password=123456
 
       - uses: actions/upload-artifact@v4
