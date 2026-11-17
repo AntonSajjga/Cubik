@@ -1274,6 +1274,86 @@ async function validateLicense() {
     // TODO: Google Play Billing буде додано після публікації в Google Play
 }
 
+// === GOOGLE PLAY BILLING (@capgo/native-purchases) ===
+const SUBSCRIPTION_ID = 'logixcube_pro';
+
+function getNativePurchases() {
+    return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NativePurchases
+        ? window.Capacitor.Plugins.NativePurchases
+        : null;
+}
+
+async function purchaseProPlan(planId) {
+    // planId: 'monthly' или 'yearly'
+    const NativePurchases = getNativePurchases();
+
+    if (!NativePurchases) {
+        alert('Google Play Billing is available only in the Android app.');
+        return;
+    }
+
+    try {
+        const result = await NativePurchases.purchaseProduct({
+            productIdentifier: SUBSCRIPTION_ID,
+            planIdentifier: planId,
+            productType: 'subs',
+            quantity: 1
+        });
+
+        if (result && result.transactionId) {
+            localStorage.setItem('rubik_license_data', JSON.stringify({
+                type: 'license',
+                plan: planId,
+                transactionId: result.transactionId,
+                activatedAt: Date.now()
+            }));
+            isProUser = true;
+            isYearlyPro = (planId === 'yearly');
+            updateProUI();
+            closeActivationModal();
+            alert('🎉 LogiXcube PRO activated!');
+        }
+    } catch (error) {
+        // Пользователь отменил покупку или возникла ошибка
+        if (error && error.code !== 'USER_CANCELED') {
+            alert('Purchase error: ' + (error.message || 'Please try again'));
+        }
+    }
+}
+
+async function restoreProPurchases() {
+    const NativePurchases = getNativePurchases();
+    if (!NativePurchases) {
+        alert('Available only in the Android app.');
+        return;
+    }
+
+    try {
+        await NativePurchases.restorePurchases();
+        const { purchases } = await NativePurchases.getPurchases({ productType: 'subs' });
+        const activeSub = (purchases || []).find(p => p.productIdentifier === SUBSCRIPTION_ID);
+
+        if (activeSub) {
+            const planId = activeSub.planIdentifier || 'monthly';
+            localStorage.setItem('rubik_license_data', JSON.stringify({
+                type: 'license',
+                plan: planId,
+                activatedAt: Date.now()
+            }));
+            isProUser = true;
+            isYearlyPro = (planId === 'yearly');
+            updateProUI();
+            closeActivationModal();
+            alert('✅ PRO subscription restored!');
+        } else {
+            alert('No active subscriptions found.');
+        }
+    } catch (error) {
+        alert('Restore failed: ' + (error.message || 'Error'));
+    }
+}
+
+
 // ================================================================
 // 9. SETTINGS, SOUND, SOCIAL
 // ================================================================
