@@ -32,7 +32,7 @@
         body { position: fixed; top: 0; left: 0; overflow: hidden; background: var(--bg-gradient); font-family: system-ui, -apple-system, sans-serif; color: var(--text-color); height: 100%; width: 100%; -webkit-user-select: none; user-select: none; touch-action: none; overscroll-behavior: none; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 0; transition: opacity 0.15s ease-out; touch-action: none; background: #529b89; }
         #canvas-container.loaded { opacity: 1; }
-        #top-bar { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10; background: var(--bg-topbar); padding: 4px 12px; border-radius: 30px; border: 1px solid var(--border-color); backdrop-filter: blur(15px); display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); touch-action: none; }
+        #top-bar { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); z-index: 10; background: var(--bg-topbar); padding: 4px 12px; border-radius: 30px; border: 1px solid var(--border-color); backdrop-filter: blur(15px); display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); touch-action: none; }
         .stat-badge { font-size: 12px; font-weight: 600; white-space: nowrap; }
         .stat-badge span { color: #00d2ff; font-size: 13px; }
         .settings-btn { background: none; border: none; color: var(--text-color); font-size: 20px; cursor: pointer; padding: 2px 4px; border-radius: 50%; transition: transform 0.2s ease, opacity 0.2s ease; line-height: 1; }
@@ -43,7 +43,7 @@
         .theme-dots { display: flex; gap: 5px; align-items: center; }
         .theme-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
         .theme-dot.active { border-color: #fff; transform: scale(1.1); }
-        #controls-panel { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 10; width: 100%; max-width: 100%; background: var(--bg-panel); border-top: 1px solid var(--border-color); padding: 12px 10px 15px 10px; backdrop-filter: blur(20px); box-shadow: 0 -5px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 8px; border-radius: 20px 20px 0 0; touch-action: none; }
+        #controls-panel { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 10; width: 100%; max-width: 100%; background: var(--bg-panel); border-top: 1px solid var(--border-color); padding: 12px 10px calc(env(safe-area-inset-bottom, 0px) + 15px) 10px; backdrop-filter: blur(20px); box-shadow: 0 -5px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 8px; border-radius: 20px 20px 0 0; touch-action: none; }
         .algo-header-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
         .help-btn { background: #f39c12; color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s ease; }
         .help-btn:hover { background: #f1c40f; transform: scale(1.05); }
