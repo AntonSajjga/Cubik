@@ -550,7 +550,7 @@ function init3D() {
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(6.5, 5.0, 9.5);
+        camera.position.set(8.5, 6.0, 13.0);
 
         updateProgress(40, t.setup_renderer);
         renderer = new THREE.WebGLRenderer({
@@ -570,7 +570,7 @@ function init3D() {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        controls.target.set(0, -1.2, 0);
+        controls.target.set(0, -0.5, 0);
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI;
         controls.minDistance = 2.5;
@@ -960,15 +960,47 @@ function switchTheme(themeKey, element) {
     }
 }
 
-    function onWindowResize() {
+    const BASE_FOV = 45;
+const MIN_FOV = 38;
+const MAX_FOV = 85;
+let resizeDebounceTimer = null;
+
+function onWindowResize() {
+  clearTimeout(resizeDebounceTimer);
+  resizeDebounceTimer = setTimeout(applyResize, 120);
+}
+
+function applyResize() {
   const container = document.getElementById('canvas-container');
-  if (!container) return;
+  if (!container || !renderer || !camera) return;
+
   const w = container.clientWidth;
   const h = container.clientHeight;
-  camera.aspect = w / h;
-  camera.fov = w < h ? Math.min(72, 45 / (w / h) * 0.72) : 45;
+  if (w <= 0 || h <= 0) return;
+
+  const aspect = w / h;
+  camera.aspect = aspect;
+
+  if (w < h) {
+    const targetFov = BASE_FOV * (1 / Math.pow(aspect, 1.25));
+    camera.fov = Math.max(MIN_FOV, Math.min(MAX_FOV, targetFov));
+  } else {
+    camera.fov = BASE_FOV;
+  }
+
   camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
+  renderer.setSize(w, h, false);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  // Відсуваємо камеру, щоб куб точно вліз
+  if (controls && controls.target) {
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    const portraitDist = w < h ? 14.5 : 11.5;
+    camera.position.copy(controls.target).add(dir.multiplyScalar(portraitDist));
+    controls.update();
+  }
+
+  renderer.render(scene, camera);
 }
 // ================================================================
 // 6. ALGORITHMS
