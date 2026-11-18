@@ -2011,6 +2011,31 @@ function handleLogoClick(clientX, clientY) {
         openScoresModal();
     }
 }
+const CURRENT_APP_VERSION = '2.0.0';
+const STORE_URL = 'https://play.google.com/store/apps/details?id=com.yermakov.logixcube';
+
+function openStoreUpdate() {
+  window.open(STORE_URL, '_system') || (window.location.href = STORE_URL);
+}
+
+async function checkAppVersionUpdate() {
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/AntonSajjga/Cubik/main/version.json?t=' + Date.now());
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.latestVersion && data.latestVersion !== CURRENT_APP_VERSION) {
+      const btn = document.getElementById('update-version-btn');
+      if (btn) {
+        btn.textContent = 'v' + data.latestVersion;
+        btn.style.display = 'inline-block';
+      }
+    }
+  } catch (e) {
+    // Ігноруємо помилку, якщо немає інтернету
+  }
+}
+
+document.addEventListener('DOMContentLoaded', checkAppVersionUpdate);
 
 // ================================================================
 // END
