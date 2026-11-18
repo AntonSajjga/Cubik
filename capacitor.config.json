@@ -2,6 +2,15 @@
   "appId": "com.yermakov.logixcube",
   "appName": "LogiXcube",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css"
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "backgroundColor": "#458b74",
+      "style": "LIGHT"
+    }
+  }
 }
-
