@@ -30,7 +30,7 @@ jobs:
           sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
           sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/g' android/variables.gradle
           sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/g' android/variables.gradle
-          sed -i 's/versionCode 1/versionCode 5/g' android/app/build.gradle
+          sed -i 's/versionCode 1/versionCode 6/g' android/app/build.gradle
           sed -i 's/versionName "1.0"/versionName "1.0.2"/g' android/app/build.gradle
           sed -i 's/dependencies {/dependencies {\n    implementation "com.android.billingclient:billing:8.0.0"/g' android/app/build.gradle
           cd android
