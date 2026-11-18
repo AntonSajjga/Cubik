@@ -960,16 +960,16 @@ function switchTheme(themeKey, element) {
     }
 }
 
-function onWindowResize() {
-    const container = document.getElementById('canvas-container');
-    if (!container) return;
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+    function onWindowResize() {
+  const container = document.getElementById('canvas-container');
+  if (!container) return;
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  camera.aspect = w / h;
+  camera.fov = w < h ? Math.min(72, 45 / (w / h) * 0.72) : 45;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
 }
-
 // ================================================================
 // 6. ALGORITHMS
 // ================================================================
@@ -1293,12 +1293,17 @@ async function purchaseProPlan(planId) {
     }
 
     try {
-        const result = await NativePurchases.purchaseProduct({
-            productIdentifier: SUBSCRIPTION_ID,
-            planIdentifier: planId,
-            productType: 'subs',
-            quantity: 1
-        });
+  await NativePurchases.getProducts({
+    productIdentifiers: [SUBSCRIPTION_ID],
+    productType: 'subs'
+  });
+
+  const result = await NativePurchases.purchaseProduct({
+    productIdentifier: SUBSCRIPTION_ID,
+    planIdentifier: planId,
+    productType: 'subs',
+    quantity: 1
+  });
 
         if (result && result.transactionId) {
             localStorage.setItem('rubik_license_data', JSON.stringify({
