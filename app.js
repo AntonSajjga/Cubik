@@ -1187,7 +1187,7 @@ async function checkProStatus() {
 
         if (data.type === 'license') {
             isProUser = true;
-            isYearlyPro = (data.plan === 'yearly');
+            isYearlyPro = (data.plan === 'yearly' || data.plan === 'annual');
             updateProUI();
         }
     } catch (e) {
@@ -1308,7 +1308,7 @@ async function purchaseProPlan(planId) {
                 activatedAt: Date.now()
             }));
             isProUser = true;
-            isYearlyPro = (planId === 'yearly');
+            isYearlyPro = (planId === 'yearly' || planId === 'annual');
             updateProUI();
             closeActivationModal();
             alert('🎉 LogiXcube PRO activated!');
@@ -1341,8 +1341,8 @@ async function restoreProPurchases() {
                 activatedAt: Date.now()
             }));
             isProUser = true;
-            isYearlyPro = (planId === 'yearly');
-            updateProUI();
+         isYearlyPro = (planId === 'yearly' || planId === 'annual');
+         updateProUI();
             closeActivationModal();
             alert('✅ PRO subscription restored!');
         } else {
