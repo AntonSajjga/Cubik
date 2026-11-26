@@ -622,7 +622,13 @@ function init3D() {
 
         updateProgress(95, t.starting_animation);
         animateLoop();
-
+        // 🔥 ФІКС ДЛЯ AAB
+        requestAnimationFrame(() => {
+           applyResize();
+           setTimeout(applyResize, 400);
+           setTimeout(applyResize, 1200);
+           setTimeout(applyResize, 2500); 
+    });
         updateProgress(100, t.done);
         setTimeout(() => {
             hideLoadingScreen();
