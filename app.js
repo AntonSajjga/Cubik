@@ -2053,32 +2053,63 @@ function handleLogoClick(clientX, clientY) {
         openScoresModal();
     }
 }
-const CURRENT_APP_VERSION = '2.0.0';
+// ================================================================
+// 16. VERSION CHECK & UPDATE (для Android AAB)
+// ================================================================
+let CURRENT_APP_VERSION = '2.0.0';
+let CURRENT_APP_BUILD = '1';
 const STORE_URL = 'https://play.google.com/store/apps/details?id=com.yermakov.logixcube';
 
+// Отримуємо реальну версію з Android (Capacitor)
+async function loadRealAppVersion() {
+  try {
+    const appInfo = await window.Capacitor?.Plugins?.App?.getInfo();
+    if (appInfo) {
+      CURRENT_APP_VERSION = appInfo.version;
+      CURRENT_APP_BUILD = appInfo.build;
+      
+      const badge = document.getElementById('current-version-badge');
+      if (badge) badge.textContent = `v${appInfo.version}`;
+    }
+  } catch (e) {
+    console.warn('Версія з Android недоступна, використовуємо вшиту.', e);
+  }
+}
+
+// Відкриваємо Google Play для оновлення
 function openStoreUpdate() {
   window.open(STORE_URL, '_system') || (window.location.href = STORE_URL);
 }
 
+// Перевіряємо, чи є на GitHub новіша версія
 async function checkAppVersionUpdate() {
   try {
     const res = await fetch('https://raw.githubusercontent.com/AntonSajjga/Cubik/main/version.json?t=' + Date.now());
     if (!res.ok) return;
     const data = await res.json();
+    
+    // Якщо версія на GitHub більша за поточну — показуємо кнопку
     if (data && data.latestVersion && data.latestVersion !== CURRENT_APP_VERSION) {
       const btn = document.getElementById('update-version-btn');
       if (btn) {
-        btn.textContent = 'v' + data.latestVersion;
+        btn.innerHTML = `⬇️ Оновити до v${data.latestVersion}`;
         btn.style.display = 'inline-block';
       }
+    } else {
+      // Якщо версії однакові — ховаємо кнопку (на випадок, якщо вона вже була)
+      const btn = document.getElementById('update-version-btn');
+      if (btn) btn.style.display = 'none';
     }
   } catch (e) {
-    // Ігноруємо помилку, якщо немає інтернету
+    console.warn('Не вдалося перевірити оновлення', e);
   }
 }
 
-document.addEventListener('DOMContentLoaded', checkAppVersionUpdate);
-
+// Запускаємо перевірки при старті
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadRealAppVersion(); // Спочатку дізнаємось нашу реальну версію
+  await checkAppVersionUpdate(); // Потім порівнюємо з GitHub
+});
 // ================================================================
 // END
 // ================================================================
