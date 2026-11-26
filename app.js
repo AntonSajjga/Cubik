@@ -622,13 +622,18 @@ function init3D() {
 
         updateProgress(95, t.starting_animation);
         animateLoop();
-        // 🔥 ФІКС ДЛЯ AAB
-        requestAnimationFrame(() => {
-           applyResize();
-           setTimeout(applyResize, 400);
-           setTimeout(applyResize, 1200);
-           setTimeout(applyResize, 2500); 
-    });
+        
+        // 🔥 ФІКС ДЛЯ AAB: надійна ініціалізація розміру
+        let resizeAttempts = 0;
+        function tryResize() {
+            applyResize();
+            resizeAttempts++;
+            if (resizeAttempts < 5) {
+                setTimeout(tryResize, 300 * resizeAttempts);
+            }
+        }
+        requestAnimationFrame(tryResize);
+        
         updateProgress(100, t.done);
         setTimeout(() => {
             hideLoadingScreen();
@@ -967,7 +972,7 @@ function switchTheme(themeKey, element) {
 }
 const BASE_FOV = 45;
 const MIN_FOV = 38;
-const MAX_FOV = 90; // Трохи збільшили, щоб куб точно влізав по ширині
+const MAX_FOV = 90;
 let resizeDebounceTimer = null;
 
 function onWindowResize() {
@@ -981,13 +986,17 @@ function applyResize() {
 
   const w = container.clientWidth;
   const h = container.clientHeight;
-  if (w <= 0 || h <= 0) return;
+  
+  if (w <= 0 || h <= 0) {
+      requestAnimationFrame(applyResize);
+      return;
+  }
 
   const aspect = w / h;
   camera.aspect = aspect;
 
   if (w < h) {
-    const targetFov = BASE_FOV * (1 / Math.pow(aspect, 1.25));
+    const targetFov = BASE_FOV * (1 / Math.pow(aspect, 1.1));
     camera.fov = Math.max(MIN_FOV, Math.min(MAX_FOV, targetFov));
   } else {
     camera.fov = BASE_FOV;
@@ -995,18 +1004,18 @@ function applyResize() {
 
   camera.updateProjectionMatrix();
   renderer.setSize(w, h, false);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  
+  const dpr = window.devicePixelRatio || 1;
+  renderer.setPixelRatio(Math.min(dpr, 2)); 
 
-  // 🔥 НАЛАШТУВАННЯ РОЗМІРУ ТА ПОЗИЦІЇ КУБА
   if (controls && controls.target) {
-    // 1. РОЗМІР: чим менше число, тим більший куб (спробуй 9.2, 9.5 або 10.0)
-    const portraitDist = w < h ? 9.5 : 11.5; 
-    
-    // 2. ВІДСТУП ЗНИЗУ: чим більше мінус, тим вище куб над меню (наприклад -0.8 або -1.0)
     controls.target.set(0, -0.6, 0); 
     
+    const isPortrait = w < h;
+    const distance = isPortrait ? 9.5 : 11.5; 
+    
     const dir = camera.position.clone().sub(controls.target).normalize();
-    camera.position.copy(controls.target).add(dir.multiplyScalar(portraitDist));
+    camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
     controls.update();
   }
 
@@ -1313,45 +1322,65 @@ async function validateLicense() {
 
     proAttempts++;
     alert('❌ Invalid key!');
-    // TODO: Google Play Billing буде додано після публікації в Google Play
 }
 
 // === GOOGLE PLAY BILLING (@capgo/native-purchases) ===
 const SUBSCRIPTION_ID = 'logixcube_pro';
 
 function getNativePurchases() {
-    return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NativePurchases
+    return window.Capacitor?.Plugins?.NativePurchases
         ? window.Capacitor.Plugins.NativePurchases
         : null;
 }
 
 async function purchaseProPlan(planId) {
-    // planId: 'monthly' или 'yearly'
     const NativePurchases = getNativePurchases();
 
     if (!NativePurchases) {
+        console.warn('⚠️ NativePurchases plugin not found');
         alert('Google Play Billing is available only in the Android app.');
         return;
     }
 
+    if (NativePurchases._isPurchasing) {
+        console.log('Purchase already in progress');
+        return;
+    }
+    NativePurchases._isPurchasing = true;
+
     try {
-  await NativePurchases.getProducts({
-    productIdentifiers: [SUBSCRIPTION_ID],
-    productType: 'subs'
-  });
+        console.log('🔄 Fetching products...');
+        
+        const productsResult = await NativePurchases.getProducts({
+            productIdentifiers: [SUBSCRIPTION_ID],
+            productType: 'subs'
+        });
 
-  const result = await NativePurchases.purchaseProduct({
-    productIdentifier: SUBSCRIPTION_ID,
-    planIdentifier: planId,
-    productType: 'subs',
-    quantity: 1
-  });
+        console.log('📦 Products result:', productsResult);
 
-        if (result && result.transactionId) {
+        const products = productsResult?.products || productsResult || [];
+        if (!Array.isArray(products) || products.length === 0) {
+            throw new Error("Product not found. Check SUBSCRIPTION_ID: " + SUBSCRIPTION_ID);
+        }
+
+        console.log('🛒 Initiating purchase for plan:', planId);
+
+        const result = await NativePurchases.purchaseProduct({
+            productIdentifier: SUBSCRIPTION_ID,
+            planIdentifier: planId,
+            productType: 'subs',
+            quantity: 1
+        });
+
+        console.log('✅ Purchase Result:', result);
+
+        const responseCode = result?.responseCode ?? result?.code;
+        
+        if (responseCode === 0 || responseCode === undefined) {
             localStorage.setItem('rubik_license_data', JSON.stringify({
                 type: 'license',
                 plan: planId,
-                transactionId: result.transactionId,
+                transactionId: result?.transactionId || result?.purchaseToken || 'unknown',
                 activatedAt: Date.now()
             }));
             isProUser = true;
@@ -1359,12 +1388,22 @@ async function purchaseProPlan(planId) {
             updateProUI();
             closeActivationModal();
             alert('🎉 LogiXcube PRO activated!');
+        } else if (responseCode === 1 || responseCode === 2) {
+            console.log('👤 User canceled purchase');
+        } else {
+            throw new Error('Response code: ' + responseCode);
         }
+
     } catch (error) {
-        // Пользователь отменил покупку или возникла ошибка
-        if (error && error.code !== 'USER_CANCELED') {
-            alert('Purchase error: ' + (error.message || 'Please try again'));
-        }
+        console.error('❌ Purchase Error:', error);
+        
+        let msg = 'Purchase failed';
+        if (error.message) msg += ': ' + error.message;
+        if (error.code) msg += ' (' + error.code + ')';
+        
+        alert(msg);
+    } finally {
+        NativePurchases._isPurchasing = false;
     }
 }
 
@@ -1388,8 +1427,8 @@ async function restoreProPurchases() {
                 activatedAt: Date.now()
             }));
             isProUser = true;
-         isYearlyPro = (planId === 'yearly' || planId === 'annual');
-         updateProUI();
+            isYearlyPro = (planId === 'yearly' || planId === 'annual');
+            updateProUI();
             closeActivationModal();
             alert('✅ PRO subscription restored!');
         } else {
@@ -1603,7 +1642,6 @@ window.addEventListener('load', function() {
         canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
 
-    // Відкладена ініціалізація 3D
     let is3DInitialized = false;
 
     function triggerInit3D() {
@@ -2056,11 +2094,10 @@ function handleLogoClick(clientX, clientY) {
 // ================================================================
 // 16. VERSION CHECK & UPDATE (для Android AAB)
 // ================================================================
-let CURRENT_APP_VERSION = '2.0.0';
-let CURRENT_APP_BUILD = '1';
+let CURRENT_APP_VERSION = '1.0.3';
+let CURRENT_APP_BUILD = '3';
 const STORE_URL = 'https://play.google.com/store/apps/details?id=com.yermakov.logixcube';
 
-// Отримуємо реальну версію з Android (Capacitor)
 async function loadRealAppVersion() {
   try {
     const appInfo = await window.Capacitor?.Plugins?.App?.getInfo();
@@ -2076,19 +2113,16 @@ async function loadRealAppVersion() {
   }
 }
 
-// Відкриваємо Google Play для оновлення
 function openStoreUpdate() {
   window.open(STORE_URL, '_system') || (window.location.href = STORE_URL);
 }
 
-// Перевіряємо, чи є на GitHub новіша версія
 async function checkAppVersionUpdate() {
   try {
     const res = await fetch('https://raw.githubusercontent.com/AntonSajjga/Cubik/main/version.json?t=' + Date.now());
     if (!res.ok) return;
     const data = await res.json();
     
-    // Якщо версія на GitHub більша за поточну — показуємо кнопку
     if (data && data.latestVersion && data.latestVersion !== CURRENT_APP_VERSION) {
       const btn = document.getElementById('update-version-btn');
       if (btn) {
@@ -2096,7 +2130,6 @@ async function checkAppVersionUpdate() {
         btn.style.display = 'inline-block';
       }
     } else {
-      // Якщо версії однакові — ховаємо кнопку (на випадок, якщо вона вже була)
       const btn = document.getElementById('update-version-btn');
       if (btn) btn.style.display = 'none';
     }
@@ -2105,10 +2138,9 @@ async function checkAppVersionUpdate() {
   }
 }
 
-// Запускаємо перевірки при старті
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadRealAppVersion(); // Спочатку дізнаємось нашу реальну версію
-  await checkAppVersionUpdate(); // Потім порівнюємо з GitHub
+  await loadRealAppVersion();
+  await checkAppVersionUpdate();
 });
 // ================================================================
 // END
