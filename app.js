@@ -885,7 +885,7 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    if (controls) controls.target.set(0, -1.2, 0);
+    if (controls) controls.target.set(0, -0.6, 0);
     updateResetButtonState();
     updateFaceLabels();
 }
@@ -959,10 +959,9 @@ function switchTheme(themeKey, element) {
         renderer.render(scene, camera);
     }
 }
-
-    const BASE_FOV = 45;
+const BASE_FOV = 45;
 const MIN_FOV = 38;
-const MAX_FOV = 85;
+const MAX_FOV = 90; // Трохи збільшили, щоб куб точно влізав по ширині
 let resizeDebounceTimer = null;
 
 function onWindowResize() {
@@ -992,10 +991,15 @@ function applyResize() {
   renderer.setSize(w, h, false);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-  // Відсуваємо камеру, щоб куб точно вліз
+  // 🔥 НАЛАШТУВАННЯ РОЗМІРУ ТА ПОЗИЦІЇ КУБА
   if (controls && controls.target) {
+    // 1. РОЗМІР: чим менше число, тим більший куб (спробуй 9.2, 9.5 або 10.0)
+    const portraitDist = w < h ? 9.5 : 11.5; 
+    
+    // 2. ВІДСТУП ЗНИЗУ: чим більше мінус, тим вище куб над меню (наприклад -0.8 або -1.0)
+    controls.target.set(0, -0.6, 0); 
+    
     const dir = camera.position.clone().sub(controls.target).normalize();
-    const portraitDist = w < h ? 14.5 : 11.5;
     camera.position.copy(controls.target).add(dir.multiplyScalar(portraitDist));
     controls.update();
   }
