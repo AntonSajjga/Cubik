@@ -2090,26 +2090,42 @@ function handleLogoClick(clientX, clientY) {
         playClickSound();
         openScoresModal();
     }
-}
-// ================================================================
+}// ================================================================
 // 16. VERSION CHECK & UPDATE (для Android AAB)
 // ================================================================
-let CURRENT_APP_VERSION = '1.0.3';
-let CURRENT_APP_BUILD = '3';
+let CURRENT_APP_VERSION = '1.0.0';
+let CURRENT_APP_BUILD = '1';
 const STORE_URL = 'https://play.google.com/store/apps/details?id=com.yermakov.logixcube';
 
+// Читаємо версію з локального version.json (він завжди актуальний після збірки)
 async function loadRealAppVersion() {
+  // Спроба 1: Capacitor App plugin
   try {
     const appInfo = await window.Capacitor?.Plugins?.App?.getInfo();
-    if (appInfo) {
+    if (appInfo && appInfo.version) {
       CURRENT_APP_VERSION = appInfo.version;
       CURRENT_APP_BUILD = appInfo.build;
-      
       const badge = document.getElementById('current-version-badge');
       if (badge) badge.textContent = 'v' + appInfo.version;
+      return;
     }
   } catch (e) {
-    console.warn('Версія з Android недоступна, використовуємо вшиту.', e);
+    console.warn('Capacitor App недоступний:', e);
+  }
+
+  // Спроба 2: локальний version.json (завжди актуальний після збірки)
+  try {
+    const res = await fetch('./version.json?t=' + Date.now());
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.latestVersion) {
+        CURRENT_APP_VERSION = data.latestVersion;
+        const badge = document.getElementById('current-version-badge');
+        if (badge) badge.textContent = 'v' + data.latestVersion;
+      }
+    }
+  } catch (e) {
+    console.warn('Локальний version.json недоступний:', e);
   }
 }
 
@@ -2127,11 +2143,9 @@ async function checkAppVersionUpdate() {
     if (!btn) return;
     
     if (data && data.latestVersion && data.latestVersion !== CURRENT_APP_VERSION) {
-      // Показуємо кнопку з НОВОЮ версією
       btn.textContent = 'v' + data.latestVersion;
       btn.style.display = 'inline-block';
     } else {
-      // Версії однакові — ховаємо кнопку
       btn.style.display = 'none';
     }
   } catch (e) {
