@@ -551,7 +551,7 @@ function init3D() {
         scene = new THREE.Scene();
         // 🔥 ОРИГІНАЛЬНІ ПАРАМЕТРИ КАМЕРИ
         camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(6.5, 7.0, 9.5);
+        camera.position.set(0, 10.0, 8.0);
 
         updateProgress(40, t.setup_renderer);
         renderer = new THREE.WebGLRenderer({
@@ -572,7 +572,7 @@ function init3D() {
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
         // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
-        controls.target.set(0, -0.5, 0);
+        controls.target.set(0, 0, 0);
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI;
         controls.minDistance = 2.5;
@@ -898,7 +898,7 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    if (controls) controls.target.set(0, -0.5, 0);
+    if (controls) controls.target.set(0, 0, 0);
     updateResetButtonState();
     updateFaceLabels();
 }
