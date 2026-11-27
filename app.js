@@ -550,8 +550,8 @@ function init3D() {
 
         scene = new THREE.Scene();
         // 🔥 ЗМІНЕНО: FOV 45 та нова позиція камери (майже спереду)
-        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(2.0, 1.5, 14.0);
+        camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(2.0, 5.0, 20.0);
 
         updateProgress(40, t.setup_renderer);
         renderer = new THREE.WebGLRenderer({
@@ -974,9 +974,9 @@ function switchTheme(themeKey, element) {
     }
 }
 
-const BASE_FOV = 45;
-const MIN_FOV = 38;
-const MAX_FOV = 90;
+const BASE_FOV = 35;  // Зменшуємо, щоб прибрати ефект "нависання"
+const MIN_FOV = 30;   // Теж трохи зменшуємо
+const MAX_FOV = 75;   // Зменшуємо максимум, щоб куб не розтягувався
 let resizeDebounceTimer = null;
 
 function onWindowResize() {
@@ -1018,7 +1018,7 @@ function applyResize() {
     
     const isPortrait = w < h;
     // 🔥 ЗМІНЕНО: відстань
-    const distance = isPortrait ? 11.5 : 13.0; 
+    const distance = isPortrait ? 9.0 : 13.0; 
     
     const dir = camera.position.clone().sub(controls.target).normalize();
     camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
