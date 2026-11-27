@@ -526,6 +526,7 @@ function buildCube() {
 // 5. 3D INITIALIZATION
 // ================================================================
 let isFirstRender = true;
+const BASE_FOV = 35;
 
 function init3D() {
     initLanguage().then(() => {
@@ -549,9 +550,10 @@ function init3D() {
         updateProgress(10, t.init_3d);
 
         scene = new THREE.Scene();
-        // 🔥 ОРИГІНАЛЬНІ ПАРАМЕТРИ КАМЕРИ
-        camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(0, 10.0, 8.0);
+        // Збалансований FOV = 35 прибирає перспективне спотворення ("риб'яче око")
+        camera = new THREE.PerspectiveCamera(BASE_FOV, container.clientWidth / container.clientHeight, 0.1, 100);
+        // Природний ізометричний ракурс без завалу перспективи
+        camera.position.set(5.6, 4.8, 7.8);
 
         updateProgress(40, t.setup_renderer);
         renderer = new THREE.WebGLRenderer({
@@ -561,9 +563,14 @@ function init3D() {
             powerPreference: 'high-performance'
         });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         renderer.setClearColor(0x529b89, 1);
         container.appendChild(renderer.domElement);
+
+        // Обов'язкова прив'язка захисту від втрати WebGL-контексту на Android
+        renderer.domElement.addEventListener('webglcontextlost', handleContextLost, false);
+        renderer.domElement.addEventListener('webglcontextrestored', handleContextRestored, false);
+
         initLogoClickHandler();
         container.style.background = 'linear-gradient(180deg, #529b89 0%, #3d796a 100%)';
 
@@ -571,13 +578,14 @@ function init3D() {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
+        // Центр обертання строго в центрі куба (0, 0, 0) — прибирає ефект нависання
         controls.target.set(0, 0, 0);
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI;
         controls.minDistance = 2.5;
         controls.maxDistance = 25;
         controls.zoomSpeed = -1.2;
+        controls.update();
 
         controls.addEventListener('change', function() {
             if (showLabels) updateFaceLabels();
@@ -605,6 +613,9 @@ function init3D() {
 
         loadSavedStateSync();
 
+        // Одразу застосовуємо правильний розмір і оптичний зсув
+        onWindowResize();
+
         if (renderer && scene && camera) {
             renderer.render(scene, camera);
 
@@ -624,7 +635,7 @@ function init3D() {
 
         updateProgress(95, t.starting_animation);
         animateLoop();
-        
+
         // Фікс для AAB: надійна ініціалізація розміру
         let resizeAttempts = 0;
         function tryResize() {
@@ -635,7 +646,7 @@ function init3D() {
             }
         }
         requestAnimationFrame(tryResize);
-        
+
         updateProgress(100, t.done);
         setTimeout(() => {
             hideLoadingScreen();
@@ -644,10 +655,14 @@ function init3D() {
     });
 }
 
+let contextLostReloadTimer = null;
+
 function handleContextLost(event) {
     event.preventDefault();
-    console.warn('⚠️ WebGL context lost. Reloading...');
-    setTimeout(() => { location.reload(); }, 1000);
+    console.warn('⚠️ WebGL context lost. Waiting for restore...');
+    contextLostReloadTimer = setTimeout(() => {
+        location.reload();
+    }, 4000);
 }
 
 function restoreCubeAfterContextLoss() {
@@ -670,6 +685,10 @@ function restoreCubeAfterContextLoss() {
 
 function handleContextRestored() {
     console.log('✅ WebGL context restored');
+    if (contextLostReloadTimer) {
+        clearTimeout(contextLostReloadTimer);
+        contextLostReloadTimer = null;
+    }
     restoreCubeAfterContextLoss();
 }
 
@@ -764,23 +783,26 @@ function executeMove(moveStr) {
 
     layer.forEach(c => pivot.attach(c));
 
-    let angle = Math.PI / 2;
-    if (face === 'R' || face === 'U' || face === 'F') angle = -angle;
-    if (isPrime) angle = -angle;
-    if (isDouble) angle = angle * 2;
+    let targetAngle = Math.PI / 2;
+    if (face === 'R' || face === 'U' || face === 'F') targetAngle = -targetAngle;
+    if (isPrime) targetAngle = -targetAngle;
+    if (isDouble) targetAngle = targetAngle * 2;
 
-    let progress = 0;
-    let duration = (isScrambling || currentMode === 'auto') ? 38 : (moveQueue.length > 2 ? 12 : 25);
+    // Однакова швидкість обертання в мс на 60Hz і 120Hz екранах
+    const durationMs = (isScrambling || currentMode === 'auto') ? 130 : (moveQueue.length > 2 ? 110 : 210);
+    const startTime = performance.now();
 
-    function animateRotation() {
-        progress++;
-        const step = angle / duration;
+    function animateRotation(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / durationMs, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const currentAngle = targetAngle * eased;
 
-        if (face === 'R' || face === 'L') pivot.rotation.x += step;
-        if (face === 'U' || face === 'D') pivot.rotation.y += step;
-        if (face === 'F' || face === 'B') pivot.rotation.z += step;
+        if (face === 'R' || face === 'L') pivot.rotation.x = currentAngle;
+        if (face === 'U' || face === 'D') pivot.rotation.y = currentAngle;
+        if (face === 'F' || face === 'B') pivot.rotation.z = currentAngle;
 
-        if (progress < duration) {
+        if (t < 1) {
             animFrameId = requestAnimationFrame(animateRotation);
         } else {
             pivot.updateMatrixWorld();
@@ -830,6 +852,7 @@ function updateAlgoDisplay() {
 }
 
 function handleMove(move) {
+    if (!move) return;
     const base = move[0];
     const suffix = move.substring(1);
     const physicalBase = getPhysicalFace(base);
@@ -867,8 +890,13 @@ function triggerScramble() {
     hasScrambled = true;
     updateResetButtonState();
     const moves = ['U', 'D', 'R', 'L', 'F', 'B', "U'", "D'", "R'", "L'", "F'", "B'"];
+    let lastBase = '';
     for (let i = 0; i < 20; i++) {
-        const m = moves[Math.floor(Math.random() * moves.length)];
+        let m;
+        do {
+            m = moves[Math.floor(Math.random() * moves.length)];
+        } while (m[0] === lastBase);
+        lastBase = m[0];
         const base = m[0];
         const suffix = m.slice(1);
         moveQueue.push(getPhysicalFace(base) + suffix);
@@ -898,7 +926,10 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    if (controls) controls.target.set(0, 0, 0);
+    if (controls) {
+        controls.target.set(0, 0, 0);
+        controls.update();
+    }
     updateResetButtonState();
     updateFaceLabels();
 }
@@ -974,18 +1005,36 @@ function switchTheme(themeKey, element) {
 
 function onWindowResize() {
     const container = document.getElementById('canvas-container');
-    if (!container) return;
+    if (!container || !camera || !renderer) return;
+
     const w = container.clientWidth;
     const h = container.clientHeight;
-    camera.aspect = w / h;
+    if (w === 0 || h === 0) return;
+
+    const aspect = w / h;
+    camera.aspect = aspect;
+
+    // Адаптивний FOV для портретних екранів без перспективного завалу
+    if (aspect < 1) {
+        const halfFovRad = THREE.MathUtils.degToRad(BASE_FOV / 2);
+        const adjustedHalfFov = Math.atan(Math.tan(halfFovRad) / Math.max(aspect, 0.62));
+        camera.fov = THREE.MathUtils.radToDeg(adjustedHalfFov) * 2;
+    } else {
+        camera.fov = BASE_FOV;
+    }
+
+    // Піднімаємо куб на 8% вище нижньої панелі керування БЕЗ нахилу камери
+    const verticalShift = Math.round(h * 0.08);
+    camera.setViewOffset(w, h, 0, verticalShift, w, h);
+
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
 }
 
 function applyResize() {
     onWindowResize();
-        }
-        
+}
+
 // ================================================================
 // 6. ALGORITHMS
 // ================================================================
