@@ -549,9 +549,9 @@ function init3D() {
         updateProgress(10, t.init_3d);
 
         scene = new THREE.Scene();
-        // 🔥 ЗМІНЕНО: FOV 45 та нова позиція камери (майже спереду)
-        camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(2.0, 5.0, 20.0);
+        // 🔥 ОРИГІНАЛЬНІ ПАРАМЕТРИ КАМЕРИ
+        camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(6.5, 5.0, 9.5);
 
         updateProgress(40, t.setup_renderer);
         renderer = new THREE.WebGLRenderer({
@@ -571,8 +571,8 @@ function init3D() {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        // 🔥 ЗМІНЕНО: центр трохи вище
-        controls.target.set(0, -0.6, 0);
+        // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
+        controls.target.set(0, -1.2, 0);
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI;
         controls.minDistance = 2.5;
@@ -625,7 +625,7 @@ function init3D() {
         updateProgress(95, t.starting_animation);
         animateLoop();
         
-        // 🔥 ФІКС ДЛЯ AAB: надійна ініціалізація розміру
+        // Фікс для AAB: надійна ініціалізація розміру
         let resizeAttempts = 0;
         function tryResize() {
             applyResize();
@@ -898,8 +898,8 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    // 🔥 ЗМІНЕНО: центр
-    if (controls) controls.target.set(0, -0.6, 0);
+    // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
+    if (controls) controls.target.set(0, -1.2, 0);
     updateResetButtonState();
     updateFaceLabels();
 }
@@ -974,9 +974,10 @@ function switchTheme(themeKey, element) {
     }
 }
 
-const BASE_FOV = 35;  // Зменшуємо, щоб прибрати ефект "нависання"
-const MIN_FOV = 30;   // Теж трохи зменшуємо
-const MAX_FOV = 75;   // Зменшуємо максимум, щоб куб не розтягувався
+// 🔥 ОРИГІНАЛЬНІ КОНСТАНТИ
+const BASE_FOV = 45;
+const MIN_FOV = 38;
+const MAX_FOV = 90;
 let resizeDebounceTimer = null;
 
 function onWindowResize() {
@@ -1013,12 +1014,12 @@ function applyResize() {
   renderer.setPixelRatio(Math.min(dpr, 2)); 
 
   if (controls && controls.target) {
-    // 🔥 ЗМІНЕНО: центр
+    // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
     controls.target.set(0, -0.6, 0); 
     
     const isPortrait = w < h;
-    // 🔥 ЗМІНЕНО: відстань
-    const distance = isPortrait ? 9.0 : 13.0; 
+    // 🔥 ОРИГІНАЛЬНА ВІДСТАНЬ
+    const distance = isPortrait ? 9.5 : 11.5; 
     
     const dir = camera.position.clone().sub(controls.target).normalize();
     camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
