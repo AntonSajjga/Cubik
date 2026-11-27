@@ -896,7 +896,7 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    if (controls) controls.target.set(0, -0.6, 0);
+    if (controls) controls.target.set(0, -0.2, 0);
     updateResetButtonState();
     updateFaceLabels();
 }
@@ -1009,10 +1009,10 @@ function applyResize() {
   renderer.setPixelRatio(Math.min(dpr, 2)); 
 
   if (controls && controls.target) {
-    controls.target.set(0, -0.6, 0); 
+    controls.target.set(0, -0.2, 0); 
     
     const isPortrait = w < h;
-    const distance = isPortrait ? 9.5 : 11.5; 
+    const distance = isPortrait ? 5.5 : 7.5; 
     
     const dir = camera.position.clone().sub(controls.target).normalize();
     camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
@@ -2106,7 +2106,7 @@ async function loadRealAppVersion() {
       CURRENT_APP_BUILD = appInfo.build;
       
       const badge = document.getElementById('current-version-badge');
-      if (badge) badge.textContent = `v${appInfo.version}`;
+      if (badge) badge.textContent = 'v' + appInfo.version;
     }
   } catch (e) {
     console.warn('Версія з Android недоступна, використовуємо вшиту.', e);
@@ -2123,15 +2123,16 @@ async function checkAppVersionUpdate() {
     if (!res.ok) return;
     const data = await res.json();
     
+    const btn = document.getElementById('update-version-btn');
+    if (!btn) return;
+    
     if (data && data.latestVersion && data.latestVersion !== CURRENT_APP_VERSION) {
-      const btn = document.getElementById('update-version-btn');
-      if (btn) {
-        btn.innerHTML = `⬇️ Оновити до v${data.latestVersion}`;
-        btn.style.display = 'inline-block';
-      }
+      // Показуємо кнопку з НОВОЮ версією
+      btn.textContent = 'v' + data.latestVersion;
+      btn.style.display = 'inline-block';
     } else {
-      const btn = document.getElementById('update-version-btn');
-      if (btn) btn.style.display = 'none';
+      // Версії однакові — ховаємо кнопку
+      btn.style.display = 'none';
     }
   } catch (e) {
     console.warn('Не вдалося перевірити оновлення', e);
