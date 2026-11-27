@@ -17,6 +17,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Read version
+        id: ver
+        run: |
+          echo "name=$(node -p "require('./version.json').latestVersion")" >> $GITHUB_OUTPUT
+          echo "code=$(node -p "require('./version.json').versionCode")" >> $GITHUB_OUTPUT
+
       - name: Prepare web files
         run: |
           mkdir -p www
@@ -30,11 +36,10 @@ jobs:
           sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
           sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/g' android/variables.gradle
           sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/g' android/variables.gradle
-          sed -i 's/versionCode 1/versionCode 13/g' android/app/build.gradle
-          sed -i 's/versionName "1.0"/versionName "1.0.5"/g' android/app/build.gradle
-          sed -i 's/dependencies {/dependencies {\n    implementation "com.android.billingclient:billing:8.0.0"/g' android/app/build.gradle
+          sed -i "s/versionCode [0-9]\+/versionCode ${{ steps.ver.outputs.code }}/g" android/app/build.gradle
+          sed -i "s/versionName \".*\"/versionName \"${{ steps.ver.outputs.name }}\"/g" android/app/build.gradle
           cd android
-           cp ../release.keystore release.keystore
+          cp ../release.keystore release.keystore
           ./gradlew bundleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=123456 -Pandroid.injected.signing.key.alias=mykey -Pandroid.injected.signing.key.password=123456
 
       - uses: actions/upload-artifact@v4
@@ -42,4 +47,3 @@ jobs:
           name: release-files
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
-            android/release.keystore
