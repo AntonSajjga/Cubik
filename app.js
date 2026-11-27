@@ -1283,10 +1283,57 @@ function updateProUI() {
     updateAlgorithmList();
 }
 
+async function loadSubscriptionPrices() {
+  const NativePurchases = getNativePurchases();
+  if (!NativePurchases) return;
+
+  try {
+    const productsResult = await NativePurchases.getProducts({
+      productIdentifiers: [SUBSCRIPTION_ID],
+      productType: 'subs'
+    });
+
+    console.log('💰 Отримані ціни для кнопок:', JSON.stringify(productsResult, null, 2));
+    
+    const products = productsResult?.products || productsResult || [];
+    if (!Array.isArray(products) || products.length === 0) {
+        console.warn('Продукти не знайдено');
+        return;
+    }
+
+    const monthly = products.find(p => {
+        const id = (p.planIdentifier || p.basePlanId || p.identifier || '').toLowerCase();
+        return id.includes('monthly');
+    });
+    
+    const yearly = products.find(p => {
+        const id = (p.planIdentifier || p.basePlanId || p.identifier || '').toLowerCase();
+        return id.includes('annual') || id.includes('yearly');
+    });
+
+    if (monthly && monthly.priceString) {
+      const btnM = document.getElementById('btn-buy-monthly');
+      if (btnM) btnM.innerHTML = `📅 Monthly PRO — ${monthly.priceString}`;
+    } else {
+      console.warn('Ціну для monthly не знайдено в об\'єкті:', monthly);
+    }
+
+    if (yearly && yearly.priceString) {
+      const btnY = document.getElementById('btn-buy-yearly');
+      if (btnY) btnY.innerHTML = `👑 Yearly PRO — ${yearly.priceString}`;
+    } else {
+      console.warn('Ціну для yearly не знайдено в об\'єкті:', yearly);
+    }
+
+  } catch (e) {
+    console.warn('Не вдалося підтягнути ціни:', e);
+  }
+}
 // ================================================================
 // 8. MODAL FUNCTIONS
 // ================================================================
 function openActivationModal() {
+    loadSubscriptionPrices(); // <-- ДОДАНО ЦЕЙ РЯДОК
     document.getElementById('pro-modal').style.display = 'flex';
 }
 
