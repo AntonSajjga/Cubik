@@ -898,7 +898,6 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
     if (controls) controls.target.set(0, -1.2, 0);
     updateResetButtonState();
     updateFaceLabels();
@@ -909,8 +908,7 @@ function saveState() {
         historyMoves: historyMoves,
         moveCount: moveCount,
         storedAlgoStr: storedAlgoStr,
-        currentMode: currentMode,
-        hasScrambled: hasScrambled
+        currentMode: currentMode
     }));
 }
 
@@ -954,7 +952,7 @@ function loadSavedStateSync() {
             isRestoring = false;
         }
         lastSolvedState = isCubeSolved();
-        hasScrambled = data.hasScrambled === true;
+        hasScrambled = false;
     } catch (err) {
         isRestoring = false;
     }
@@ -974,60 +972,20 @@ function switchTheme(themeKey, element) {
     }
 }
 
-// 🔥 ОРИГІНАЛЬНІ КОНСТАНТИ
-const BASE_FOV = 45;
-const MIN_FOV = 38;
-const MAX_FOV = 90;
-let resizeDebounceTimer = null;
-
 function onWindowResize() {
-  clearTimeout(resizeDebounceTimer);
-  resizeDebounceTimer = setTimeout(applyResize, 120);
+    const container = document.getElementById('canvas-container');
+    if (!container) return;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
 }
 
 function applyResize() {
-  const container = document.getElementById('canvas-container');
-  if (!container || !renderer || !camera) return;
-
-  const w = container.clientWidth;
-  const h = container.clientHeight;
-  
-  if (w <= 0 || h <= 0) {
-      requestAnimationFrame(applyResize);
-      return;
-  }
-
-  const aspect = w / h;
-  camera.aspect = aspect;
-
-  if (w < h) {
-    const targetFov = BASE_FOV * (1 / Math.pow(aspect, 1.1));
-    camera.fov = Math.max(MIN_FOV, Math.min(MAX_FOV, targetFov));
-  } else {
-    camera.fov = BASE_FOV;
-  }
-
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h, false);
-  
-  const dpr = window.devicePixelRatio || 1;
-  renderer.setPixelRatio(Math.min(dpr, 2)); 
-
-  if (controls && controls.target) {
-    // 🔥 ОРИГІНАЛЬНИЙ ЦЕНТР
-    controls.target.set(0, -0.6, 0); 
-    
-    const isPortrait = w < h;
-    // 🔥 ОРИГІНАЛЬНА ВІДСТАНЬ
-    const distance = isPortrait ? 9.5 : 11.5; 
-    
-    const dir = camera.position.clone().sub(controls.target).normalize();
-    camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
-    controls.update();
-  }
-
-  renderer.render(scene, camera);
-}
+    onWindowResize();
+        }
+        
 // ================================================================
 // 6. ALGORITHMS
 // ================================================================
