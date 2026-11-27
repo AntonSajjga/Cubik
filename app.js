@@ -896,7 +896,7 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    if (controls) controls.target.set(0, -0.2, 0);
+    if (controls) controls.target.set(0, -1.0, 0);
     updateResetButtonState();
     updateFaceLabels();
 }
@@ -1009,10 +1009,10 @@ function applyResize() {
   renderer.setPixelRatio(Math.min(dpr, 2)); 
 
   if (controls && controls.target) {
-    controls.target.set(0, -0.2, 0); 
+    controls.target.set(0, -1.0, 0); 
     
     const isPortrait = w < h;
-    const distance = isPortrait ? 5.5 : 7.5; 
+    const distance = isPortrait ? 6.5 : 8.5; 
     
     const dir = camera.position.clone().sub(controls.target).normalize();
     camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
