@@ -10,12 +10,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Read version
         id: ver
@@ -38,6 +38,8 @@ jobs:
           sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/g' android/variables.gradle
           sed -i "s/versionCode [0-9]\+/versionCode ${{ steps.ver.outputs.code }}/g" android/app/build.gradle
           sed -i "s/versionName \".*\"/versionName \"${{ steps.ver.outputs.name }}\"/g" android/app/build.gradle
+          grep -q 'com.android.vending.BILLING' android/app/src/main/AndroidManifest.xml || sed -i 's|<application|<uses-permission android:name="com.android.vending.BILLING" />\n    <application|' android/app/src/main/AndroidManifest.xml
+          grep -q 'density' android/app/src/main/AndroidManifest.xml || sed -i 's/|navigation"/|navigation|density"/' android/app/src/main/AndroidManifest.xml
           cd android
           cp ../release.keystore release.keystore
           ./gradlew bundleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=123456 -Pandroid.injected.signing.key.alias=mykey -Pandroid.injected.signing.key.password=123456
