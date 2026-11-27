@@ -11,6 +11,9 @@
       "overlaysWebView": false,
       "backgroundColor": "#529689",
       "style": "LIGHT"
+    },
+    "NativePurchases": {
+      "googlePlayPublicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAroBLlAoRWydkzhEX9JY8O0HAq6oeHnSNalidLq6HmJv5mJKzR+y6ryCS1aKDpj/1Whc5x4EFpszofdIiIzwiw5qQ0AJ9fIddCJI2t0InUo850y9Vg0P0zm45i/PAJ1J6X8UhvOTIOmAabgFo8j5AqDwro0xzvw6NEDpU2kuqpyi5CK57um64N6rlhGhncIbU15BNbpXn/5Oy7oeJDH1HLLIfP2k8RSDvNBA/VETTzUsVl1sU+BUsyYqJmRfNnKDDOZ92jfennVozh7I77KwkrEsb1hr++FAOaym5fD4M07ORpYjxITj5GEdHagAdRfAKgVx7GQOzaJc+GriwrtmcZwIDAQAB"
     }
   }
 }
