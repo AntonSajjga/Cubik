@@ -549,8 +549,9 @@ function init3D() {
         updateProgress(10, t.init_3d);
 
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(8.5, 6.0, 13.0);
+        // 🔥 ЗМІНЕНО: FOV 45 та нова позиція камери (майже спереду)
+        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(2.0, 1.5, 14.0);
 
         updateProgress(40, t.setup_renderer);
         renderer = new THREE.WebGLRenderer({
@@ -570,7 +571,8 @@ function init3D() {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        controls.target.set(0, -0.5, 0);
+        // 🔥 ЗМІНЕНО: центр трохи вище
+        controls.target.set(0, -0.6, 0);
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI;
         controls.minDistance = 2.5;
@@ -896,7 +898,8 @@ function triggerReset() {
     document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('selected'));
     buildCube();
     lastSolvedState = true;
-    if (controls) controls.target.set(0, -1.0, 0);
+    // 🔥 ЗМІНЕНО: центр
+    if (controls) controls.target.set(0, -0.6, 0);
     updateResetButtonState();
     updateFaceLabels();
 }
@@ -970,6 +973,7 @@ function switchTheme(themeKey, element) {
         renderer.render(scene, camera);
     }
 }
+
 const BASE_FOV = 45;
 const MIN_FOV = 38;
 const MAX_FOV = 90;
@@ -1009,10 +1013,12 @@ function applyResize() {
   renderer.setPixelRatio(Math.min(dpr, 2)); 
 
   if (controls && controls.target) {
-    controls.target.set(0, -1.0, 0); 
+    // 🔥 ЗМІНЕНО: центр
+    controls.target.set(0, -0.6, 0); 
     
     const isPortrait = w < h;
-    const distance = isPortrait ? 6.5 : 8.5; 
+    // 🔥 ЗМІНЕНО: відстань
+    const distance = isPortrait ? 11.5 : 13.0; 
     
     const dir = camera.position.clone().sub(controls.target).normalize();
     camera.position.copy(controls.target).add(dir.multiplyScalar(distance));
